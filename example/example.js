@@ -12,15 +12,15 @@
     var div2 = document.getElementById("div2");
     var div3 = document.getElementById("div3");
     var body = document.body;
-    var s4 = swoosh_1.default(body, {
+    var s4 = swoosh_1["default"](body, {
         elasticEgdes: {
             left: 0,
             right: 0,
             top: 50,
-            bottom: 50,
+            bottom: 50
         }
     });
-    var s1 = swoosh_1.default(div1, {
+    var s1 = swoosh_1["default"](div1, {
         grid: 50,
         callback: function (e) {
             console.log('inside the options callback, obj-instance: ', this, 'event: ', e);
@@ -42,14 +42,14 @@
         console.log('inside 2nd callback (collideBottom event): instance: ', this, 'event: ', e);
         return true;
     });
-    var s2 = swoosh_1.default(div2, {
+    var s2 = swoosh_1["default"](div2, {
         elasticEgdes: {
             left: 100,
             right: 100,
             top: 200,
-            bottom: 200,
+            bottom: 200
         }
     });
-    var s3 = swoosh_1.default(div3, {});
+    var s3 = swoosh_1["default"](div3, {});
 });
 //# sourceMappingURL=example.js.map

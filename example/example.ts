@@ -45,5 +45,6 @@ var s2 = swoosh(div2, {
     bottom:200,
   }
 });
+
 var s3 = swoosh(div3, {});
 
