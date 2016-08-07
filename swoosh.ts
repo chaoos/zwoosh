@@ -32,6 +32,46 @@ if (!Function.prototype.bind) {
   };
 }
 
+/**
+ * Polyfill array.indexOf function for older browsers
+ * The indexOf() function was added to the ECMA-262 standard in the 5th edition
+ * as such it may not be present in all browsers.
+ * See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf
+ */
+if (!Array.prototype.indexOf) {
+  Array.prototype.indexOf = function(searchElement, fromIndex) {
+    var k;
+    if (this == null) {
+      throw new TypeError('"this" is null or not defined');
+    }
+
+    var o = Object(this);
+    var len = o.length >>> 0;
+    if (len === 0) {
+      return -1;
+    }
+
+    var n = +fromIndex || 0;
+    if (Math.abs(n) === Infinity) {
+      n = 0;
+    }
+
+    if (n >= len) {
+      return -1;
+    }
+
+    k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
+    while (k < len) {
+      if (k in o && o[k] === searchElement) {
+        return k;
+      }
+      k++;
+    }
+    return -1;
+  };
+}
+
+
 /* list of real events */
 var htmlEvents = {
   /* <body> and <frameset> Events */
@@ -71,6 +111,18 @@ interface elasticEgdes {
 interface Options {
   grid?: number;
   elasticEgdes?: elasticEgdes;
+  dragScroll?: boolean;
+  dragOptions?: {
+    exclude: Array<string>;
+    only: Array<string>;
+  };
+  wheelScroll?: boolean; 
+  wheelOptions?: {
+    direction: string;
+    step: number;
+  };
+  wheelScrollDirection?: string;
+  wheelScrollStep?: number;
   callback?: (e: any) => any;
 }
 
@@ -85,28 +137,50 @@ export default function (container: HTMLElement, options: Options) {
 
   class Swoosh {
     public inner: HTMLElement;
+
+    /* scroll */
     public scrollElement: HTMLElement;
     public originScrollLeft: number;
     public originScrollTop: number;
+    private scrollMaxLeft: number;
+    private scrollMaxTop: number;
+
+    /* drag */
     public dragOriginTop: number;
     public dragOriginLeft: number;
     public dragOriginScrollLeft: number;
     public dragOriginScrollTop: number;
     public parentOriginStyle: string;
+
+    /* resize */
     public oldClientWidth: number;
     public oldClientHeight: number;
     public resizeTimeout: any;
 
     /* CSS style classes */
-    public classInner: string = 'inner';
-    public classOuter: string = 'outer';
-    public classGrabbing: string = 'grabbing';
+    public classInner: string = 'sw-inner';
+    public classOuter: string = 'sw-outer';
+    public classGrab: string = 'sw-grab';
+    public classGrabbing: string = 'sw-grabbing';
 
     /* mouse event handlers */
     private mouseMoveHandler: (e: MouseEvent) => void;
     private mouseUpHandler: (e: MouseEvent) => void;
     private mouseDownHandler: (e: MouseEvent) => void;
+    private mouseWheelHandler: (e: MouseWheelEvent) => void;
+    private scrollHandler: (e: Event) => void;
+
     private resizeHandler: (e: Event) => void;
+
+    /* array holding the custom events mapping callbacks to bound callbacks */
+    private customEvents: Array<Array<Array<(e: Event) => void>>> = [];
+
+    private triggered = {
+      collideLeft: false,
+      collideTop: false,
+      collideRight: false,
+      collideBottom: false
+    };
 
     constructor(
       private container: HTMLElement,
@@ -116,13 +190,23 @@ export default function (container: HTMLElement, options: Options) {
 
       /* set default options */
       this.options = {
-        grid: 1, //do not align to a grid
+        grid: 1, /* do not align to a grid */
         elasticEgdes: {
           left: 50,
           right: 50,
           top: 50,
           bottom: 50,
         },
+        dragScroll: true, //TODO: at manual scroll (click, or wheel in body), events don't trigger
+        dragOptions: {
+          exclude: ['input', 'textarea', 'select', '.ignore', '#ignore'], //TODO: allow complex css selectors
+          only: [],
+        },
+        wheelScroll: true,
+        wheelOptions: {
+          direction: 'vertical', //TODO: body horizontal scrolling
+          step: 114,
+        },        
         callback: this.always
       };
 
@@ -131,11 +215,11 @@ export default function (container: HTMLElement, options: Options) {
         if (options.hasOwnProperty(key)) this.options[key] = options[key];
       }
 
-      this.container.className += " outer";
+      this.container.className += " " + this.classOuter + " ";
 
       /* create inner div element and append it to the container with its contents in it */
       this.inner = document.createElement("div");
-      this.inner.className += " " + this.classInner;
+      this.inner.className += " " + this.classInner + " ";
 
       /* move all childNodes to the new inner element */
       while (this.container.childNodes.length > 0) {
@@ -158,21 +242,153 @@ export default function (container: HTMLElement, options: Options) {
 
       this.scrollTo(this.options.elasticEgdes.left, this.options.elasticEgdes.top);
 
-      /*this.container.addEventListener('wheel', function(e){
-        console.log('scroll: ', e);
-        if (e.preventDefault)
-            e.preventDefault();
-        e.returnValue = false;
-      });*/
+      if (this.options.wheelScroll == false) {
+        this.mouseWheelHandler = (e) => this.disableMouseScroll(e);
+        this.scrollElement.onmousewheel = this.mouseWheelHandler;
+        this.addEventListener(this.scrollElement, 'wheel', this.mouseWheelHandler);
+      } else if (this.options.wheelScroll == true && this.container.tagName != "BODY") {
+        this.mouseWheelHandler = (e) => this.activeMouseScroll(e);
+        this.scrollElement.onmousewheel = this.mouseWheelHandler;
+        this.addEventListener(this.scrollElement, 'wheel', this.mouseWheelHandler);
+      }
 
       /* if the scroll element is body, adjust the inner div when resizing */
       if(this.container.tagName == "BODY"){
-        this.resizeHandler = (e) => this.resize(e);
+        this.resizeHandler = (e) => this.onResize(e);
         window.onresize = this.resizeHandler;
       }
 
-      this.mouseDownHandler = (e) => this.mouseDown(e);
-      this.addEventListener(this.inner, 'mousedown', this.mouseDownHandler);
+      this.scrollHandler = (e) => this.onScroll(e);
+      //this.addEventListener(this.scrollElement, 'scroll', this.scrollHandler);
+      this.scrollElement.onscroll = this.scrollHandler;
+
+      if (this.options.dragScroll == true) {
+        this.container.className += " " + this.classGrab + " ";
+        this.mouseDownHandler = (e) => this.mouseDown(e);
+        this.addEventListener(this.inner, 'mousedown', this.mouseDownHandler);
+      }
+    }
+
+    /**
+     * Disables the scroll wheel of the mouse
+     * 
+     * @param {MouseWheelEvent} e - the mouse wheel event
+     * @return {void}
+     */
+    private disableMouseScroll (e: MouseWheelEvent) {
+      if (!e) { e = (<any>window.event); }
+      e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+      e.returnValue = false;
+    }
+
+    /**
+     * Enables the scroll wheel of the mouse, specially for div withour scrollbar
+     * 
+     * @param {MouseWheelEvent} e - the mouse wheel event
+     * @return {void}
+     */
+    private activeMouseScroll (e: MouseWheelEvent) {
+
+      if (!e) { e = (<any>window.event); }
+
+      if (this.elementBehindCursorIsMe(e.clientX, e.clientY)) {
+        var direction: string;
+
+        if ("deltaY" in e) {
+          direction = (<any>e).deltaY > 0 ? 'down' : 'up'
+        } else if ("wheelDelta" in e) {
+          direction = e.wheelDelta > 0 ? 'up' : 'down'
+        } else {
+          return;
+        }
+        
+        var x = this.scrollElement.scrollLeft;
+        var y = this.scrollElement.scrollTop;
+
+        if (this.options.wheelOptions.direction == 'horizontal') {
+          x = this.scrollElement.scrollLeft + (direction == 'down' ? this.options.wheelOptions.step : this.options.wheelOptions.step*-1);
+        } else if (this.options.wheelOptions.direction == 'vertical') {
+          y = this.scrollElement.scrollTop + (direction == 'down' ? this.options.wheelOptions.step : this.options.wheelOptions.step*-1);
+        }
+
+        this.scrollTo(x, y);
+      }
+    }
+
+    /**
+     * Disables the scroll wheel of the mouse
+     * 
+     * @param {number} x - the x-coordinates
+     * @param {number} y - the y-coordinates
+     * @return {boolean} - whether the nearest related parent inner element is the one of this object instance
+     */
+    private elementBehindCursorIsMe (x: number, y: number) {
+      var elementBehindCursor = <HTMLElement>document.elementFromPoint(x, y);
+
+      /**
+       * If the element directly behind the cursor is an outer element throw out, because when clicking on a scrollbar
+       * from a div, a drag of the parent Swoosh element is initiated.
+       */
+      var outerRe = new RegExp(" " + this.classOuter + " ");
+      if (elementBehindCursor.className.match(outerRe)) {
+        return false;
+      }
+
+      /* find the next parent which is an inner element */
+      var innerRe = new RegExp(" " + this.classInner + " ");
+      while (elementBehindCursor && !elementBehindCursor.className.match(innerRe)) {
+        elementBehindCursor = elementBehindCursor.parentElement;
+      }
+      return this.inner == elementBehindCursor;
+    }
+
+    /**
+     * Scroll handler to trigger the custom events
+     *
+     * @param {Event} e - The scroll event object (TODO: needed?)
+     * @throws Event collideLeft
+     * @throws Event collideRight
+     * @throws Event collideTop
+     * @throws Event collideBottom
+     * @return {void}     
+     */
+    private onScroll (e: Event) {
+
+      var x = this.scrollElement.scrollLeft;
+      var y = this.scrollElement.scrollTop;
+
+      // the collideLeft event
+      if (x == 0) {
+        this.triggered.collideLeft ? null : this.triggerEvent(this.inner, 'collideLeft');
+        this.triggered.collideLeft = true;
+      } else {
+        this.triggered.collideLeft = false;
+      }
+
+      // the collideTop event
+      if (y == 0) {
+        this.triggered.collideTop ? null : this.triggerEvent(this.inner, 'collideTop');
+        this.triggered.collideTop = true;
+      } else {
+        this.triggered.collideTop = false;
+      }
+
+      // the collideRight event
+      if (x == this.scrollMaxLeft) {
+        this.triggered.collideRight ? null : this.triggerEvent(this.inner, 'collideRight');
+        this.triggered.collideRight = true;
+      } else {
+        this.triggered.collideRight = false;
+      }        
+
+      // the collideBottom event
+      if (y == this.scrollMaxTop) {
+        this.triggered.collideBottom ? null : this.triggerEvent(this.inner, 'collideBottom');
+        this.triggered.collideBottom = true;
+      } else {
+        this.triggered.collideBottom = false;
+      }     
+
     }
 
     /**
@@ -181,7 +397,7 @@ export default function (container: HTMLElement, options: Options) {
      * @param {Event} e - The window resize event object (TODO: needed?)
      * @return {void}
      */
-    private resize (e) {
+    private onResize (e: Event) {
 
       var onResize = () => {
         this.inner.style.minWidth = null;
@@ -209,7 +425,6 @@ export default function (container: HTMLElement, options: Options) {
       this.oldClientHeight = document.documentElement.clientHeight;
     }
 
-    /* browser independent event registration */
     /**
      * Browser independent event registration
      * 
@@ -220,22 +435,26 @@ export default function (container: HTMLElement, options: Options) {
      */     
     private addEventListener (obj: any, event: string, callback: (e: Event) => void) {
 
+      var boundCallback = callback.bind(this);
+
       if (typeof obj.addEventListener == 'function') {
-        obj.addEventListener(event, callback);
+        obj.addEventListener(event, boundCallback);
       } else if (typeof (<any>obj).attachEvent == 'object' && htmlEvents['on' + event]) { //MSIE: real events (e.g. 'click')
-        (<any>obj).attachEvent('on' + event, callback);
+        (<any>obj).attachEvent('on' + event, boundCallback);
       } else if (typeof (<any>obj).attachEvent == 'object') { //MSIE: custom event workaround
-        document.documentElement[event] = 1;
-        (<any>document.documentElement).attachEvent('onpropertychange', (e) => {
-          if (e.propertyName == event) {
-            /* TODO: e is the onpropertychange event not one of the custom event objects */
-            /* TODO: only every Swoosh element raises the same collideLeft event */
-            callback(e);
-          }
-        });
+        obj[event] = 1;
+        boundCallback = (e) => {
+          /* TODO: e is the onpropertychange event not one of the custom event objects */
+          if (e.propertyName == event) { callback(e); }
+        };
+        (<any>obj).attachEvent('onpropertychange', boundCallback);
       } else {
-        obj['on' + event] = callback;
+        obj['on' + event] = boundCallback;
       }
+
+      this.customEvents[event] ? null : (this.customEvents[event] = []);
+      this.customEvents[event].push([callback, boundCallback]);
+
     }
 
     /**
@@ -247,10 +466,25 @@ export default function (container: HTMLElement, options: Options) {
      * @return {void}
      */    
     private removeEventListener (obj: HTMLElement, event: string, callback: (e: Event) => void) {
+
+      if (event in this.customEvents) {
+        for (let i in this.customEvents[event]) {
+          /* if the event was found in the array by its callback reference */
+          if (this.customEvents[event][i][0] == callback) {
+            /* remove the listener from the array by its bound callback reference */
+            callback = this.customEvents[event][i][1];
+            this.customEvents[event].splice(i, 1);
+            break;
+          }
+        }
+      }
+
       if (typeof obj.removeEventListener == 'function') {
         obj.removeEventListener(event, callback);
-      } else if (typeof (<any>obj).detachEvent == 'object') {
+      } else if (typeof (<any>obj).detachEvent == 'object' && htmlEvents['on' + event]) { //MSIE: real events (e.g. 'click')
         (<any>obj).detachEvent('on' + event, callback);
+      } else if (typeof (<any>obj).detachEvent == 'object') { //MSIE: custom event workaround
+        (<any>obj).detachEvent('onpropertychange', callback);
       } else {
         obj['on' + event] = null;
       }
@@ -279,8 +513,8 @@ export default function (container: HTMLElement, options: Options) {
       (<any>event).eventName = eventName;
       if (obj.dispatchEvent) {
         obj.dispatchEvent(event);
-      } else if (document.documentElement[eventName]) { //MSIE: custom events
-        document.documentElement[eventName]++;
+      } else if (obj[eventName]) { //MSIE: custom events        
+        obj[eventName]++;
       } else if ((<any>obj).fireEvent && htmlEvents['on' + eventName]) { //MSIE: only real events
         (<any>obj).fireEvent('on' + (<any>event).eventType, event);
       } else if (obj[eventName]) {
@@ -292,7 +526,7 @@ export default function (container: HTMLElement, options: Options) {
     }
 
     /**
-     * Get a css style value browser independent
+     * Get a css style property value browser independent
      * 
      * @param {HTMLElement} el - The HTMLElement to lookup
      * @param {string} jsProperty - The css property name in javascript in camelCase (e.g. "marginLeft", not "margin-left")
@@ -315,34 +549,65 @@ export default function (container: HTMLElement, options: Options) {
      * @return {void}
      */
     private mouseDown (e: MouseEvent): void {
-      var elementBehindCursor = <HTMLElement>document.elementFromPoint(e.clientX, e.clientY);
-      
-      /* find the next parent which is an inner element */
-      var re = new RegExp(" " + this.classInner);
-      while (elementBehindCursor && !elementBehindCursor.className.match(re)) {
-        elementBehindCursor = elementBehindCursor.parentElement;
-      }
 
-      if (this.inner == elementBehindCursor) {
-        this.inner.className += ' ' + this.classGrabbing;
+      /* drag only if the left mouse button was pressed */
+      if (("which" in e && e.which == 1) || (typeof e.which == 'undefined' && "button" in e && e.button == 1)) {
 
-        /* note the origin positions */
-        this.dragOriginLeft = e.clientX;
-        this.dragOriginTop = e.clientY;
-        this.dragOriginScrollLeft = this.scrollElement.scrollLeft;
-        this.dragOriginScrollTop = this.scrollElement.scrollTop;
+        /* drag only if the mouse clicked on an allowed element */
+        var el = <HTMLElement>document.elementFromPoint(e.clientX, e.clientY);
+        var tag = el.tagName.toLowerCase();
 
-        /* it looks strane if scroll-behavior is set to smooth */
-        this.parentOriginStyle = this.inner.parentElement.style.cssText;
-        if (typeof this.inner.parentElement.style.setProperty == 'function') {
-          this.inner.parentElement.style.setProperty('scroll-behavior', 'auto');
+        if (this.elementBehindCursorIsMe(e.clientX, e.clientY)) {
+
+          /* search the DOM for exclude elements */
+          var excludeElements = this.container.querySelectorAll(this.options.dragOptions.exclude.join(', '));
+
+          /* loop through the nodelist and check for our element */
+          for (var i = 0; i < excludeElements.length; i++) {
+            if (excludeElements[i] == el) {
+              return;
+            }
+          }
+
+          /* search the DOM for only elements, but only if there are elements set */
+          if (this.options.dragOptions.only.length != 0){
+            var onlyElements = this.container.querySelectorAll(this.options.dragOptions.only.join(', '));
+            /* loop through the nodelist and check for our element */
+            var found = false;
+            for (var i = 0; i < excludeElements.length; i++) {
+              if (onlyElements[i] == el) {
+                found = true;
+                break;
+              }
+            }
+            if (found == false) {
+              return;
+            }
+          }
+
+          this.inner.className += " " + this.classGrabbing + " ";
+
+          /* note the origin positions */
+          this.dragOriginLeft = e.clientX;
+          this.dragOriginTop = e.clientY;
+          this.dragOriginScrollLeft = this.scrollElement.scrollLeft;
+          this.dragOriginScrollTop = this.scrollElement.scrollTop;
+
+          /* it looks strane if scroll-behavior is set to smooth */
+          this.parentOriginStyle = this.inner.parentElement.style.cssText;
+          if (typeof this.inner.parentElement.style.setProperty == 'function') {
+            this.inner.parentElement.style.setProperty('scroll-behavior', 'auto');
+          }
+
+          this.mouseMoveHandler = this.mouseMove.bind(this)
+          this.addEventListener(document.documentElement, 'mousemove', this.mouseMoveHandler);
+
+          this.mouseUpHandler = (e) => this.mouseUp(e);
+          this.addEventListener(document.documentElement, 'mouseup', this.mouseUpHandler);
+
+          /* TODO: MSIE text selection disable */
+          //this.addEventListener(this.inner, 'selectstart', function(){return false;});
         }
-
-        this.mouseMoveHandler = this.mouseMove.bind(this)
-        this.addEventListener(document.documentElement, 'mousemove', this.mouseMoveHandler);
-
-        this.mouseUpHandler = (e) => this.mouseUp(e);
-        this.addEventListener(document.documentElement, 'mouseup', this.mouseUpHandler);
       }
     }
 
@@ -358,12 +623,12 @@ export default function (container: HTMLElement, options: Options) {
       var x = Math.round((this.dragOriginLeft + this.dragOriginScrollLeft - e.clientX) / this.options.grid) * this.options.grid
       var y = Math.round((this.dragOriginTop + this.dragOriginScrollTop - e.clientY) / this.options.grid) * this.options.grid;
 
-      var scrollMaxLeft = (this.scrollElement.scrollWidth - this.scrollElement.clientWidth) - this.options.elasticEgdes.left;
-      var scrollMaxTop = (this.scrollElement.scrollHeight - this.scrollElement.clientHeight) - this.options.elasticEgdes.top;
-      x = (x > scrollMaxLeft) ? scrollMaxLeft : (x < this.options.elasticEgdes.left) ? this.options.elasticEgdes.left : x;
-      y = (y > scrollMaxTop) ? scrollMaxTop : (y < this.options.elasticEgdes.top) ? this.options.elasticEgdes.top : y;
+      this.scrollMaxLeft = (this.scrollElement.scrollWidth - this.scrollElement.clientWidth) - this.options.elasticEgdes.left;
+      this.scrollMaxTop = (this.scrollElement.scrollHeight - this.scrollElement.clientHeight) - this.options.elasticEgdes.top;
+      x = (x > this.scrollMaxLeft) ? this.scrollMaxLeft : (x < this.options.elasticEgdes.left) ? this.options.elasticEgdes.left : x;
+      y = (y > this.scrollMaxTop) ? this.scrollMaxTop : (y < this.options.elasticEgdes.top) ? this.options.elasticEgdes.top : y;
 
-      var re = new RegExp(" " + this.classGrabbing);
+      var re = new RegExp(" " + this.classGrabbing + " ");
       this.inner.className = this.inner.className.replace(re,'');
       this.inner.parentElement.style.cssText = this.parentOriginStyle;
 
@@ -381,6 +646,12 @@ export default function (container: HTMLElement, options: Options) {
      * @return {void}
      */
     private mouseMove (e: MouseEvent): void {
+
+      /* if the mouse left the window and the button is not pressed anymore, abort moving */
+      if ((e.buttons == 0 && e.button == 0) || (typeof e.buttons == 'undefined' && e.button == 0)) {
+        this.mouseUp(e);
+        return;
+      }
       var x = this.dragOriginLeft + this.dragOriginScrollLeft - e.clientX;
       var y = this.dragOriginTop + this.dragOriginScrollTop - e.clientY;
 
@@ -388,24 +659,20 @@ export default function (container: HTMLElement, options: Options) {
     }
 
     /**
-     * scroll helper method
+     * scrollTo helper method
      *
      * @param {number} x - x-coordinate to scroll to
      * @param {number} y - y-coordinate to scroll to
-     * @throws Event collideLeft
-     * @throws Event collideRight
-     * @throws Event collideTop
-     * @throws Event collideBottom
      * @return {void}
      */
     private scrollTo (x: number, y: number) {
 
-      var scrollMaxLeft = (this.scrollElement.scrollWidth - this.scrollElement.clientWidth);
-      var scrollMaxTop = (this.scrollElement.scrollHeight - this.scrollElement.clientHeight);
+      this.scrollMaxLeft = (this.scrollElement.scrollWidth - this.scrollElement.clientWidth);
+      this.scrollMaxTop = (this.scrollElement.scrollHeight - this.scrollElement.clientHeight);
 
       /* no negative values or greater than the maximum */
-      var x = (x > scrollMaxLeft) ? scrollMaxLeft : (x < 0) ? 0 : x;
-      var y = (y > scrollMaxTop) ? scrollMaxTop : (y < 0) ? 0 : y;
+      var x = (x > this.scrollMaxLeft) ? this.scrollMaxLeft : (x < 0) ? 0 : x;
+      var y = (y > this.scrollMaxTop) ? this.scrollMaxTop : (y < 0) ? 0 : y;
 
       /* remember the old values */
       this.originScrollLeft = this.scrollElement.scrollLeft;
@@ -418,26 +685,6 @@ export default function (container: HTMLElement, options: Options) {
         this.scrollElement.scrollTop = y;
         this.scrollElement.scrollLeft = x;        
       }
-
-      /* the collideLeft event */
-      if (x == 0 && this.originScrollLeft != x) {
-        this.triggerEvent(this.inner, 'collideLeft');
-      }
-
-      /* the collideTop event */
-      if (y == 0 && this.originScrollTop != y) {
-        this.triggerEvent(this.inner, 'collideTop');
-      }
-
-      /* the collideRight event */
-      if (x == scrollMaxLeft && this.originScrollLeft != x) {
-        this.triggerEvent(this.inner, 'collideRight');
-      }
-
-      /* the collideBottom event */
-      if (y == scrollMaxTop && this.originScrollTop != y) {
-        this.triggerEvent(this.inner, 'collideBottom');
-      }
     }
 
     /**
@@ -448,7 +695,19 @@ export default function (container: HTMLElement, options: Options) {
      * @return {Swoosh} - The Swoosh object instance
      */
     public on (event: string, callback: (e: Event) => any): Swoosh {
-      this.addEventListener(this.inner, event, callback.bind(this));
+      this.addEventListener(this.inner, event, callback);
+      return this;
+    }
+
+    /**
+     * Deregister custom event callbacks
+     *
+     * @param {string} event - The event name
+     * @param {(e: Event) => any} callback - A callback function to execute when the event raises
+     * @return {Swoosh} - The Swoosh object instance
+     */
+    public off (event: string, callback: (e: Event) => any): Swoosh {
+      this.removeEventListener(this.inner, event, callback);
       return this;
     }
 

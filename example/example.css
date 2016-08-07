@@ -1,0 +1,13 @@
+.sw-outer {
+  scroll-behavior: smooth;
+}
+.sw-grab {
+  cursor: url("grab.cur"), grab;
+}
+.sw-grabbing {
+  cursor: url("grabbing.cur"), grabbing;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
