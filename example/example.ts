@@ -1,63 +1,58 @@
 import swoosh from '../swoosh'
 
-var div1 = document.getElementById("div1");
 var div2 = document.getElementById("div2");
 var div3 = document.getElementById("div3");
 var body = document.body;
 
-var s4 = swoosh(body, {
+var s6 = swoosh(body, {
   elasticEgdes: {
     left: 0,
     right: 0,
-    top: 50,
-    bottom: 50,
   },
-  wheelScroll: false,
 });
 
-var callback = function(e){
-  console.log('inside first callback (collideTop event): instance: ', this, 'event: ', e);
-  return true;
+swoosh(document.getElementById("ex1_div"));
+
+var ex3_log = document.getElementById("ex3_log");
+var s3 = null;
+
+document.getElementById("ex3_toogle").onclick = () => {
+  if (s3 == null) {
+    s3 = swoosh(document.getElementById("ex3_div"), {
+      elasticEgdes: {
+        left:50,
+        right:50,
+        top:50,
+        bottom:50,
+      },
+      })
+      .on('collideLeft', function(e){
+        ex3_log.innerHTML += "collideLeft Event triggered<br>"
+      })
+      .on('collideTop', function(e){
+        ex3_log.innerHTML += "collideTop Event triggered<br>"
+      })
+      .on('collideRight', function(e){
+        ex3_log.innerHTML += "collideRight Event triggered<br>"
+      })
+      .on('collideBottom', function(e){
+        ex3_log.innerHTML += "collideBottom Event triggered<br>"
+      });
+    } else {
+      s3.destroy();
+      s3 = null;
+    }
 };
 
-var s1 = swoosh(div1, {
-  grid: 50,
-  callback: function(e){
-    console.log('inside the options callback, obj-instance: ', this, 'event: ', e);
-    return true;
-  }})
-  .on('collideLeft', function(e){
-    console.log('inside callback (collideLeft event): instance: ', this, 'event: ', e);
-    return true;
-  })
-  .on('collideTop', callback)
-  .on('collideTop', function(e){
-    console.log('collideTop 2nd callback): instance: ', this, 'event: ', e);
-    return true;
-  })
-  .on('collideRight', function(e){
-    console.log('inside callback (collideRight event): instance: ', this, 'event: ', e);
-    return true;
-  })
-  .on('collideBottom', function(e){
-    console.log('inside callback (collideBottom event): instance: ', this, 'event: ', e);
-    return true;
-  })
-  .on('dblclick', function(e){
-    console.log('DOUBLECLICK: instance: ', this, 'event: ', e);
-    return true;
-  })  
-  .off('collideTop', callback);
-
-var s2 = swoosh(div2, {
-    elasticEgdes: {
+var s4 = swoosh(div2, {
+  elasticEgdes: {
     left:100,
     right:100,
     top:200,
     bottom:200,
   },
-  wheelOptions: { direction: 'horizontal', step: 114 },
+  wheelOptions: { direction: 'horizontal' },
 });
 
-var s3 = swoosh(div3, {});
+var s5 = swoosh(div3, {});
 

@@ -11,3 +11,6 @@
   -ms-user-select: none;
   user-select: none;
 }
+.container {
+  width: 880px;
+}

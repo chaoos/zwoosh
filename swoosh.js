@@ -101,9 +101,9 @@
      * @return {Swoosh} - Swoosh object instance
      */
     function default_1(container, options) {
+        if (options === void 0) { options = {}; }
         var Swoosh = (function () {
             function Swoosh(container, options) {
-                var _this = this;
                 this.container = container;
                 this.options = options;
                 /* CSS style classes */
@@ -124,14 +124,14 @@
                 this.options = {
                     grid: 1,
                     elasticEgdes: {
-                        left: 50,
-                        right: 50,
-                        top: 50,
-                        bottom: 50
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        bottom: 0
                     },
                     dragScroll: true,
                     dragOptions: {
-                        exclude: ['input', 'textarea', 'select', '.ignore', '#ignore'],
+                        exclude: ['input', 'textarea', 'a', 'button', '.sw-ignore'],
                         only: []
                     },
                     wheelScroll: true,
@@ -141,12 +141,33 @@
                     },
                     callback: this.always
                 };
-                /* merge the two option objects */
+                /* merge the default option objects with the provided one */
                 for (var key in options) {
-                    if (options.hasOwnProperty(key))
-                        this.options[key] = options[key];
+                    if (options.hasOwnProperty(key)) {
+                        if (typeof options[key] == 'object') {
+                            for (var okey in options[key]) {
+                                if (options[key].hasOwnProperty(okey))
+                                    this.options[key][okey] = options[key][okey];
+                            }
+                        }
+                        else {
+                            this.options[key] = options[key];
+                        }
+                    }
                 }
+                this.init();
+            }
+            /**
+             * Initialize DOM manipulations and event handlers
+             *
+             * @return {void}
+             */
+            Swoosh.prototype.init = function () {
+                var _this = this;
                 this.container.className += " " + this.classOuter + " ";
+                this.scrollElement = this.container.tagName == "BODY" ? document.documentElement : this.container;
+                var x = this.scrollElement.scrollLeft + this.options.elasticEgdes.left;
+                var y = this.scrollElement.scrollTop + this.options.elasticEgdes.top;
                 /* create inner div element and append it to the container with its contents in it */
                 this.inner = document.createElement("div");
                 this.inner.className += " " + this.classInner + " ";
@@ -155,16 +176,17 @@
                     this.inner.appendChild(this.container.childNodes[0]);
                 }
                 this.container.appendChild(this.inner);
-                this.scrollElement = this.container.tagName == "BODY" ? document.documentElement : this.container;
-                this.inner.style.minWidth = this.container.scrollWidth + 'px';
-                this.inner.style.minHeight = this.container.scrollHeight + 'px';
+                this.inner.style.minWidth = (this.container.scrollWidth - this.getBorderWidth(this.container)) + 'px';
+                this.inner.style.minHeight = (this.container.scrollHeight - this.getBorderWidth(this.container)) + 'px';
                 this.oldClientWidth = document.documentElement.clientWidth;
                 this.oldClientHeight = document.documentElement.clientHeight;
                 this.inner.style.paddingLeft = this.options.elasticEgdes.left + 'px';
                 this.inner.style.paddingRight = this.options.elasticEgdes.right + 'px';
                 this.inner.style.paddingTop = this.options.elasticEgdes.top + 'px';
                 this.inner.style.paddingBottom = this.options.elasticEgdes.bottom + 'px';
-                this.scrollTo(this.options.elasticEgdes.left, this.options.elasticEgdes.top);
+                this.scrollTo(x, y);
+                /* Event handler registration starts here */
+                /* TODO: not 2 different event handlers registrations -> do it in this.addEventListener() */
                 if (this.options.wheelScroll == false) {
                     this.mouseWheelHandler = function (e) { return _this.disableMouseScroll(e); };
                     this.scrollElement.onmousewheel = this.mouseWheelHandler;
@@ -177,18 +199,60 @@
                 }
                 /* if the scroll element is body, adjust the inner div when resizing */
                 if (this.container.tagName == "BODY") {
-                    this.resizeHandler = function (e) { return _this.onResize(e); };
+                    this.resizeHandler = function (e) { return _this.onResize(e); }; //TODO: same as above in the wheel handler
                     window.onresize = this.resizeHandler;
                 }
                 this.scrollHandler = function (e) { return _this.onScroll(e); };
                 //this.addEventListener(this.scrollElement, 'scroll', this.scrollHandler);
-                this.scrollElement.onscroll = this.scrollHandler;
+                this.scrollElement.onscroll = this.scrollHandler; //TODO: same as above in the wheel handler
                 if (this.options.dragScroll == true) {
                     this.container.className += " " + this.classGrab + " ";
                     this.mouseDownHandler = function (e) { return _this.mouseDown(e); };
                     this.addEventListener(this.inner, 'mousedown', this.mouseDownHandler);
                 }
-            }
+            };
+            /**
+             * Get compute pixel number of the whole width of an elements border
+             *
+             * @param {HTMLElement} - the HTML element
+             * @return {number} - the amount of pixels
+             */
+            Swoosh.prototype.getBorderWidth = function (el) {
+                var bl = this.getStyle(el, 'borderLeftWidth');
+                bl = bl == 'thin' ? 1 : bl == 'medium' ? 3 : bl == 'thick' ? 5 : parseInt(bl, 10) != NaN ? parseInt(bl, 10) : 0;
+                var br = this.getStyle(el, 'borderRightWidth');
+                br = br == 'thin' ? 1 : br == 'medium' ? 3 : br == 'thick' ? 5 : parseInt(br, 10) != NaN ? parseInt(br, 10) : 0;
+                var pl = this.getStyle(el, 'paddingLeft');
+                pl = pl == 'auto' ? 0 : parseInt(pl, 10) != NaN ? parseInt(pl, 10) : 0;
+                var pr = this.getStyle(el, 'paddingRight');
+                pr = pr == 'auto' ? 0 : parseInt(pr, 10) != NaN ? parseInt(pr, 10) : 0;
+                var ml = this.getStyle(el, 'marginLeft');
+                ml = ml == 'auto' ? 0 : parseInt(ml, 10) != NaN ? parseInt(ml, 10) : 0;
+                var mr = this.getStyle(el, 'marginRight');
+                mr = mr == 'auto' ? 0 : parseInt(mr, 10) != NaN ? parseInt(mr, 10) : 0;
+                return (pl + pr + bl + br + ml + mr);
+            };
+            /**
+             * Get compute pixel number of the whole height of an elements border
+             *
+             * @param {HTMLElement} - the HTML element
+             * @return {number} - the amount of pixels
+             */
+            Swoosh.prototype.getBorderHeight = function (el) {
+                var bt = this.getStyle(el, 'borderTopWidth');
+                bt = bt == 'thin' ? 1 : bt == 'medium' ? 3 : bt == 'thick' ? 5 : parseInt(bt, 10) != NaN ? parseInt(bt, 10) : 0;
+                var bb = this.getStyle(el, 'borderBottomWidth');
+                bb = bb == 'thin' ? 1 : bb == 'medium' ? 3 : bb == 'thick' ? 5 : parseInt(bb, 10) != NaN ? parseInt(bb, 10) : 0;
+                var pt = this.getStyle(el, 'paddingTop');
+                pt = pt == 'auto' ? 0 : parseInt(pt, 10) != NaN ? parseInt(pt, 10) : 0;
+                var pb = this.getStyle(el, 'paddingBottom');
+                pb = pb == 'auto' ? 0 : parseInt(pb, 10) != NaN ? parseInt(pb, 10) : 0;
+                var mt = this.getStyle(el, 'marginTop');
+                mt = mt == 'auto' ? 0 : parseInt(mt, 10) != NaN ? parseInt(mt, 10) : 0;
+                var mb = this.getStyle(el, 'marginBottom');
+                mb = mb == 'auto' ? 0 : parseInt(mb, 10) != NaN ? parseInt(mb, 10) : 0;
+                return (pt + pb + bt + bb + mt + mb);
+            };
             /**
              * Disables the scroll wheel of the mouse
              *
@@ -318,6 +382,7 @@
                     /* take away the margin values of the body element */
                     var xDelta = parseInt(_this.getStyle(document.body, 'marginLeft'), 10) + parseInt(_this.getStyle(document.body, 'marginRight'), 10);
                     var yDelta = parseInt(_this.getStyle(document.body, 'marginTop'), 10) + parseInt(_this.getStyle(document.body, 'marginBottom'), 10);
+                    //TODO: with this.getBorderWidth() and this.getBorderHeight()
                     _this.inner.style.minWidth = (document.documentElement.scrollWidth - xDelta) + 'px';
                     _this.inner.style.minHeight = (document.documentElement.scrollHeight - yDelta - 100) + 'px'; //TODO: WTF? why -100 for IE8?
                 };
@@ -332,6 +397,12 @@
                 /* write down the old clientWidth and clientHeight for the above comparsion */
                 this.oldClientWidth = document.documentElement.clientWidth;
                 this.oldClientHeight = document.documentElement.clientHeight;
+            };
+            Swoosh.prototype.clearTextSelection = function () {
+                if (window.getSelection)
+                    window.getSelection().removeAllRanges();
+                if (document.selection)
+                    document.selection.empty();
             };
             /**
              * Browser independent event registration
@@ -464,7 +535,6 @@
                 if (("which" in e && e.which == 1) || (typeof e.which == 'undefined' && "button" in e && e.button == 1)) {
                     /* drag only if the mouse clicked on an allowed element */
                     var el = document.elementFromPoint(e.clientX, e.clientY);
-                    var tag = el.tagName.toLowerCase();
                     if (this.elementBehindCursorIsMe(e.clientX, e.clientY)) {
                         /* search the DOM for exclude elements */
                         var excludeElements = this.container.querySelectorAll(this.options.dragOptions.exclude.join(', '));
@@ -537,6 +607,7 @@
              * @return {void}
              */
             Swoosh.prototype.mouseMove = function (e) {
+                this.clearTextSelection();
                 /* if the mouse left the window and the button is not pressed anymore, abort moving */
                 if ((e.buttons == 0 && e.button == 0) || (typeof e.buttons == 'undefined' && e.button == 0)) {
                     this.mouseUp(e);
@@ -592,6 +663,34 @@
             Swoosh.prototype.off = function (event, callback) {
                 this.removeEventListener(this.inner, event, callback);
                 return this;
+            };
+            /**
+             * Revert all DOM manipulation and deregister all event handlers
+             *
+             * @return {void}
+             */
+            Swoosh.prototype.destroy = function () {
+                var x = this.scrollElement.scrollLeft - this.options.elasticEgdes.left;
+                var y = this.scrollElement.scrollTop - this.options.elasticEgdes.top;
+                /* remove the outer and grab CSS classes */
+                var re = new RegExp(" " + this.classOuter + " ");
+                this.container.className = this.container.className.replace(re, '');
+                var re = new RegExp(" " + this.classGrab + " ");
+                this.container.className = this.container.className.replace(re, '');
+                /* move all childNodes back to the old outer element and remove the inner element */
+                while (this.inner.childNodes.length > 0) {
+                    this.container.appendChild(this.inner.childNodes[0]);
+                }
+                this.container.removeChild(this.inner);
+                this.scrollTo(x, y);
+                this.mouseMoveHandler ? this.removeEventListener(document.documentElement, 'mousemove', this.mouseMoveHandler) : null;
+                this.mouseUpHandler ? this.removeEventListener(document.documentElement, 'mouseup', this.mouseUpHandler) : null;
+                this.mouseDownHandler ? this.removeEventListener(this.inner, 'mousedown', this.mouseDownHandler) : null;
+                this.mouseWheelHandler ? this.removeEventListener(this.scrollElement, 'wheel', this.mouseWheelHandler) : null;
+                this.scrollElement ? this.scrollElement.onmousewheel = null : null;
+                this.scrollElement ? this.scrollElement.onscroll = null : null;
+                window.onresize = null;
+                return;
             };
             Swoosh.prototype.always = function () { console.log('always()'); return true; };
             return Swoosh;

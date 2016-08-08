@@ -4,48 +4,87 @@
 <head>
 <link href='dist/swoosh.css' rel='stylesheet' type='text/css' />
 <link href='example/example.css' rel='stylesheet' type='text/css' />
+<link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css' rel='stylesheet' type='text/css' />
 <title>swoosh</title>
 </head>
 
 <body id="body" style="overflow:auto;">
-<h1>swoosh!</h1>
 
-<a href="#section1">section1</a><br>
-<a href="#section2">section2</a>
+<div class="container">
 
-<div id="div1" style="height:200px; width:600px; border:1px solid black; overflow-y:auto; overflow-x:hidden; background-color:red;">
-  <section>
-    <article id="section1" class="panel">
-      <h1>Section 1</h1>
-      <span>An input box: </span><input placeholder="See?"><br>
-      <span>A </span><a href="http://www.google.com">link</a><br>
-      <span class="ignore">Ingred text by class</span><br>
-      <span id="ignore">Ingred text by id</span><br>
-      <span>Lorem ipsum...</span><br>
-      <span>Lorem ipsum...</span><br>
-      <span>Lorem ipsum...</span><br>
-      <span>Lorem ipsum...</span><br>
-      <span>Lorem ipsum...</span><br>
-      <span>Lorem ipsum...</span><br>
-      <span>Lorem ipsum...</span><br>
-      <span>Lorem ipsum...</span><br>
-      <span>Lorem ipsum...</span><br>
-      <span>Lorem ipsum...</span><br>
-      <span>Lorem ipsum...</span><br>
-      <span>Lorem ipsum...</span><br>
-      <span>Lorem ipsum...</span><br>
-    </article>
-    <article id="section2" class="panel">
-      <h1>Section 2</h1>
-      <span>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</span><br>
-    </article>
-  </section>
-</div>
-<br><br>
-<div id="div2" style="height:500px; width:400px; border:1px solid black; overflow:hidden; background-color:green;">
-<span>Outside</span>
-  <div id="div3" style="margin:50px;height:200px; width:600px; border:1px solid black; overflow:hidden; background-color:blue;">
-  <span style="color:white;">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
+  <h1 class="sw-ignore">swoosh!</h1>
+
+  <h2 class="sw-ignore">Example 1 - Basics</h2>
+
+  <div class="row">
+    <div class="col-md-6" id="ex1_div" style="height:200px; border:1px solid black; overflow-y:auto; overflow-x:hidden; background-color:red; ">
+      <h3>Example 1</h3>
+      <span>Drag me with the mouse.</span><br>
+      <span>You can also use the mouse wheel.</span><br>
+      <span>Input boxes and textareas are excluded for dragging:</span><br>
+
+      <div class="row">
+        <div class="col-md-11">
+          <input class="form-control" placeholder="See?"><br>
+        </div>
+        <div class="col-md-11">
+          <textarea class="form-control" placeholder="Textareas are excluded too." rows="2"></textarea>
+        </div>
+      </div>
+      <br>
+
+      <a href="http://www.google.com">Links</a> can be clicked normally<br>
+      <span class="sw-ignore">This text can be marked with the mouse.<br>It is set inactive with the css class selector <code class="sw-ignore">.sw-ignore</code></span><br><br>
+      <span>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</span>
+    </div>
+    
+  </div>
+
+  <br>
+
+  <pre><code class="sw-ignore">swoosh(document.getElementById("ex1_div"));</code></pre>
+
+  <h2 class="sw-ignore">Example 2 - DragScroll, WheelScroll, Scrolldirection, Grid and Elastic edges</h2>
+
+  <h2 class="sw-ignore">Example 3 - Events and Callbacks</h2>
+
+  <a id="ex3_toogle" href="javascript:void(0);">toogle swoosh in example div 3</a>
+
+  <div class="row">
+    <div class="col-md-6" id="ex3_div" style="height:200px; border:1px solid black; overflow-y:auto; overflow-x:hidden; background-color:red; ">
+      <h3>Example 3</h3>
+      <span>Drag me to the edges and see the events trigger.</span><br>
+      <span>You can also use the mouse wheel or the scrollbar.</span><br>
+      <span>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</span>
+    </div>
+    <div class="col-md-6" id="ex3_log" style="height:200px; overflow-y:auto; overflow-x:hidden;"></div>
+  </div>
+
+  <br>
+
+  <pre><code class="sw-ignore">var ex2_log = document.getElementById("ex2_log");
+var s2 = swoosh(document.getElementById("ex2_div"))
+  .on('collideLeft', function(e){
+    ex2_log.innerHTML += "collideLeft Event triggered&lt;br&gt;"
+  })
+  .on('collideTop', function(e){
+    ex2_log.innerHTML += "collideTop Event triggered&lt;br&gt;"
+  })
+  .on('collideRight', function(e){
+    ex2_log.innerHTML += "collideRight Event triggered&lt;br&gt;"
+  })
+  .on('collideBottom', function(e){
+    ex2_log.innerHTML += "collideBottom Event triggered&lt;br&gt;"
+  });</code></pre>
+
+  <h2 class="sw-ignore">Example 4 - Nested Elements</h2>
+
+  <div id="div2" style="height:500px; width:400px; border:1px solid black; overflow:hidden; background-color:green;">
+  <span>Outside</span>
+    <div id="div3" style="margin:50px;height:200px; width:600px; border:1px solid black; overflow:hidden; background-color:blue;">
+      <span style="color:white;">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</span>
+    </div>
+
   </div>
 
 </div>
