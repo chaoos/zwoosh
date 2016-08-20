@@ -1,6 +1,21 @@
 .sw-inner
   box-sizing content-box
+  display inline-block
+  transform-origin 0 0
+
+.sw-inner:before
+  position absolute
+  content ''
+  pointer-events none
+
+.sw-grab .sw-inner img
+  pointer-events none
+  user-drag none
+  user-select none
+  -moz-user-select none
+  -webkit-user-drag none
+  -webkit-user-select none
+  -ms-user-select none
 
 .sw-ignore
-  cursor auto
-  
+  cursor text !important

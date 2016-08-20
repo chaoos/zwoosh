@@ -100,9 +100,15 @@ var htmlEvents = {
   onmouseup:1
 }
 
+var mapEvents = {
+  onscroll:window,
+}
+
 /* options object definition */
 interface Options {
-  grid?: number;
+  gridX?: number;
+  gridY?: number;
+  gridShow?: boolean;
   elasticEgdes?: {
     left?:number;
     right?:number;
@@ -113,13 +119,25 @@ interface Options {
   dragOptions?: {
     exclude: Array<string>;
     only: Array<string>;
+    fade?: boolean;
+    brakeSpeed?: number;
+    fps?: number;
+    maxSpeed?: number;
+    minSpeed?: number;
   };
   wheelScroll?: boolean; 
   wheelOptions?: {
     direction?: string;
     step?: number;
+    smooth?: boolean;
   };
-  callback?: (e: any) => any; //TODO: remove
+  wheelZoom?: boolean;
+  zoomOptions?: {
+    maxScale?: number;
+    minScale?: number;
+    step?: number;
+    direction?: string;
+  }
 }
 
 /**
@@ -133,9 +151,10 @@ export default function (container: HTMLElement, options: Options = {}) {
 
   class Swoosh {
     public inner: HTMLElement;
+    private isBody: boolean;
 
     /* scroll */
-    public scrollElement: HTMLElement;
+    private scrollElement: HTMLElement;
     public originScrollLeft: number;
     public originScrollTop: number;
     private scrollMaxLeft: number;
@@ -148,6 +167,9 @@ export default function (container: HTMLElement, options: Options = {}) {
     public dragOriginScrollTop: number;
     public parentOriginStyle: string;
 
+    /* zoom */
+    private scaleElement: HTMLElement;
+
     /* resize */
     public oldClientWidth: number;
     public oldClientHeight: number;
@@ -158,15 +180,24 @@ export default function (container: HTMLElement, options: Options = {}) {
     public classOuter: string = 'sw-outer';
     public classGrab: string = 'sw-grab';
     public classGrabbing: string = 'sw-grabbing';
+    public classUnique: string = 'sw-' + Math.random().toString(36).substring(7);
+    public classScale: string = 'sw-scale';
 
     /* mouse event handlers */
     private mouseMoveHandler: (e: MouseEvent) => void;
     private mouseUpHandler: (e: MouseEvent) => void;
     private mouseDownHandler: (e: MouseEvent) => void;
-    private mouseWheelHandler: (e: MouseWheelEvent) => void;
+    private mouseScrollHandler: (e: MouseWheelEvent) => void;
+    private mouseZoomHandler: (e: MouseWheelEvent) => void;
     private scrollHandler: (e: Event) => void;
 
     private resizeHandler: (e: Event) => void;
+
+    /* own event listener */
+    private clearListenerLeft: (e: Event) => void;
+    private clearListenerRight: (e: Event) => void;
+    private clearListenerTop: (e: Event) => void;
+    private clearListenerBottom: (e: Event) => void;
 
     /* array holding the custom events mapping callbacks to bound callbacks */
     private customEvents: Array<Array<Array<(e: Event) => void>>> = [];
@@ -178,32 +209,75 @@ export default function (container: HTMLElement, options: Options = {}) {
       collideBottom: false
     };
 
+    /* fadeOut */
+    private timeouts: Array<number> = [];
+
+    private present: number;
+    private past: number;
+    private pastX: number;
+    private pastY: number;
+    private vx: number;
+    private vy: number;
+
     constructor (
       private container: HTMLElement,
-      private options: Options) {
+      public options: Options) {
 
       this.container = container;
 
+      /* TODO: make options as a getters/setters: dragScroll, gridShow, wheelScroll, wheelZoom, ee.left,top,right,bottom */
       /* set default options */
       this.options = {
-        grid: 1, /* do not align to a grid */
+        /* 1 means do not align to a grid */
+        gridX: 1,
+        gridY: 1,
+        /* shows a grid as an overlay over the element */
+        gridShow: false,
+        /* definition of how many pixels an elastic edge should have */
         elasticEgdes: {
           left: 0,
           right: 0,
           top: 0,
           bottom: 0,
         },
+        /* activates/deactivates scroll by dragging the element */
         dragScroll: true,
         dragOptions: {
           exclude: ['input', 'textarea', 'a', 'button', '.sw-ignore'],
-          only: [],
+          only: [], //TODO commented out
+          /* activates a scroll fade when scrolling by drag */
+          fade: true,
+          /* fade: brake acceleration in pixels per second per second (p/s²) */
+          brakeSpeed: 2500,
+          /* fade: frames per second of the swoosh fadeout animation (>=25 looks like motion) */
+          fps: 30,
+          /* fade: this speed will never be exceeded */
+          maxSpeed: 3000,
+          /* fade: minimum speed which triggers the fade */
+          minSpeed: 500,
         },
+        /* activates/deactivates scrolling by wheel */
         wheelScroll: true,
         wheelOptions: {
-          direction: 'vertical', //TODO: body horizontal scrolling
+          /* direction to scroll when the mouse wheel is used */
+          direction: 'vertical',
+          /* amount of pixels for one scroll step */
           step: 114,
-        },        
-        callback: this.always
+          /* scroll smooth or instant */
+          smooth: true,
+        },
+        /* activates/deactivates zooming by wheel */
+        wheelZoom: false,
+        zoomOptions: {
+          /* the maximum scale, 0 means to maximum */
+          maxScale: 0,
+          /* the minimum scale, 0 means to minimum */
+          minScale: 0,
+          /* one step when using the wheel to zoom */
+          step: 0.1,
+          /* mouse wheel direction to zoom larger */
+          direction: 'up',
+        }
       };
 
       /* merge the default option objects with the provided one */
@@ -231,24 +305,55 @@ export default function (container: HTMLElement, options: Options = {}) {
     private init () {
 
       this.container.className += " " + this.classOuter + " ";
-      this.scrollElement = this.container.tagName == "BODY" ? document.documentElement : this.container;
+      this.isBody = this.container.tagName == "BODY" ? true : false;
+      this.scrollElement = this.isBody ? document.documentElement : this.container;
 
       var x = this.scrollElement.scrollLeft + this.options.elasticEgdes.left;
       var y = this.scrollElement.scrollTop + this.options.elasticEgdes.top;
 
       /* create inner div element and append it to the container with its contents in it */
       this.inner = document.createElement("div");
-      this.inner.className += " " + this.classInner + " ";
+      //var uniqueClass = this.classInner + "-" + Math.random().toString(36).substring(7);
+
+      this.inner.className += " " + this.classInner + " " + this.classUnique + " ";
+
+      /* TODO: check of wheelZoom 3x */
+      if (this.options.wheelZoom == true) {
+        this.scaleElement = document.createElement("div");
+        this.scaleElement.className += " " + this.classScale + " ";
+        this.scaleElement.appendChild(this.inner);
+        var toAppend = this.scaleElement;
+      } else {
+        var toAppend = this.inner;
+      }
 
       /* move all childNodes to the new inner element */
       while (this.container.childNodes.length > 0) {
         this.inner.appendChild(this.container.childNodes[0]);
       }
 
-      this.container.appendChild(this.inner);
+      this.container.appendChild(toAppend);
 
       this.inner.style.minWidth = (this.container.scrollWidth - this.getBorderWidth(this.container)) + 'px';
       this.inner.style.minHeight = (this.container.scrollHeight - this.getBorderWidth(this.container)) + 'px';
+
+      if (this.options.wheelZoom == true) {
+        this.scaleElement.style.minWidth = this.inner.style.minWidth;
+        this.scaleElement.style.minHeight = this.inner.style.minHeight;
+        this.scaleElement.style.overflow = 'hidden';
+      }
+
+      /* show the grid only if at least one of the grid values is not 1 */
+      if ((this.options.gridX != 1 || this.options.gridY != 1) && this.options.gridShow) {
+        var bgi = [];
+        this.options.gridX != 1 ? bgi.push('linear-gradient(to right, grey 1px, transparent 1px)') : null;
+        this.options.gridY != 1 ? bgi.push('linear-gradient(to bottom, grey 1px, transparent 1px)') : null;
+
+        this.addBeforeCSS(this.classUnique, 'width', this.inner.style.minWidth);
+        this.addBeforeCSS(this.classUnique, 'height', this.inner.style.minHeight);
+        this.addBeforeCSS(this.classUnique, 'background-size', (this.options.gridX != 1 ? this.options.gridX + 'px ' : 'auto ') + (this.options.gridY != 1 ? this.options.gridY + 'px' : 'auto'));
+        this.addBeforeCSS(this.classUnique, 'background-image', bgi.join(', '));
+      }
 
       this.oldClientWidth = document.documentElement.clientWidth;
       this.oldClientHeight = document.documentElement.clientHeight;
@@ -258,37 +363,66 @@ export default function (container: HTMLElement, options: Options = {}) {
       this.inner.style.paddingTop = this.options.elasticEgdes.top + 'px';
       this.inner.style.paddingBottom = this.options.elasticEgdes.bottom + 'px';
 
-      this.scrollTo(x, y);
+      this.scrollTo(x, y, true);
 
       /* Event handler registration starts here */
 
       /* TODO: not 2 different event handlers registrations -> do it in this.addEventListener() */
       if (this.options.wheelScroll == false) {
-        this.mouseWheelHandler = (e) => this.disableMouseScroll(e);
-        this.scrollElement.onmousewheel = this.mouseWheelHandler;
-        this.addEventListener(this.scrollElement, 'wheel', this.mouseWheelHandler);
-      } else if (this.options.wheelScroll == true && this.container.tagName != "BODY") {
-        this.mouseWheelHandler = (e) => this.activeMouseScroll(e);
-        this.scrollElement.onmousewheel = this.mouseWheelHandler;
-        this.addEventListener(this.scrollElement, 'wheel', this.mouseWheelHandler);
+        this.mouseScrollHandler = (e) => this.disableMouseScroll(e);
+        //this.scrollElement.onmousewheel = this.mouseScrollHandler;
+        this.addEventListener(this.scrollElement, 'wheel', this.mouseScrollHandler);
+      } else if (this.options.wheelScroll == true) {
+        this.mouseScrollHandler = (e) => this.activeMouseScroll(e);
+        //this.scrollElement.onmousewheel = this.mouseScrollHandler;
+        this.addEventListener(this.scrollElement, 'wheel', this.mouseScrollHandler);
       }
 
+      /* wheelzoom */
+      if (this.options.wheelZoom == true) {
+        this.scaleTo(1); /* needed, when gridShow is true */
+        this.mouseZoomHandler = (e) => this.activeMouseZoom(e);
+        this.addEventListener(this.scrollElement, 'wheel', this.mouseZoomHandler);
+      }
+
+      /* scrollhandler */
+      this.scrollHandler = (e) => this.onScroll(e);
+      this.addEventListener(this.container, 'scroll', this.scrollHandler);
+
       /* if the scroll element is body, adjust the inner div when resizing */
-      if(this.container.tagName == "BODY"){
+      if(this.isBody){
         this.resizeHandler = (e) => this.onResize(e); //TODO: same as above in the wheel handler
         window.onresize = this.resizeHandler;
       }
 
-      this.scrollHandler = (e) => this.onScroll(e);
-      //this.addEventListener(this.scrollElement, 'scroll', this.scrollHandler);
-      this.scrollElement.onscroll = this.scrollHandler; //TODO: same as above in the wheel handler
-
+      /* if dragscroll is activated, register mousedown event */
       if (this.options.dragScroll == true) {
         this.container.className += " " + this.classGrab + " ";
         this.mouseDownHandler = (e) => this.mouseDown(e);
         this.addEventListener(this.inner, 'mousedown', this.mouseDownHandler);
       }
 
+    }
+
+    public reinit () {
+      this.destroy();
+      this.init();
+    }
+
+    /**
+     * Workaround to manipulate :before CSS styles with javascript
+     * 
+     * @param {string} - the CSS class name to alter
+     * @param {string} - the CSS property to set
+     * @param {string} - the CSS value to set
+     * @return {void}
+     */
+    private addBeforeCSS (cssClass: string, cssProperty: string, cssValue: string) {
+      if (typeof (<any>document.styleSheets[0]).insertRule == 'function') {
+        (<any>document.styleSheets[0]).insertRule('.' + cssClass + '::before { ' + cssProperty + ': ' + cssValue + '}', 0);
+      } else if (typeof (<any>document.styleSheets[0]).addRule == 'function') {
+        (<any>document.styleSheets[0]).addRule('.' + cssClass + '::before', cssProperty + ': ' + cssValue);
+      }
     }
 
     /**
@@ -345,13 +479,46 @@ export default function (container: HTMLElement, options: Options = {}) {
      * @return {void}
      */
     private disableMouseScroll (e: MouseWheelEvent) {
-      if (!e) { e = (<any>window.event); }
-      e.preventDefault ? e.preventDefault() : (e.returnValue = false);
-      e.returnValue = false;
+
+      if (this.elementBehindCursorIsMe(e.clientX, e.clientY)) {
+        this.clearTimeouts();
+
+        if (!e) { e = (<any>window.event); }
+        e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+        e.returnValue = false;
+      }
     }
 
     /**
-     * Enables the scroll wheel of the mouse, specially for div withour scrollbar
+     * Determine whether an element has a scrollbar or not
+     * 
+     * @param {HTMLElement} element - the HTMLElement
+     * @param {string} direction - determine the vertical or horizontal scrollbar?
+     * @return {boolean} - whether the element has scrollbars or not
+     */
+    private hasScrollbar (element: HTMLElement, direction: string) {
+      var has = false;
+      var overflow = 'overflow';
+
+      if (direction == 'vertical') {
+        overflow = 'overflowY';
+        has = element.scrollHeight > element.clientHeight;
+      } else if (direction == 'horizontal') {
+        overflow = 'overflowX';
+        has = element.scrollWidth > element.clientWidth;
+      }
+      
+      // Check the overflow and overflowDirection properties for "auto" and "visible" values
+      has = this.getStyle(this.container, 'overflow') == "visible" 
+         || this.getStyle(this.container, 'overflowY') == "visible"
+         || (has && this.getStyle(this.container, 'overflow') == "auto")
+         || (has && this.getStyle(this.container, 'overflowY') == "auto");
+
+      return has;
+    }
+
+    /**
+     * Enables the scroll wheel of the mouse to scroll, specially for divs withour scrollbar
      * 
      * @param {MouseWheelEvent} e - the mouse wheel event
      * @return {void}
@@ -361,6 +528,7 @@ export default function (container: HTMLElement, options: Options = {}) {
       if (!e) { e = (<any>window.event); }
 
       if (this.elementBehindCursorIsMe(e.clientX, e.clientY)) {
+
         var direction: string;
 
         if ("deltaY" in e) {
@@ -370,7 +538,16 @@ export default function (container: HTMLElement, options: Options = {}) {
         } else {
           return;
         }
-        
+
+        /* use the normal scroll, when there are scrollbars and the direction is "vertical" */
+        if (this.options.wheelOptions.direction == 'vertical' && this.hasScrollbar(this.scrollElement, this.options.wheelOptions.direction)) {
+          if (!((this.triggered.collideBottom && direction == 'down') || (this.triggered.collideTop && direction == 'up'))) {
+            this.clearTimeouts();
+            return;
+          }
+        }
+
+        this.disableMouseScroll(e);
         var x = this.scrollElement.scrollLeft;
         var y = this.scrollElement.scrollTop;
 
@@ -382,6 +559,140 @@ export default function (container: HTMLElement, options: Options = {}) {
 
         this.scrollTo(x, y);
       }
+    }
+
+    /**
+     * Enables the scroll wheel of the mouse to zoom
+     * 
+     * @param {MouseWheelEvent} e - the mouse wheel event
+     * @return {void}
+     */
+    private activeMouseZoom (e: MouseWheelEvent) {
+      if (!e) { e = (<any>window.event); }
+      if (this.elementBehindCursorIsMe(e.clientX, e.clientY)) {
+        var direction: string;
+
+        if ("deltaY" in e) {
+          direction = (<any>e).deltaY > 0 ? 'down' : 'up'
+        } else if ("wheelDelta" in e) {
+          direction = e.wheelDelta > 0 ? 'up' : 'down'
+        } else {
+          return;
+        }
+
+        if (direction == this.options.zoomOptions.direction) {
+          var scale = this.getScale() * (1 + this.options.zoomOptions.step);
+        } else {
+          var scale = this.getScale() / (1 + this.options.zoomOptions.step);
+        }
+
+        this.scaleTo(scale);
+      }
+    }
+
+    /**
+     * Calculates the size of the vertical scrollbar.
+     * 
+     * @param {HTMLElement} el - The HTMLElememnt
+     * @return {number} - the amount of pixels used by the vertical scrollbar
+     */
+    private scrollbarWidth (el: HTMLElement) {
+      return el.offsetWidth - el.clientWidth - parseInt(this.getStyle(el, 'borderLeftWidth')) - parseInt(this.getStyle(el, 'borderRightWidth'));
+    }
+
+    /**
+     * Calculates the size of the horizontal scrollbar.
+     * 
+     * @param {HTMLElement} el - The HTMLElememnt
+     * @return {number} - the amount of pixels used by the horizontal scrollbar
+     */
+    private scrollbarHeight (el: HTMLElement) {
+      return el.offsetHeight - el.clientHeight - parseInt(this.getStyle(el, 'borderTopWidth')) - parseInt(this.getStyle(el, 'borderBottomWidth'));
+    }
+
+    /**
+     * Retrieves the current scale value or 1 if it is not set.
+     * 
+     * @return {number} - the current scale value
+     */
+    public getScale() {
+      if (typeof this.inner.style.transform != 'undefined') {
+        var r = this.inner.style.transform.match(/scale\(([0-9,\.]+)\)/) || [""];
+        return parseFloat(r[1]) || 1;
+      }
+      return 1;
+    }
+
+    /**
+     * Scales the inner element by a value based on the current scale value.
+     * 
+     * @param {number} percent - percentage of the current scale value
+     * @param {boolean} honourLimits - whether to honour maxScale and the minimum width and height
+     * of the container element.
+     * @return {void}
+     */
+    public scaleBy(percent: number, honourLimits = true) {
+      var scale = this.getScale() * (percent/100);
+      this.scaleTo(scale, honourLimits);
+    }
+
+    /**
+     * Scales the inner element by an absolute value.
+     * 
+     * @param {number} scale - the scale
+     * @param {boolean} honourLimits - whether to honour maxScale and the minimum width and height
+     * of the container element.
+     * @return {void}
+     */
+    public scaleTo(scale: number, honourLimits = true) {
+
+      var width = (parseFloat(this.inner.style.minWidth) * scale);
+      var height = (parseFloat(this.inner.style.minHeight) * scale);
+
+      /* Scrollbars have width and height too */
+      var minWidth = this.container.clientWidth + this.scrollbarWidth(this.container);
+      var minHeight = this.container.clientHeight + this.scrollbarHeight(this.container);
+
+      if (honourLimits){
+        /* loop as long as all limits are honoured */
+        while ((scale > this.options.zoomOptions.maxScale && this.options.zoomOptions.maxScale != 0)
+            || (scale < this.options.zoomOptions.minScale && this.options.zoomOptions.minScale != 0)
+            || (width < this.container.clientWidth && !this.isBody)
+            || height < this.container.clientHeight && !this.isBody) {
+
+          if (scale > this.options.zoomOptions.maxScale && this.options.zoomOptions.maxScale != 0) {
+            scale = this.options.zoomOptions.maxScale;
+            width = Math.floor(parseInt(this.inner.style.minWidth) * scale);
+            height = Math.floor(parseInt(this.inner.style.minHeight) * scale);
+          }
+
+          if (scale < this.options.zoomOptions.minScale && this.options.zoomOptions.minScale != 0) {
+            scale = this.options.zoomOptions.minScale;
+            width = Math.floor(parseInt(this.inner.style.minWidth) * scale);
+            height = Math.floor(parseInt(this.inner.style.minHeight) * scale);
+          }
+
+          if (width < minWidth && !this.isBody) {
+            scale = scale / width * minWidth;
+            height = Math.floor(parseInt(this.inner.style.minHeight) * scale);
+            width = minWidth;
+          }
+
+          if (height < minHeight && !this.isBody) {
+            scale = scale / height * minHeight;
+            width = Math.floor(parseInt(this.inner.style.minWidth) * scale);
+            height = minHeight;
+          }
+        }
+      }
+
+      //console.log("scaleTo(): ", scale, " ----> ", width, " x ", height, " orig: ", this.container.clientWidth, " x ", this.container.clientHeight, " real: ", minWidth, " x ", minHeight);
+      this.inner.style.transform = 'translate(0px, 0px) scale(' + scale + ')';
+      this.scaleElement.style.minWidth = this.scaleElement.style.width = width + 'px';
+      this.scaleElement.style.minHeight = this.scaleElement.style.height = height + 'px';
+
+      /* TODO: here scrollTo based on where the mouse cursor is */
+      //this.scrollTo();
     }
 
     /**
@@ -411,6 +722,14 @@ export default function (container: HTMLElement, options: Options = {}) {
       return this.inner == elementBehindCursor;
     }
 
+    private getTimestamp () {
+      if (typeof window.performance == 'object') {
+        return window.performance.now ? window.performance.now() : (<any>window.performance).webkitNow();
+      } else {
+        return new Date().getTime();
+      }
+    }
+
     /**
      * Scroll handler to trigger the custom events
      *
@@ -423,12 +742,13 @@ export default function (container: HTMLElement, options: Options = {}) {
      */
     private onScroll (e?: Event) {
 
-      var x = this.scrollElement.scrollLeft;
-      var y = this.scrollElement.scrollTop;
+
+      var x = this.scrollElement.scrollLeft || this.container.scrollLeft;
+      var y = this.scrollElement.scrollTop || this.container.scrollTop;
 
       // the collideLeft event
       if (x == 0) {
-        this.triggered.collideLeft ? null : this.triggerEvent(this.inner, 'collideLeft');
+        this.triggered.collideLeft ? null : this.triggerEvent(this.inner, 'collide.left');
         this.triggered.collideLeft = true;
       } else {
         this.triggered.collideLeft = false;
@@ -436,7 +756,7 @@ export default function (container: HTMLElement, options: Options = {}) {
 
       // the collideTop event
       if (y == 0) {
-        this.triggered.collideTop ? null : this.triggerEvent(this.inner, 'collideTop');
+        this.triggered.collideTop ? null : this.triggerEvent(this.inner, 'collide.top');
         this.triggered.collideTop = true;
       } else {
         this.triggered.collideTop = false;
@@ -444,7 +764,7 @@ export default function (container: HTMLElement, options: Options = {}) {
 
       // the collideRight event
       if (x == this.scrollMaxLeft) {
-        this.triggered.collideRight ? null : this.triggerEvent(this.inner, 'collideRight');
+        this.triggered.collideRight ? null : this.triggerEvent(this.inner, 'collide.right');
         this.triggered.collideRight = true;
       } else {
         this.triggered.collideRight = false;
@@ -452,7 +772,7 @@ export default function (container: HTMLElement, options: Options = {}) {
 
       // the collideBottom event
       if (y == this.scrollMaxTop) {
-        this.triggered.collideBottom ? null : this.triggerEvent(this.inner, 'collideBottom');
+        this.triggered.collideBottom ? null : this.triggerEvent(this.inner, 'collide.bottom');
         this.triggered.collideBottom = true;
       } else {
         this.triggered.collideBottom = false;
@@ -509,13 +829,24 @@ export default function (container: HTMLElement, options: Options = {}) {
      * @return {void}
      */     
     private addEventListener (obj: any, event: string, callback: (e: Event) => void) {
-
       var boundCallback = callback.bind(this);
 
       if (typeof obj.addEventListener == 'function') {
+        if (mapEvents['on' + event] && obj.tagName == "BODY") {
+          obj = mapEvents['on' + event];
+        }
         obj.addEventListener(event, boundCallback);
       } else if (typeof (<any>obj).attachEvent == 'object' && htmlEvents['on' + event]) { //MSIE: real events (e.g. 'click')
         (<any>obj).attachEvent('on' + event, boundCallback);
+      } else if (typeof (<any>obj).attachEvent == 'object' && mapEvents['on' + event]) {
+        if (obj.tagName == "BODY") {
+          var p = 'on' + event
+          /* example: window.onscroll = boundCallback */
+          mapEvents[p][p] = boundCallback;
+        } else {
+          /* TODO: obj.onscroll ?? */
+          obj.onscroll = boundCallback
+        }
       } else if (typeof (<any>obj).attachEvent == 'object') { //MSIE: custom event workaround
         obj[event] = 1;
         boundCallback = (e) => {
@@ -539,6 +870,8 @@ export default function (container: HTMLElement, options: Options = {}) {
      * @param {string} event - The event name without the leading "on"
      * @param {(e: Event) => void} callback - The callback function when attached
      * @return {void}
+     * 
+     * @TODO: unregistering of mapEvents
      */    
     private removeEventListener (obj: HTMLElement, event: string, callback: (e: Event) => void) {
 
@@ -616,6 +949,22 @@ export default function (container: HTMLElement, options: Options = {}) {
         }
     }
 
+    private clearTimeouts () {
+      if (this.timeouts) {
+        for (var idx in this.timeouts) {
+          clearTimeout(this.timeouts[idx]);
+        }
+
+        if (this.timeouts.length > 0) {
+          this.timeouts = [];
+          this.removeEventListener(this.inner, 'collide.left', this.clearListenerLeft);
+          this.removeEventListener(this.inner, 'collide.right', this.clearListenerRight);
+          this.removeEventListener(this.inner, 'collide.top', this.clearListenerTop);
+          this.removeEventListener(this.inner, 'collide.bottom', this.clearListenerBottom);
+        }
+      }
+    }
+
     /**
      * Mouse down handler
      * Registers the mousemove and mouseup handlers and finds the next inner element
@@ -625,28 +974,43 @@ export default function (container: HTMLElement, options: Options = {}) {
      */
     private mouseDown (e: MouseEvent): void {
 
+      this.clearTimeouts();
+
       /* drag only if the left mouse button was pressed */
       if (("which" in e && e.which == 1) || (typeof e.which == 'undefined' && "button" in e && e.button == 1)) {
 
-        /* drag only if the mouse clicked on an allowed element */
-        var el = <HTMLElement>document.elementFromPoint(e.clientX, e.clientY);
-
         if (this.elementBehindCursorIsMe(e.clientX, e.clientY)) {
 
-          /* search the DOM for exclude elements */
-          var excludeElements = this.container.querySelectorAll(this.options.dragOptions.exclude.join(', '));
+          /* prevent image dragging action */
+          var imgs = this.container.querySelectorAll('img');
+          for (var i = 0; i < imgs.length; i++) {
+            (<any>imgs[i]).ondragstart = function () { return false; }; //MSIE
+            /* TODO: with own event attacher */
+            //this.addEventListener(imgs[i], 'dragstart', function () {return false;});
+          }
 
-          /* loop through the nodelist and check for our element */
-          for (var i = 0; i < excludeElements.length; i++) {
-            if (excludeElements[i] == el) {
-              return;
+          /* search the DOM for exclude elements */          
+          if (this.options.dragOptions.exclude.length != 0){
+            /* drag only if the mouse clicked on an allowed element */
+            var el = <HTMLElement>document.elementFromPoint(e.clientX, e.clientY);
+            var excludeElements = this.container.querySelectorAll(this.options.dragOptions.exclude.join(', '));
+
+            /* loop through all parent elements until we encounter an inner div or no more parents */
+            var innerRe = new RegExp(" " + this.classInner + " ");
+            while (el && !el.className.match(innerRe)) {
+              /* compare each parent, if it is in the exclude list */
+              for (var i = 0; i < excludeElements.length; i++) {
+                /* bail out if an element matches */
+                if (excludeElements[i] == el) { return };
+              }
+              el = el.parentElement;
             }
           }
 
-          /* search the DOM for only elements, but only if there are elements set */
-          if (this.options.dragOptions.only.length != 0){
+          // search the DOM for only elements, but only if there are elements set
+          /*if (this.options.dragOptions.only.length != 0){
             var onlyElements = this.container.querySelectorAll(this.options.dragOptions.only.join(', '));
-            /* loop through the nodelist and check for our element */
+            // loop through the nodelist and check for our element
             var found = false;
             for (var i = 0; i < excludeElements.length; i++) {
               if (onlyElements[i] == el) {
@@ -657,7 +1021,7 @@ export default function (container: HTMLElement, options: Options = {}) {
             if (found == false) {
               return;
             }
-          }
+          }*/
 
           this.inner.className += " " + this.classGrabbing + " ";
 
@@ -667,15 +1031,15 @@ export default function (container: HTMLElement, options: Options = {}) {
           this.dragOriginScrollLeft = this.scrollElement.scrollLeft;
           this.dragOriginScrollTop = this.scrollElement.scrollTop;
 
-          /* it looks strane if scroll-behavior is set to smooth */
+          /* it looks strange if scroll-behavior is set to smooth */
           this.parentOriginStyle = this.inner.parentElement.style.cssText;
           if (typeof this.inner.parentElement.style.setProperty == 'function') {
             this.inner.parentElement.style.setProperty('scroll-behavior', 'auto');
           }
 
+          /* register the event handlers */
           this.mouseMoveHandler = this.mouseMove.bind(this)
           this.addEventListener(document.documentElement, 'mousemove', this.mouseMoveHandler);
-
           this.mouseUpHandler = (e) => this.mouseUp(e);
           this.addEventListener(document.documentElement, 'mouseup', this.mouseUpHandler);
 
@@ -687,30 +1051,144 @@ export default function (container: HTMLElement, options: Options = {}) {
 
     /**
      * Mouse up handler
-     * Deregisters the mousemove and mouseup handlers and aligns the element to a grid
+     * Deregisters the mousemove and mouseup handlers
      *
      * @param {MouseEvent} e - The mouse up event object
      * @return {void}
      */
     private mouseUp (e: MouseEvent): void {
-      //stick the element to the grid, if grid equals 1 the value does not change
-      var x = Math.round((this.dragOriginLeft + this.dragOriginScrollLeft - e.clientX) / this.options.grid) * this.options.grid
-      var y = Math.round((this.dragOriginTop + this.dragOriginScrollTop - e.clientY) / this.options.grid) * this.options.grid;
 
-      this.scrollMaxLeft = (this.scrollElement.scrollWidth - this.scrollElement.clientWidth) - this.options.elasticEgdes.left;
-      this.scrollMaxTop = (this.scrollElement.scrollHeight - this.scrollElement.clientHeight) - this.options.elasticEgdes.top;
-      x = (x > this.scrollMaxLeft) ? this.scrollMaxLeft : (x < this.options.elasticEgdes.left) ? this.options.elasticEgdes.left : x;
-      y = (y > this.scrollMaxTop) ? this.scrollMaxTop : (y < this.options.elasticEgdes.top) ? this.options.elasticEgdes.top : y;
+      var x = this.getRealX(this.dragOriginLeft + this.dragOriginScrollLeft - e.clientX);
+      var y = this.getRealY(this.dragOriginTop + this.dragOriginScrollTop - e.clientY);
 
       var re = new RegExp(" " + this.classGrabbing + " ");
       this.inner.className = this.inner.className.replace(re,'');
       this.inner.parentElement.style.cssText = this.parentOriginStyle;
 
-      this.scrollTo(x, y);
+      if (y != this.scrollElement.scrollTop || x != this.scrollElement.scrollLeft) {
+        this.scrollTo(x, y, true);
+      }
 
       this.removeEventListener(document.documentElement, 'mousemove', this.mouseMoveHandler);
       this.removeEventListener(document.documentElement, 'mouseup', this.mouseUpHandler);
+
+      if (this.options.dragOptions.fade && typeof this.vx != 'undefined' && typeof this.vy != 'undefined') {
+
+        /* v should not exceed vMax or -vMax -> would be too fast and should exceed vMin or -vMin */
+        var vMax = this.options.dragOptions.maxSpeed;
+        var vMin = this.options.dragOptions.minSpeed;
+        var vx = this.vx;        
+        var vy = this.vy;
+
+        if (vy < vMin && vy > -vMin && vx < vMin && vx > -vMin) { return; }
+
+        var vx = (vx <= vMax && vx >= -vMax) ? vx : (vx > 0 ? vMax : -vMax);
+        var vy = (vy <= vMax && vy >= -vMax) ? vy : (vy > 0 ? vMax : -vMax);
+
+        var ax = (vx > 0 ? -1 : 1) * this.options.dragOptions.brakeSpeed;
+        var ay = (vy > 0 ? -1 : 1) * this.options.dragOptions.brakeSpeed;
+
+        x = ((0-Math.pow(vx, 2))/(2*ax))+this.scrollElement.scrollLeft;
+        y = ((0-Math.pow(vy, 2))/(2*ay))+this.scrollElement.scrollTop;
+
+        this.fadeOutByCoords(x, y);
+      }
     }
+
+    private getRealX(x: number) {
+      //stick the element to the grid, if grid equals 1 the value does not change
+      x = Math.round(x / (this.options.gridX * this.getScale())) * (this.options.gridX * this.getScale());
+      var scrollMaxLeft = (this.scrollElement.scrollWidth - this.scrollElement.clientWidth) - this.options.elasticEgdes.right;
+      return (x > scrollMaxLeft) ? scrollMaxLeft : (x < this.options.elasticEgdes.left) ? this.options.elasticEgdes.left : x;
+    }
+
+    private getRealY(y: number) {
+      //stick the element to the grid, if grid equals 1 the value does not change
+      y = Math.round(y / (this.options.gridY * this.getScale())) * (this.options.gridY * this.getScale());
+      var scrollMaxTop = (this.scrollElement.scrollHeight - this.scrollElement.clientHeight) - this.options.elasticEgdes.bottom;
+      return (y > scrollMaxTop) ? scrollMaxTop : (y < this.options.elasticEgdes.top) ? this.options.elasticEgdes.top : y;
+    }
+
+    private fadeOutByVelocity(vx: number, vy: number) {
+
+      /* TODO: calc v here and with more info, more precisely */
+
+      /* calculate the brake acceleration in both directions separately */
+      var ay = (vy > 0 ? -1 : 1) * this.options.dragOptions.brakeSpeed;
+      var ax = (vx > 0 ? -1 : 1) * this.options.dragOptions.brakeSpeed;
+
+      /* find the direction that needs longer to stop, and recalculate the acceleration */
+      var tmax = Math.max((0-vy)/ay, (0-vx)/ax);
+      ax = (0-vx)/tmax;
+      ay = (0-vy)/tmax;
+
+      var fps = this.options.dragOptions.fps;
+      for (var i = 0; i < ((tmax*fps)+(0/fps)); i++) {
+        var t = ((i+1)/fps);
+        var sy = this.scrollElement.scrollTop + (vy*t) + (0.5*ay*t*t);
+        var sx = this.scrollElement.scrollLeft + (vx*t) + (0.5*ax*t*t);
+
+        this.timeouts.push(
+          setTimeout(
+            (function (x, y, el) {
+              return function () {
+                el.scrollTop = y;
+                el.scrollLeft = x;
+              }
+            })(sx, sy, this.scrollElement), (i+1)*(1000/fps)
+          )
+        );
+      }
+
+      /* round the last step based on the direction of the fade */
+      sx = vx > 0 ? Math.ceil(sx) : Math.floor(sx);
+      sy = vy > 0 ? Math.ceil(sy) : Math.floor(sy);
+      this.timeouts.push(
+        setTimeout(
+          (function (x, y, el) {
+            return function () {
+              el.scrollTop = y;
+              el.scrollLeft = x;
+            }
+          })(sx, sy, this.scrollElement), (i+2)*(1000/fps)
+        )
+      );
+
+      /* stop the animation when colliding with the borders */
+      this.clearListenerLeft = () => this.clearTimeouts;
+      this.clearListenerRight = () => this.clearTimeouts;
+      this.clearListenerTop = () => this.clearTimeouts;
+      this.clearListenerBottom = () => this.clearTimeouts;
+      this.addEventListener(this.inner, 'collide.left', this.clearListenerLeft);
+      this.addEventListener(this.inner, 'collide.right', this.clearListenerRight);
+      this.addEventListener(this.inner, 'collide.top', this.clearListenerTop);
+      this.addEventListener(this.inner, 'collide.bottom', this.clearListenerBottom);
+    }
+
+    private fadeOutByCoords(x: number, y: number) {
+
+      x = this.getRealX(x);
+      y = this.getRealY(y);
+
+      var a = this.options.dragOptions.brakeSpeed*-1
+      var vy = 0-(2*a*(y-this.scrollElement.scrollTop));
+      var vx = 0-(2*a*(x-this.scrollElement.scrollLeft));
+      vy = (vy > 0 ? 1 : -1) * Math.sqrt(Math.abs(vy));
+      vx = (vx > 0 ? 1 : -1) * Math.sqrt(Math.abs(vx));
+
+      var sx = x - this.scrollElement.scrollLeft;
+      var sy = y - this.scrollElement.scrollTop;
+
+      if (Math.abs(sy) > Math.abs(sx)) {
+        vx = (vx > 0 ? 1 : -1) * Math.abs((sx/sy)*vy);
+      } else {
+        vy = (vy > 0 ? 1 : -1) * Math.abs((sy/sx)*vx);
+      }
+
+      this.clearTimeouts;
+      this.fadeOutByVelocity(vx, vy);
+    }
+
 
     /**
      * Mouse move handler
@@ -731,7 +1209,25 @@ export default function (container: HTMLElement, options: Options = {}) {
       var x = this.dragOriginLeft + this.dragOriginScrollLeft - e.clientX;
       var y = this.dragOriginTop + this.dragOriginScrollTop - e.clientY;
 
+      /*  calculate speed */
+      this.present = (this.getTimestamp() / 1000); //in seconds
+      var t = this.present - (this.past ? this.past : this.present);
+      var sx = x - (this.pastX ? this.pastX : x);
+      var sy = y - (this.pastY ? this.pastY : y);
+      this.vx = t == 0 ? 0 : sx/t;
+      this.vy = t == 0 ? 0 : sy/t;
+
+      this.past = this.present;
+      this.pastX = x
+      this.pastY = y
+
       this.scrollTo(x, y);
+    }
+
+    public scrollBy (x: number, y: number, smooth = false) {
+      var absoluteX = this.scrollElement.scrollLeft + x;
+      var absoluteY = this.scrollElement.scrollTop + y;
+      this.scrollTo(absoluteX, absoluteY, smooth);
     }
 
     /**
@@ -741,7 +1237,7 @@ export default function (container: HTMLElement, options: Options = {}) {
      * @param {number} y - y-coordinate to scroll to
      * @return {void}
      */
-    private scrollTo (x: number, y: number) {
+    public scrollTo (x: number, y: number, smooth = false) {
 
       this.scrollMaxLeft = (this.scrollElement.scrollWidth - this.scrollElement.clientWidth);
       this.scrollMaxTop = (this.scrollElement.scrollHeight - this.scrollElement.clientHeight);
@@ -754,13 +1250,13 @@ export default function (container: HTMLElement, options: Options = {}) {
       this.originScrollLeft = this.scrollElement.scrollLeft;
       this.originScrollTop = this.scrollElement.scrollTop;      
 
-      if (typeof (<any>this.scrollElement).scrollTo == 'function') {
-        (<any>this.scrollElement).scrollTo(x, y);
-      } else {
-        //IE8 has no scrollTo method
+      if (this.options.wheelOptions.smooth != true || smooth == false) {
         this.scrollElement.scrollTop = y;
-        this.scrollElement.scrollLeft = x;        
+        this.scrollElement.scrollLeft = x;
+      } else {
+        this.fadeOutByCoords(x, y);
       }
+
     }
 
     /**
@@ -813,15 +1309,13 @@ export default function (container: HTMLElement, options: Options = {}) {
       this.mouseMoveHandler ? this.removeEventListener(document.documentElement, 'mousemove', this.mouseMoveHandler) : null;
       this.mouseUpHandler ? this.removeEventListener(document.documentElement, 'mouseup', this.mouseUpHandler) : null;
       this.mouseDownHandler ? this.removeEventListener(this.inner, 'mousedown', this.mouseDownHandler) : null;
-      this.mouseWheelHandler ? this.removeEventListener(this.scrollElement, 'wheel', this.mouseWheelHandler) : null;
+      this.mouseScrollHandler ? this.removeEventListener(this.scrollElement, 'wheel', this.mouseScrollHandler) : null;
       this.scrollElement ? this.scrollElement.onmousewheel = null : null;
       this.scrollElement ? this.scrollElement.onscroll = null : null;
       window.onresize = null;
 
       return;
     }
-
-    private always() { console.log('always()'); return true; }
 
   }
 
