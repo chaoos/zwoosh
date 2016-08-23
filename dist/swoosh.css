@@ -26,6 +26,25 @@
   -webkit-user-select: none;
   -ms-user-select: none;
 }
-.sw-ignore {
-  cursor: text !important;
+.sw-grab .sw-inner .sw-ignore {
+  cursor: auto;
+}
+.sw-grab .sw-inner {
+  cursor: url("grab.cur"), move;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+}
+.sw-grabbing {
+  cursor: url("grabbing.cur"), move;
+  cursor: grabbing;
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.sw-nograb .sw-inner {
+  cursor: auto !important;
 }

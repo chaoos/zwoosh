@@ -2,87 +2,196 @@ import swoosh from '../swoosh'
 
 window.onload = function () {
 
-var div2 = document.getElementById("div2");
-var div3 = document.getElementById("div3");
+  var div2 = document.getElementById("div2");
+  var div3 = document.getElementById("div3");
 
-var s7 = swoosh(document.body);
+  var basics = swoosh(document.getElementById("basics"));
 
-var s1 = swoosh(document.getElementById("ex1_div"));
-document.getElementById("scrollDown").onclick = () => {
-  s1.scrollBy(0, 300, true);
-}
+  var log = document.getElementById("log");
+  var events = swoosh(document.getElementById("events"))
+  .on('collide.left', function(e){
+    log.innerHTML += "collide.left Event triggered<br>"
+  })
+  .on('collide.top', function(e){
+    log.innerHTML += "collide.top Event triggered<br>"
+  })
+  .on('collide.right', function(e){
+    log.innerHTML += "collide.right Event triggered<br>"
+  })
+  .on('collide.bottom', function(e){
+    log.innerHTML += "collide.bottom Event triggered<br>"
+  });
 
-document.getElementById("scrollUp").onclick = () => {
-  s1.scrollBy(0, -100, true);
-}
+  /*
+  var ex3_log = document.getElementById("ex3_log");
+  var s3 = null;
+  document.getElementById("ex3_toogle").onclick = () => {
+    if (s3 == null) {
+      s3 = swoosh(document.getElementById("ex3_div"), {
+        elasticEgdes: {
+          left:50,
+          right:50,
+          top:50,
+          bottom:50,
+        },
+      })
+      .on('collide.left', function(e){
+        ex3_log.innerHTML += "collide.left Event triggered<br>"
+      })
+      .on('collide.top', function(e){
+        ex3_log.innerHTML += "collide.top Event triggered<br>"
+      })
+      .on('collide.right', function(e){
+        ex3_log.innerHTML += "collide.right Event triggered<br>"
+      })
+      .on('collide.bottom', function(e){
+        ex3_log.innerHTML += "collide.bottom Event triggered<br>"
+      });
+    } else {
+      s3.destroy();
+      s3 = null;
+    }
+  };*/
 
-document.getElementById("optionTest").onclick = () => {
-  s1.options.dragScroll = s1.options.dragScroll ? false : true;
-  s1.reinit();
-}
+  var nest_outer = swoosh(document.getElementById("nest_outer"));
 
-document.getElementById("optionTest2").onclick = () => {
-  s1.options.wheelScroll = s1.options.wheelScroll ? false : true;
-  s1.reinit();
-}
+  /*var s4 = swoosh(document.getElementById("nest_outer"), {
+    elasticEgdes: {
+      left:100,
+      right:100,
+      top:200,
+      bottom:200,
+    },
+    wheelOptions: { direction: 'horizontal' },
+  });*/
 
-var ex3_log = document.getElementById("ex3_log");
-var s3 = null;
+  var nest_inner = swoosh(document.getElementById("nest_inner"));
 
-document.getElementById("scrollToTop").onclick = () => {
-  s7.scrollTo(0, 0, true);
-}
-
-document.getElementById("scrollToBottom").onclick = () => {
-  s7.scrollTo(0, 2000, true);
-}
-
-document.getElementById("ex3_toogle").onclick = () => {
-  if (s3 == null) {
-    s3 = swoosh(document.getElementById("ex3_div"), {
-      elasticEgdes: {
-        left:50,
-        right:50,
-        top:50,
-        bottom:50,
-      },
-    })
-    .on('collide.left', function(e){
-      ex3_log.innerHTML += "collide.left Event triggered<br>"
-    })
-    .on('collide.top', function(e){
-      ex3_log.innerHTML += "collide.top Event triggered<br>"
-    })
-    .on('collide.right', function(e){
-      ex3_log.innerHTML += "collide.right Event triggered<br>"
-    })
-    .on('collide.bottom', function(e){
-      ex3_log.innerHTML += "collide.bottom Event triggered<br>"
-    });
-  } else {
-    s3.destroy();
-    s3 = null;
+  var custom = swoosh(document.getElementById("custom"));
+  document.getElementById("scrollBy").onclick = () => {
+    custom.scrollBy(50, 50, true);
   }
-};
 
-var s4 = swoosh(div2, {
-  elasticEgdes: {
-    left:100,
-    right:100,
-    top:200,
-    bottom:200,
-  },
-  wheelOptions: { direction: 'horizontal' },
-});
+  document.getElementById("scrollTo").onclick = () => {
+    custom.scrollTo(100, 100, true);
+  }
 
-var s5 = swoosh(div3, {});
+  document.getElementById("scaleTo").onclick = () => {
+    custom.scaleTo(2);
+  }
 
-var s6 = swoosh(document.getElementById("ex5_div"), {
-  gridX: 100,
-  gridY: 50,
-  gridShow: true,
-  wheelScroll: false,
-  wheelZoom: true,
-});
+  document.getElementById("scaleBy").onclick = () => {
+    custom.scaleBy(90);
+  }
+
+  document.getElementById("reinit").onclick = () => {
+    custom.reinit();
+  }
+
+  document.getElementById("destroy").onclick = () => {
+    custom.destroy();
+  }
+
+  activeOption(custom, 'gridX');
+  activeOption(custom, 'gridY');
+  activeOption(custom, 'gridShow', true);
+
+  activeOption(custom, 'elasticEdges.left');
+  activeOption(custom, 'elasticEdges.top');
+  activeOption(custom, 'elasticEdges.right');
+  activeOption(custom, 'elasticEdges.bottom');
+
+  activeOption(custom, 'dragScroll', true);
+  activeOption(custom, 'dragOptions.minSpeed');
+  activeOption(custom, 'dragOptions.maxSpeed');
+  activeOption(custom, 'dragOptions.brakeSpeed');
+  activeOption(custom, 'dragOptions.fps');
+  activeOption(custom, 'dragOptions.fade');
+
+  activeOption(custom, 'wheelScroll', true);
+  activeOption(custom, 'wheelOptions.direction');
+  activeOption(custom, 'wheelOptions.step');
+  activeOption(custom, 'wheelOptions.smooth');
+
+  activeOption(custom, 'wheelZoom', true);
+  activeOption(custom, 'zoomOptions.minScale');
+  activeOption(custom, 'zoomOptions.maxScale');
+  activeOption(custom, 'zoomOptions.step');
+  activeOption(custom, 'zoomOptions.direction');
+
+  activeOption(custom, 'handleAnchors', true);
+
+  document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(custom.options, basics.options), null, 2);
+
+  function activeOption (swooshElement: any, option: string, reinit = false) {
+    var el = document.getElementById(option);
+    var type = eval("typeof swooshElement.options." + option);
+    //console.log(option, " is ", type)
+    if (type == 'number') {
+      (<any>el).value = eval("swooshElement.options." + option);
+      el.onkeyup = () => {
+        if ((option == 'gridX' || option == 'gridY') && swooshElement.options.gridShow) {reinit = true;} else {reinit = false;}
+        console.log(option, reinit);
+        eval("swooshElement.options." + option + " = " + parseFloat((<any>el).value) + ";");
+        document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(swooshElement.options, basics.options), null, 2);
+        reinit == true ? swooshElement.reinit() : null;
+      }
+    } else if (type == 'string') {
+      (<any>el).value = eval("swooshElement.options." + option);
+      el.onclick = () => {
+        var value = (<any>el).options[(<any>el).selectedIndex].value;
+        eval("swooshElement.options." + option + " = '" + value + "';");
+        document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(swooshElement.options, basics.options), null, 2);
+        reinit == true ? swooshElement.reinit() : null;
+      }
+    } else if (type == 'boolean') {
+      (<any>el).checked = eval("swooshElement.options." + option);
+      el.onclick = () => {
+        eval("swooshElement.options." + option + " = " + (<any>el).checked + ";");
+        document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(swooshElement.options, basics.options), null, 2);
+        reinit == true ? swooshElement.reinit() : null;
+      }    
+    }
+  }
+
+  function diff (obj1, obj2) {
+    var diff = {};
+    for(var p in obj2){
+      if (typeof (obj1[p]) == 'object' && typeof (obj2[p]) == 'object'){
+        for(var i in obj2[p]){
+          if (JSON.stringify(obj1[p][i]) != JSON.stringify(obj2[p][i])) {
+            diff[p] = diff[p] ? diff[p] : {};
+            diff[p][i] = obj1[p][i];
+          }
+        }
+      } else {
+        if (JSON.stringify(obj1[p]) != JSON.stringify(obj2[p])) {
+          diff[p] = obj1[p];
+        }
+      }
+    }
+    return diff;
+  }
+
+  var edges = swoosh(document.getElementById("edges"), {
+    elasticEdges: {
+      left: true,
+      top: true,
+      right: true,
+      bottom: true,
+    }
+  });
+
+  var wheelzoom = swoosh(document.getElementById("wheelzoom"), {
+    gridX: 100,
+    gridY: 50,
+    gridShow: true,
+    wheelScroll: false,
+    wheelZoom: true,
+  });
+
+  var anchors = swoosh(document.getElementById("anchors"));
+
+  var body = swoosh(document.body);
 
 }

@@ -12,36 +12,39 @@
 
 <div class="container">
 
-  <a id="scrollToBottom" href="javascript:void(0);">scroll to bottom</a>
+  <h1 id="top">swoosh!</h1>
 
-  <h1 class="sw-ignore">swoosh!</h1>
+  <ul>
+    <li><a href="#the_basics">The Basics</a></li>
+    <li><a href="#body">Body</a></li>
+    <li><a href="#nesting_elements">Nesting Elements</a></li>
+    <li><a href="#wheelzoom_and_grid">Wheelzoom & Grid</a></li>
+    <li><a href="#elastic_edges">Elastic Edges</a></li>
+    <li><a href="#events_and_callbacks">Events & Callbacks</a></li>
+    <li><a href="#anchor_links">Anchors Links</a></li>
+    <li><a href="#custom_options">Custom Options & Public Accessible Methods</a></li>
+  </ul>
 
-  <h2 class="sw-ignore">Example 1 - Basics</h2>
+  <h2 id="the_basics">Example 1 - The Basics</h2>
 
-  <a id="scrollUp" href="javascript:void(0);">scrollBy 100px up</a><br>
-  <a id="scrollDown" href="javascript:void(0);">scrollBy 300px down</a><br>
-  <a id="optionTest" href="javascript:void(0);">dragScroll toogle + reinit()</a><br>
-  <a id="optionTest2" href="javascript:void(0);">wheelScroll toogle + reinit()</a>
-  
-  <div class="row">
-    <div class="col-md-6" id="ex1_div" style="height:200px; border:1px solid black; overflow-y:auto; overflow-x:hidden; background-color:red; ">
-      <h3>Example 1</h3>
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">Basics</h3>
+    </div>
+    <div class="panel-body" id="basics" style="height:250px; overflow-y:auto; overflow-x:hidden;">
+
       <span>Drag me with the mouse.</span><br>
       <span>You can also use the mouse wheel.</span><br>
-      <span>Input boxes and textareas are excluded for dragging:</span><br>
+      <span>Input boxes and textareas are excluded from dragging:</span><br><br>
 
-      <div class="row">
-        <div class="col-md-11">
-          <input class="form-control" placeholder="See?"><br>
-        </div>
-        <div class="col-md-11">
-          <textarea class="form-control" placeholder="Textareas are excluded too." rows="2"></textarea>
-        </div>
-      </div>
+      <input class="form-control" placeholder="See?">
+      <br>
+      <textarea class="form-control" placeholder="Textareas are excluded too." rows="2"></textarea>
       <br>
 
-      <a href="http://www.google.com">Links</a> can be clicked normally<br>
-      <span class="sw-ignore">This text can be marked with the mouse.<br>It is set inactive with the css class selector <code>.sw-ignore</code></span><br><br>
+      <span><a href="http://www.google.com">Links</a> can be clicked normally</span><br>
+      <span class="sw-ignore">This text can be marked with the mouse without grabbing. It is set inactive with the css class selector <code>.sw-ignore</code>. You want to exclude other elements? Add CSS class selectors to the exclude array <code>dragOptions.exclude</code> and they will not trigger dragging anymore.</span>
+      <hr>
       <span>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</span><br>
       <span>Lorem ipsum...</span><br>
       <span>Lorem ipsum...</span><br>
@@ -163,62 +166,475 @@
     
   </div>
 
-  <br>
+  <pre><code class="sw-ignore">swoosh(document.getElementById("basics"));</code></pre>
 
-  <pre><code class="sw-ignore">swoosh(document.getElementById("ex1_div"));</code></pre>
+  <hr>
 
-  <h2 class="sw-ignore">Example 2 - DragScroll, WheelScroll, Scrolldirection, Grid and Elastic edges</h2>
+  <h2 id="body">Example 2 - Body</h2>
+  <span>You can also apply swoosh on the whole document. Just drag it with the mouse!</span><br><br>
+  <pre><code class="sw-ignore">swoosh(document.body);</code></pre>
 
-  <h2 class="sw-ignore">Example 3 - Events and Callbacks</h2>
+  <hr>
 
-  <a id="ex3_toogle" href="javascript:void(0);">toogle swoosh in example div 3</a>
+  <h2 id="nesting_elements">Example 3 - Nesting Elements</h2>
 
-  <div class="row">
-    <div class="col-md-6 sw-ignore" id="ex3_div" style="height:200px; border:1px solid black; overflow-y:auto; overflow-x:hidden; background-color:red; ">
-      <h3>Example 3</h3>
-      <span>Drag me to the edges and see the events trigger.</span><br>
-      <span>You can also use the mouse wheel or the scrollbar.</span><br>
-      <span>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</span>
+  <div class="panel panel-success" style="width:500px;">
+    <div class="panel-heading">
+      <h3 class="panel-title">Outer Element</h3>
     </div>
-    <div class="col-md-6" id="ex3_log" style="height:200px; overflow-y:auto; overflow-x:hidden;"></div>
+    <div class="panel-body" id="nest_outer" style="height:300px; overflow-y:auto; overflow-x:hidden;">
+      <span>There is nothing special in nesting swoosh elements into each other. I'm an outer element. But nonetheless, i'm also an inner element to the body swoosh element.</span>
+      <hr>
+
+      <div class="panel panel-warning" style="width:300px;">
+        <div class="panel-heading">
+          <h3 class="panel-title">Inner Element</h3>
+        </div>
+        <div class="panel-body" id="nest_inner" style="height:150px; overflow-y:auto; overflow-x:hidden;">
+          <span>I'm an inner element, my parent swoosh element is the outer element, whose parent swoosh element is the body.</span>
+          <hr>
+          <span>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</span>
+          <hr>
+          <span>This is a hidden anchor to demonstrate an anchor target in deep nested swoosh elements. <a id="anchors_hidden" href="#anchor_links">Bring me back</a> whence I came from.</span>
+        </div>
+      </div>
+      <span>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</span><br>
+
+    </div>
   </div>
 
-  <br>
+  <pre><code class="sw-ignore">swoosh(document.getElementById("nest_outer"));
+swoosh(document.getElementById("nest_inner"));</code></pre>
 
-  <pre><code class="sw-ignore">var ex2_log = document.getElementById("ex2_log");
-var s2 = swoosh(document.getElementById("ex2_div"))
-  .on('collide.left', function(e){
-    ex2_log.innerHTML += "collide.left Event triggered&lt;br&gt;"
-  })
-  .on('collide.top', function(e){
-    ex2_log.innerHTML += "collide.top Event triggered&lt;br&gt;"
-  })
-  .on('collide.right', function(e){
-    ex2_log.innerHTML += "collide.right Event triggered&lt;br&gt;"
-  })
-  .on('collide.bottom', function(e){
-    ex2_log.innerHTML += "collide.bottom Event triggered&lt;br&gt;"
+  <hr>
+
+  <h2 id="wheelzoom_and_grid">Example 4 - Wheelzoom & Grid</h2>
+
+  <span>You can zoom with your mouse wheel. Since <code>gridShow</code> is set and either <code>gridX</code> or <code>gridY</code> is set to a value greather than 1, swoosh will draw a grid useing a <code>::before</code> pseudo element. Drag the picture around, and you will see that it will always fit to the grid or to the edges.</span>
+  <hr>
+
+  <div class="panel panel-info">
+    <div class="panel-heading">
+      <h3 class="panel-title">Wheelzoom & Grid</h3>
+    </div>
+    <div class="panel-body" id="wheelzoom" style="height:478px; overflow:auto; padding:0px;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/b/bb/Kittyply_edit1.jpg" style="border-radius: 4px;">
+    </div>
+  </div>
+
+  <pre><code class="sw-ignore">swoosh(document.getElementById("wheelzoom"), {
+  gridX: 100,
+  gridY: 50,
+  gridShow: true,
+  wheelScroll: false,
+  wheelZoom: true,
+});</code></pre>
+
+  <hr>
+
+  <h2 id="elastic_edges">Example 5 - Elastic edges</h2>
+
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h3 class="panel-title">Elastic edges</h3>
+    </div>
+    <div class="panel-body" id="edges" style="height:300px; overflow-y:auto; overflow-x:hidden;">
+      <span>This element has elastic edges defined.<br>Drag the element with the mouse over the edges and see how it behaves.<br>Each side can be configured separately. You may only want the <code>bottom</code> to be elastic.</span>
+      <hr>
+      <span>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum...</span><br>
+      <span>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</span><br>
+    </div>
+  </div>
+
+  <pre><code class="sw-ignore">swoosh(document.getElementById("edges"), {
+    elasticEdges: {
+      left: true,
+      top: true,
+      right: true,
+      bottom: true,
+    }
   });</code></pre>
 
-  <h2 class="sw-ignore">Example 4 - Nested Elements</h2>
+  <hr>
 
-  <div id="div2" style="height:500px; width:400px; border:1px solid black; overflow:hidden; background-color:green;">
-  <span>Outside</span>
-    <div id="div3" style="margin:50px;height:200px; width:600px; border:1px solid black; overflow:hidden; background-color:blue;">
-      <span style="color:white;">Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</span>
+  <h2 id="events_and_callbacks">Example 6 - Events & Callbacks</h2>
+
+  <div class="panel panel-danger">
+    <div class="panel-heading">
+      <h3 class="panel-title">Events & Callbacks</h3>
     </div>
-
+    <div class="panel-body">
+      <span>There are 4 events emitted by swoosh. You can attach and detach custom callbacks to those events. To realise an infinity scroll element, you can load and append additional content when <code>collide.bottom</code> triggers.</span><br><br>
+      <div class="col-md-6" id="events" style="height:239px; overflow:auto; padding:0px; border:1px solid #ddd">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/b/bb/Kittyply_edit1.jpg" style="height:478px;">
+      </div>
+      <div class="col-md-6 sw-ignore" id="log" style="height:239px; overflow:auto; border:1px solid #ddd"></div>
+    </div>
   </div>
 
-  <h2 class="sw-ignore">Example 5 - Misc</h2>
-  <span>Works also with pictures!</span><br>
-  <div id="ex5_div" style="height:400px; width:600px; border:1px solid black; overflow-y:auto; overflow-x:auto; padding:0px;">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/4/46/Jennifer_Lawrence_at_the_83rd_Academy_Awards.jpg">
+  <pre><code class="sw-ignore">var log = document.getElementById("log");
+var s3 = swoosh(document.getElementById("events"))
+.on('collide.left', function(e){
+  log.innerHTML += "collide.left Event triggered&lt;br&gt;"
+})
+.on('collide.top', function(e){
+  log.innerHTML += "collide.top Event triggered&lt;br&gt;"
+})
+.on('collide.right', function(e){
+  log.innerHTML += "collide.right Event triggered&lt;br&gt;"
+})
+.on('collide.bottom', function(e){
+  log.innerHTML += "collide.bottom Event triggered&lt;br&gt;"
+});</code></pre>
+
+  <hr>
+
+  <h2 id="anchor_links">Example 7 - Anchor Links</h2>
+
+  <div class="panel panel-warning">
+    <div class="panel-heading">
+      <h3 class="panel-title">Anchor Links</h3>
+    </div>
+    <div class="panel-body" id="anchors" style="height:300px; overflow-y:auto; overflow-x:hidden;">
+      <span id="anchors_top">This is the anchor with <code>id="anchors_top"</code>.</span>
+      <hr>
+      <span>Anchor links inside a swoosh element are handled by the swoosh element itself. This behavior can be disabled with <code>handleAnchors=false</code>.
+      <hr>
+      However, it will not trigger a <a href="https://developer.mozilla.org/de/docs/Web/Events/hashchange">hashchange</a> event, even when the hash is changed in the address bar of the browser. It is done using <a href="https://developer.mozilla.org/en-US/docs/Web/API/History_API#The_pushState()_method">History.pushState()</a>. Swoosh makes sure, that every element which is involved (which is an ancestor to the anchor element), will scroll to the place of the anchor or to the inner swoosh element which contains the anchor.</span>
+      <hr>
+      <table class="table table-condensed">
+        <thead>
+          <tr>
+            <th>Firstname</th>
+            <th>Lastname</th>
+            <th>Email</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>John</td>
+            <td>Doe</td>
+            <td>john@example.com</td>
+          </tr>
+          <tr>
+            <td>Mary</td>
+            <td>Moe</td>
+            <td>mary@example.com</td>
+          </tr>
+          <tr>
+            <td>July</td>
+            <td>Dooley</td>
+            <td>july@example.com</td>
+          </tr>
+        </tbody>
+      </table>
+      <span id="anchors_bottom">This is the anchor with <code>id="anchors_bottom"</code>.</span>
+    </div>
   </div>
 
-</div>
+  <ul>
+    <li><a href="#anchor_links">To Example 7 - Anchor Links</a></li>
+    <li><a href="#anchors_bottom">To "anchors_bottom"</a></li>
+    <li><a href="#anchors_top">To "anchors_top"</a></li>
+    <li><a href="#anchors_hidden">To "anchors_hidden"</a></li>
+    <li><a href="#top">To the top of the document</a>. This link will only scroll the body swoosh element.</li>
+    <li><span>You can reload the document and you will be scrolled to the last anchor position given in the hash value of the address bar as soon as each swoosh element is initialized.</span></li>
+    <li><span>Try it with the browsers back and forward buttons.</span></li>
+  </ul>
 
-<a id="scrollToTop" href="javascript:void(0);">scroll to top</a>
+  <pre><code class="sw-ignore">swoosh(document.getElementById("anchors"));</code></pre>
+
+  <hr>
+
+  <h2 id="custom_options">Custom Options & Public Accessible Methods</h2>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Custom object</h3>
+    </div>
+    <div class="panel-body" id="custom" style="height:300px; overflow:auto;">
+      <div style="width:1600px;">
+      <span style="text-decoration:underline; color:red;" id="custom_top">Top anchor.</span><br>
+      <span>In this example you can change the options object interactively<br>and look how the behavior of the swoosh element differs.</span><br>
+      <span>This is just an element with oversized contents to play aroung with.</span>
+      <hr>
+      <span>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. </span><span style="text-decoration:underline; color:red;" id="custom_right">Right anchor</span><span>. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</span><br><span style="text-decoration:underline; color:red;" id="custom_bottom">Bottom anchor</span>.<span></span><br>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Public Accessible Methods</h3>
+    </div>
+    <div class="panel-body">
+      <span>Some methods are public accessible and can be invoked outside the object context. Click on the links to see how to use them.</span>
+      <hr>
+
+      <ul>
+        <li><span><code>scrollTo()</code>: <a id="scrollTo" href="javascript:void(0);">swoosh.scrollTo(100, 100, true)</a></span></li>
+        <li><span><code>scrollBy()</code>: <a id="scrollBy" href="javascript:void(0);">swoosh.scrollBy(50, 50, true)</a></span></li>
+        <li><span><code>scaleTo()</code>: <a id="scaleTo" href="javascript:void(0);">swoosh.scaleTo(2)</a></span></li>
+        <li><span><code>scaleBy()</code>: <a id="scaleBy" href="javascript:void(0);">swoosh.scaleBy(90)</a></span></li>
+        <li><span><code>reinit()</code>: Reinitialize with current config. <a id="reinit" href="javascript:void(0);">swoosh.reinit()</a></span></li>
+        <li><span><code>on()</code>: See <a href="#events_and_callbacks">Events & Callbacks</a></span></li>
+        <li><span><code>off()</code>: See <a href="#events_and_callbacks">Events & Callbacks</a></span></li>
+        <li><span><code>destroy()</code>: Revert all DOM manipulations and deregister all event handlers. <a id="destroy" href="javascript:void(0);">swoosh.destroy()</a></span></li>
+        <li><span>Anchor Links: <a href="#custom_top">top anchor</a>, <a href="#custom_right">right anchor</a>, <a href="#custom_bottom">bottom anchor</a></span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Options Object</h3>
+    </div>
+    <div class="panel-body">
+
+      <span>The options object is public and can be accessed by <code>swoosh.options</code>. Just alter an option and see how the behavior changes.</span>
+
+      <hr>
+
+      <div class="row">
+        <div class="col-lg-3">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" id="gridShow"> <code>gridShow</code>
+            </label>
+          </div>
+        </div>      
+        <div class="col-lg-3">
+          <div class="input-group">
+            <span class="input-group-addon"><code>gridX</code></span>
+            <input type="text" class="form-control" id="gridX">
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="input-group">
+            <span class="input-group-addon"><code>gridY</code></span>
+            <input type="text" class="form-control" id="gridY">
+          </div>          
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="row">
+        <div class="col-lg-3">
+          <div class="checkbox">
+            <label><code>elasticEdges</code></label>
+          </div>
+        </div>      
+        <div class="col-lg-3">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" id="elasticEdges.left"> <code>left</code>
+            </label>
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" id="elasticEdges.top"> <code>top</code>
+            </label>
+          </div>        
+        </div>
+      </div>
+      <br>
+
+      <div class="row">
+        <div class="col-md-offset-3 col-lg-3">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" id="elasticEdges.right"> <code>right</code>
+            </label>
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" id="elasticEdges.bottom"> <code>bottom</code>
+            </label>
+          </div>
+        </div>
+      </div>
+      <br>      
+
+      <hr>
+
+      <div class="row">
+        <div class="col-lg-3">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" id="dragScroll"> <code>dragScroll</code>
+            </label>
+          </div>
+        </div>
+
+        <div class="col-lg-3">
+          <div class="input-group">
+            <span class="input-group-addon"><code>minSpeed</code></span>
+            <input type="text" class="form-control" id="dragOptions.minSpeed">
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="input-group">
+            <span class="input-group-addon"><code>maxSpeed</code></span>
+            <input type="text" class="form-control" id="dragOptions.maxSpeed">
+          </div>
+        </div>
+      </div>
+      <br>
+
+      <div class="row">
+        <div class="col-md-offset-3 col-lg-4">
+          <div class="input-group">
+            <span class="input-group-addon"><code>brakeSpeed</code></span>
+            <input type="text" class="form-control" id="dragOptions.brakeSpeed">
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="input-group">
+            <span class="input-group-addon"><code>fps</code></span>
+            <input type="text" class="form-control" id="dragOptions.fps">
+          </div>
+        </div>
+      </div>
+      <br>
+
+      <div class="row">
+        <div class="col-md-offset-3 col-lg-3">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" id="dragOptions.fade"> <code>fade</code>
+            </label>
+          </div>
+        </div>      
+      </div>
+
+      <hr>
+
+      <div class="row">
+        <div class="col-lg-3">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" id="wheelScroll"> <code>wheelScroll</code>
+            </label>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="input-group">
+            <span class="input-group-addon"><code>direction</code></span>
+             <select class="form-control" id="wheelOptions.direction">
+              <option>vertical</option>
+              <option>horizontal</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="input-group">
+            <span class="input-group-addon"><code>step</code></span>
+            <input type="text" class="form-control" id="wheelOptions.step">
+          </div>
+        </div>
+      </div>
+      <br>
+      <div class="row">
+        <div class="col-md-offset-3 col-lg-3">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" id="wheelOptions.smooth"> <code>smooth</code>
+            </label>
+          </div>
+        </div>      
+      </div>
+
+      <hr>
+
+      <div class="row">
+        <div class="col-lg-3">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" id="wheelZoom"> <code>wheelZoom</code>
+            </label>
+          </div>
+        </div>
+
+        <div class="col-lg-3">
+          <div class="input-group">
+            <span class="input-group-addon"><code>minScale</code></span>
+            <input type="text" class="form-control" id="zoomOptions.minScale">
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="input-group">
+            <span class="input-group-addon"><code>maxScale</code></span>
+            <input type="text" class="form-control" id="zoomOptions.maxScale">
+          </div>
+        </div>
+      </div>
+      <br>
+
+      <div class="row">
+        <div class="col-md-offset-3 col-lg-4">
+          <div class="input-group">
+            <span class="input-group-addon"><code>direction</code></span>
+             <select class="form-control" id="zoomOptions.direction">
+              <option>up</option>
+              <option>down</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="input-group">
+            <span class="input-group-addon"><code>step</code></span>
+            <input type="text" class="form-control" id="zoomOptions.step">
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="row">
+        <div class="col-lg-3">
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" id="handleAnchors"> <code>handleAnchors</code>
+            </label>
+          </div>
+        </div>      
+      </div>
+
+    </div>
+  </div>
+
+  <pre><code class="sw-ignore">swoosh(HTMLElement, <span class="unstyled sw-ignore" id="optionsJson"></span>);</code></pre>
 
 </body>
 
