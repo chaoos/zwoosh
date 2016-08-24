@@ -1,71 +1,33 @@
-import swoosh from '../swoosh'
+/**
+ * If you're using typescript you can import the module with:
+ * import swoosh from '../swoosh'
+ */
+
+/* needed to suppress tsc errors TS2304, saying "cannot find swoosh" */
+declare var swoosh: any;
 
 window.onload = function () {
-
-  var div2 = document.getElementById("div2");
-  var div3 = document.getElementById("div3");
 
   var basics = swoosh(document.getElementById("basics"));
 
   var log = document.getElementById("log");
-  var events = swoosh(document.getElementById("events"))
-  .on('collide.left', function(e){
-    log.innerHTML += "collide.left Event triggered<br>"
-  })
-  .on('collide.top', function(e){
-    log.innerHTML += "collide.top Event triggered<br>"
-  })
-  .on('collide.right', function(e){
-    log.innerHTML += "collide.right Event triggered<br>"
-  })
-  .on('collide.bottom', function(e){
-    log.innerHTML += "collide.bottom Event triggered<br>"
-  });
+  swoosh(document.getElementById("events"))
+    .on('collide.left', function(e){
+      log.innerHTML += "collide.left Event triggered<br>"
+    })
+    .on('collide.top', function(e){
+      log.innerHTML += "collide.top Event triggered<br>"
+    })
+    .on('collide.right', function(e){
+      log.innerHTML += "collide.right Event triggered<br>"
+    })
+    .on('collide.bottom', function(e){
+      log.innerHTML += "collide.bottom Event triggered<br>"
+    });
 
-  /*
-  var ex3_log = document.getElementById("ex3_log");
-  var s3 = null;
-  document.getElementById("ex3_toogle").onclick = () => {
-    if (s3 == null) {
-      s3 = swoosh(document.getElementById("ex3_div"), {
-        elasticEgdes: {
-          left:50,
-          right:50,
-          top:50,
-          bottom:50,
-        },
-      })
-      .on('collide.left', function(e){
-        ex3_log.innerHTML += "collide.left Event triggered<br>"
-      })
-      .on('collide.top', function(e){
-        ex3_log.innerHTML += "collide.top Event triggered<br>"
-      })
-      .on('collide.right', function(e){
-        ex3_log.innerHTML += "collide.right Event triggered<br>"
-      })
-      .on('collide.bottom', function(e){
-        ex3_log.innerHTML += "collide.bottom Event triggered<br>"
-      });
-    } else {
-      s3.destroy();
-      s3 = null;
-    }
-  };*/
+  swoosh(document.getElementById("nest_outer"));
 
-  var nest_outer = swoosh(document.getElementById("nest_outer"));
-
-  /*var s4 = swoosh(document.getElementById("nest_outer"), {
-    elasticEgdes: {
-      left:100,
-      right:100,
-      top:200,
-      bottom:200,
-    },
-    wheelOptions: { direction: 'horizontal' },
-  });*/
-
-  var nest_inner = swoosh(document.getElementById("nest_inner"));
+  swoosh(document.getElementById("nest_inner"));
 
   var custom = swoosh(document.getElementById("custom"));
   document.getElementById("scrollBy").onclick = () => {
@@ -131,7 +93,6 @@ window.onload = function () {
       (<any>el).value = eval("swooshElement.options." + option);
       el.onkeyup = () => {
         if ((option == 'gridX' || option == 'gridY') && swooshElement.options.gridShow) {reinit = true;} else {reinit = false;}
-        console.log(option, reinit);
         eval("swooshElement.options." + option + " = " + parseFloat((<any>el).value) + ";");
         document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(swooshElement.options, basics.options), null, 2);
         reinit == true ? swooshElement.reinit() : null;
@@ -173,7 +134,7 @@ window.onload = function () {
     return diff;
   }
 
-  var edges = swoosh(document.getElementById("edges"), {
+  swoosh(document.getElementById("edges"), {
     elasticEdges: {
       left: true,
       top: true,
@@ -182,7 +143,7 @@ window.onload = function () {
     }
   });
 
-  var wheelzoom = swoosh(document.getElementById("wheelzoom"), {
+  swoosh(document.getElementById("wheelzoom"), {
     gridX: 100,
     gridY: 50,
     gridShow: true,
@@ -190,8 +151,9 @@ window.onload = function () {
     wheelZoom: true,
   });
 
-  var anchors = swoosh(document.getElementById("anchors"));
+  swoosh(document.getElementById("anchors"));
 
-  var body = swoosh(document.body);
+  swoosh(document.body);
+  //swoosh(document.getElementById("bodyTest"));
 
 }

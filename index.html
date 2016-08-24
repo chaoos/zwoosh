@@ -298,19 +298,19 @@ swoosh(document.getElementById("nest_inner"));</code></pre>
   </div>
 
   <pre><code class="sw-ignore">var log = document.getElementById("log");
-var s3 = swoosh(document.getElementById("events"))
-.on('collide.left', function(e){
-  log.innerHTML += "collide.left Event triggered&lt;br&gt;"
-})
-.on('collide.top', function(e){
-  log.innerHTML += "collide.top Event triggered&lt;br&gt;"
-})
-.on('collide.right', function(e){
-  log.innerHTML += "collide.right Event triggered&lt;br&gt;"
-})
-.on('collide.bottom', function(e){
-  log.innerHTML += "collide.bottom Event triggered&lt;br&gt;"
-});</code></pre>
+swoosh(document.getElementById("events"))
+  .on('collide.left', function(e){
+    log.innerHTML += "collide.left Event triggered&lt;br&gt;"
+  })
+  .on('collide.top', function(e){
+    log.innerHTML += "collide.top Event triggered&lt;br&gt;"
+  })
+  .on('collide.right', function(e){
+    log.innerHTML += "collide.right Event triggered&lt;br&gt;"
+  })
+  .on('collide.bottom', function(e){
+    log.innerHTML += "collide.bottom Event triggered&lt;br&gt;"
+  });</code></pre>
 
   <hr>
 
@@ -634,9 +634,16 @@ var s3 = swoosh(document.getElementById("events"))
     </div>
   </div>
 
-  <pre><code class="sw-ignore">swoosh(HTMLElement, <span class="unstyled sw-ignore" id="optionsJson"></span>);</code></pre>
+  <pre><code class="sw-ignore">var element = swoosh(HTMLElement, <span class="unstyled sw-ignore" id="optionsJson"></span>);</code></pre>
 
 </body>
 
+
+<!--
 <script src='example/example.min.js'></script>
+-->
+
+<script src='dist/swoosh.js'></script>
+<script src='example/example.js'></script>
+
 </html>

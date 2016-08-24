@@ -8,103 +8,110 @@
 })(function (require, exports) {
     "use strict";
     /**
-     * Polyfill bind function for older browsers
-     * The bind function is an addition to ECMA-262, 5th edition
-     * See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind
-     */
-    if (!Function.prototype.bind) {
-        Function.prototype.bind = function (oThis) {
-            if (typeof this !== 'function') {
-                // closest thing possible to the ECMAScript 5
-                // internal IsCallable function
-                throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
-            }
-            var aArgs = Array.prototype.slice.call(arguments, 1), fToBind = this, fNOP = function () { }, fBound = function () {
-                return fToBind.apply(this instanceof fNOP
-                    ? this
-                    : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
-            };
-            if (this.prototype) {
-                // Function.prototype doesn't have a prototype property
-                fNOP.prototype = this.prototype;
-            }
-            fBound.prototype = new fNOP();
-            return fBound;
-        };
-    }
-    /**
-     * Polyfill array.indexOf function for older browsers
-     * The indexOf() function was added to the ECMA-262 standard in the 5th edition
-     * as such it may not be present in all browsers.
-     * See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf
-     */
-    if (!Array.prototype.indexOf) {
-        Array.prototype.indexOf = function (searchElement, fromIndex) {
-            var k;
-            if (this == null) {
-                throw new TypeError('"this" is null or not defined');
-            }
-            var o = Object(this);
-            var len = o.length >>> 0;
-            if (len === 0) {
-                return -1;
-            }
-            var n = +fromIndex || 0;
-            if (Math.abs(n) === Infinity) {
-                n = 0;
-            }
-            if (n >= len) {
-                return -1;
-            }
-            k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
-            while (k < len) {
-                if (k in o && o[k] === searchElement) {
-                    return k;
-                }
-                k++;
-            }
-            return -1;
-        };
-    }
-    /* list of real events */
-    var htmlEvents = {
-        /* <body> and <frameset> Events */
-        onload: 1,
-        onunload: 1,
-        /* Form Events */
-        onblur: 1,
-        onchange: 1,
-        onfocus: 1,
-        onreset: 1,
-        onselect: 1,
-        onsubmit: 1,
-        /* Image Events */
-        onabort: 1,
-        /* Keyboard Events */
-        onkeydown: 1,
-        onkeypress: 1,
-        onkeyup: 1,
-        /* Mouse Events */
-        onclick: 1,
-        ondblclick: 1,
-        onmousedown: 1,
-        onmousemove: 1,
-        onmouseout: 1,
-        onmouseover: 1,
-        onmouseup: 1
-    };
-    var mapEvents = {
-        onscroll: window
-    };
-    /**
-     * default export function of the module
+     * Export function of the module
      *
      * @param {HTMLElement} container - The HTMLElement to swoooosh!
      * @param {Options} options - the options object to configure Swoosh
      * @return {Swoosh} - Swoosh object instance
      */
-    function default_1(container, options) {
+    function swoosh(container, options) {
         if (options === void 0) { options = {}; }
+        /**
+         * Polyfill bind function for older browsers
+         * The bind function is an addition to ECMA-262, 5th edition
+         * @see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind
+         */
+        if (!Function.prototype.bind) {
+            Function.prototype.bind = function (oThis) {
+                if (typeof this !== 'function') {
+                    // closest thing possible to the ECMAScript 5
+                    // internal IsCallable function
+                    throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+                }
+                var aArgs = Array.prototype.slice.call(arguments, 1), fToBind = this, fNOP = function () { }, fBound = function () {
+                    return fToBind.apply(this instanceof fNOP
+                        ? this
+                        : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
+                };
+                if (this.prototype) {
+                    // Function.prototype doesn't have a prototype property
+                    fNOP.prototype = this.prototype;
+                }
+                fBound.prototype = new fNOP();
+                return fBound;
+            };
+        }
+        /**
+         * Polyfill array.indexOf function for older browsers
+         * The indexOf() function was added to the ECMA-262 standard in the 5th edition
+         * as such it may not be present in all browsers.
+         * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf
+         */
+        if (!Array.prototype.indexOf) {
+            Array.prototype.indexOf = function (searchElement, fromIndex) {
+                var k;
+                if (this == null) {
+                    throw new TypeError('"this" is null or not defined');
+                }
+                var o = Object(this);
+                var len = o.length >>> 0;
+                if (len === 0) {
+                    return -1;
+                }
+                var n = +fromIndex || 0;
+                if (Math.abs(n) === Infinity) {
+                    n = 0;
+                }
+                if (n >= len) {
+                    return -1;
+                }
+                k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
+                while (k < len) {
+                    if (k in o && o[k] === searchElement) {
+                        return k;
+                    }
+                    k++;
+                }
+                return -1;
+            };
+        }
+        /* list of real events */
+        var htmlEvents = {
+            /* <body> and <frameset> Events */
+            onload: 1,
+            onunload: 1,
+            /* Form Events */
+            onblur: 1,
+            onchange: 1,
+            onfocus: 1,
+            onreset: 1,
+            onselect: 1,
+            onsubmit: 1,
+            /* Image Events */
+            onabort: 1,
+            /* Keyboard Events */
+            onkeydown: 1,
+            onkeypress: 1,
+            onkeyup: 1,
+            /* Mouse Events */
+            onclick: 1,
+            ondblclick: 1,
+            onmousedown: 1,
+            onmousemove: 1,
+            onmouseout: 1,
+            onmouseover: 1,
+            onmouseup: 1
+        };
+        var mapEvents = {
+            onscroll: window
+        };
+        /**
+         * Swoosh provides a set of functions to implement scroll by drag, zoom by mousewheel,
+         * hash links inside the document and other special scroll related requirements.
+         *
+         * @author Roman Gruber <p1020389@yahoo.com>
+         * @version 1.0
+         */
         var Swoosh = (function () {
             function Swoosh(container, options) {
                 this.container = container;
@@ -134,7 +141,8 @@
                     gridX: 1,
                     gridY: 1,
                     /* shows a grid as an overlay over the element. Works only if the browser supports
-                     * CSS Generated content for pseudo-elements, See http://caniuse.com/#search=%3Abefore */
+                     * CSS Generated content for pseudo-elements
+                     * @see http://caniuse.com/#search=%3Abefore */
                     gridShow: false,
                     /* which edge should be elastic */
                     elasticEdges: {
@@ -171,7 +179,7 @@
                         smooth: true
                     },
                     /* activates/deactivates zooming by wheel. Works only with a CSS3 2D Transform capable browser.
-                     * See: http://caniuse.com/#feat=transforms2d */
+                     * @see http://caniuse.com/#feat=transforms2d */
                     wheelZoom: false,
                     zoomOptions: {
                         /* the maximum scale, 0 means no maximum */
@@ -183,7 +191,7 @@
                         /* mouse wheel direction to zoom larger */
                         direction: 'up'
                     },
-                    /* let swoosh handle anchor links targetting to an anchor inside of this swoosh element.
+                    /* let swoosh handle anchor links targeting to an anchor inside of this swoosh element.
                      * the element outside (maybe the body) handles anchors too. If you want to prevent this,
                      * add to body as swoosh element too. */
                     handleAnchors: true
@@ -211,39 +219,41 @@
              */
             Swoosh.prototype.init = function () {
                 var _this = this;
-                this.container.className += " " + this.classOuter + " ";
                 this.isBody = this.container.tagName == "BODY" ? true : false;
-                this.scrollElement = this.isBody ? document.documentElement : this.container;
-                var x = this.scrollElement.scrollLeft;
-                var y = this.scrollElement.scrollTop;
+                /* Chrome solution to scroll the body is not really viable, so we create a fake body
+                 * div element to scroll on */
+                if (this.isBody === true) {
+                    var pseudoBody = document.createElement("div");
+                    pseudoBody.className += " sw-fakebody ";
+                    pseudoBody.style.cssText = document.body.style.cssText;
+                    while (this.container.childNodes.length > 0) {
+                        pseudoBody.appendChild(this.container.childNodes[0]);
+                    }
+                    this.container.appendChild(pseudoBody);
+                    this.container = pseudoBody;
+                }
+                this.container.className += " " + this.classOuter + " ";
+                //this.scrollElement = this.isBody ? document.documentElement : this.container;
+                this.scrollElement = this.container;
+                var x = this.getScrollLeft();
+                var y = this.getScrollTop();
                 /* create inner div element and append it to the container with its contents in it */
                 this.inner = document.createElement("div");
                 //var uniqueClass = this.classInner + "-" + Math.random().toString(36).substring(7);
                 this.inner.className += " " + this.classInner + " " + this.classUnique + " ";
-                /* TODO: check of wheelZoom 3x */
-                /* TODO || true */
-                if (this.options.wheelZoom == true || true) {
-                    this.scaleElement = document.createElement("div");
-                    this.scaleElement.className += " " + this.classScale + " ";
-                    this.scaleElement.appendChild(this.inner);
-                    var toAppend = this.scaleElement;
-                }
-                else {
-                    var toAppend = this.inner;
-                }
+                this.scaleElement = document.createElement("div");
+                this.scaleElement.className += " " + this.classScale + " ";
+                this.scaleElement.appendChild(this.inner);
                 /* move all childNodes to the new inner element */
                 while (this.container.childNodes.length > 0) {
                     this.inner.appendChild(this.container.childNodes[0]);
                 }
-                this.container.appendChild(toAppend);
+                this.container.appendChild(this.scaleElement);
                 this.inner.style.minWidth = (this.container.scrollWidth - this.getBorderWidth(this.container)) + 'px';
                 this.inner.style.minHeight = (this.container.scrollHeight - this.getBorderWidth(this.container)) + 'px';
-                /* TODO || true */
-                if (this.options.wheelZoom == true || true) {
-                    this.scaleElement.style.minWidth = this.inner.style.minWidth;
-                    this.scaleElement.style.minHeight = this.inner.style.minHeight;
-                    this.scaleElement.style.overflow = 'hidden';
-                }
+                this.scaleElement.style.minWidth = this.inner.style.minWidth;
+                this.scaleElement.style.minHeight = this.inner.style.minHeight;
+                this.scaleElement.style.overflow = 'hidden';
                 /* show the grid only if at least one of the grid values is not 1 */
                 if ((this.options.gridX != 1 || this.options.gridY != 1) && this.options.gridShow) {
                     var bgi = [];
@@ -264,12 +274,12 @@
                 this.scrollTo(x, y, true);
                 /* Event handler registration start here */
                 /* TODO: not 2 different event handlers registrations -> do it in this.addEventListener() */
-                if (this.options.wheelScroll == false) {
+                if (this.options.wheelScroll === false) {
                     this.mouseScrollHandler = function (e) { return _this.disableMouseScroll(e); };
                     //this.scrollElement.onmousewheel = this.mouseScrollHandler;
                     this.addEventListener(this.scrollElement, 'wheel', this.mouseScrollHandler);
                 }
-                else if (this.options.wheelScroll == true) {
+                else if (this.options.wheelScroll === true) {
                     this.mouseScrollHandler = function (e) { return _this.activeMouseScroll(e); };
                     //this.scrollElement.onmousewheel = this.mouseScrollHandler;
                     this.addEventListener(this.scrollElement, 'wheel', this.mouseScrollHandler);
@@ -277,7 +287,7 @@
                 /* TODO: needed, when gridShow is true */
                 this.options.gridShow ? this.scaleTo(1) : null;
                 /* wheelzoom */
-                if (this.options.wheelZoom == true) {
+                if (this.options.wheelZoom === true) {
                     //this.scaleTo(1); /* needed, when gridShow is true */
                     this.mouseZoomHandler = function (e) { return _this.activeMouseZoom(e); };
                     this.addEventListener(this.scrollElement, 'wheel', this.mouseZoomHandler);
@@ -291,21 +301,24 @@
                     window.onresize = this.resizeHandler;
                 }
                 /* if dragscroll is activated, register mousedown event */
-                if (this.options.dragScroll == true) {
-                    this.container.className += " " + this.classGrab + " ";
+                if (this.options.dragScroll === true) {
+                    this.inner.className += " " + this.classGrab + " ";
                     this.mouseDownHandler = function (e) { return _this.mouseDown(e); };
                     this.addEventListener(this.inner, 'mousedown', this.mouseDownHandler);
                 }
                 else {
                     this.container.className += " " + this.classNoGrab + " ";
                 }
-                if (this.options.handleAnchors == true) {
+                if (this.options.handleAnchors === true) {
                     var links = this.container.querySelectorAll("a[href^='#']");
                     this.hashChangeClickHandler = function (e) {
-                        /* we don't want to trigger hashchange, so prevent default behavior when clicking on anchor links */
-                        e.preventDefault();
-                        /* pushState changes the hash without triggering hashchange */
-                        history.pushState({}, '', e.target.href);
+                        var target = e ? e.target : window.event.srcElement;
+                        if (typeof target != 'undefined') {
+                            /* pushState changes the hash without triggering hashchange */
+                            history.pushState({}, '', target.href);
+                            /* we don't want to trigger hashchange, so prevent default behavior when clicking on anchor links */
+                            e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+                        }
                         /* trigger a custom hashchange event, because pushState prevents the real hashchange event */
                         _this.triggerEvent(window, 'myhashchange');
                     };
@@ -333,10 +346,23 @@
                 this.init();
                 return this;
             };
+            /* @TODO: ScrollWidth and ClientWidth ScrollHeight ClientHeight */
+            Swoosh.prototype.getScrollLeft = function () {
+                return this.scrollElement.scrollLeft;
+            };
+            Swoosh.prototype.setScrollLeft = function (left) {
+                this.scrollElement.scrollLeft = left;
+            };
+            Swoosh.prototype.getScrollTop = function () {
+                return this.scrollElement.scrollTop;
+            };
+            Swoosh.prototype.setScrollTop = function (top) {
+                this.scrollElement.scrollTop = top;
+            };
             /**
              * Handle hashchanges with own scroll function
              *
-             * @param {Event} - the hashchange or myhashchange event, or nothing
+             * @param {Event} e - the hashchange or myhashchange event, or nothing
              * @return {void}
              */
             Swoosh.prototype.onHashChange = function (e) {
@@ -356,25 +382,33 @@
                             }
                             container = container.parentElement;
                         }
-                        /* get relative coords from the next swoosh element or the anchor element */
-                        var x = (nextContainer.offsetLeft - this.container.offsetLeft) * this.getScale();
-                        var y = (nextContainer.offsetTop - this.container.offsetTop) * this.getScale();
                         if (e != null) {
                             if (e.type == 'hashchange') {
                                 /* scrolling instantly back to origin */
                                 this.scrollTo(this.originScrollLeft, this.originScrollTop, false);
                             }
                         }
-                        this.scrollTo(x, y, true);
+                        this.scrollToElement(nextContainer);
                     }
                 }
             };
             /**
+             * Scroll to an element in the DOM
+             *
+             * @param {HTMLElement} element - the HTMLElement to scroll to
+             */
+            Swoosh.prototype.scrollToElement = function (element) {
+                /* get relative coords from the anchor element */
+                var x = (element.offsetLeft - this.container.offsetLeft) * this.getScale();
+                var y = (element.offsetTop - this.container.offsetTop) * this.getScale();
+                this.scrollTo(x, y, true);
+            };
+            /**
              * Workaround to manipulate ::before CSS styles with javascript
              *
-             * @param {string} - the CSS class name to add ::before properties
-             * @param {string} - the CSS property to set
-             * @param {string} - the CSS value to set
+             * @param {string} cssClass - the CSS class name to add ::before properties
+             * @param {string} cssProperty - the CSS property to set
+             * @param {string} cssValue - the CSS value to set
              * @return {void}
              */
             Swoosh.prototype.addBeforeCSS = function (cssClass, cssProperty, cssValue) {
@@ -388,7 +422,7 @@
             /**
              * Get compute pixel number of the whole width of an elements border
              *
-             * @param {HTMLElement} - the HTML element
+             * @param {HTMLElement} el - the HTML element
              * @return {number} - the amount of pixels
              */
             Swoosh.prototype.getBorderWidth = function (el) {
@@ -409,7 +443,7 @@
             /**
              * Get compute pixel number of the whole height of an elements border
              *
-             * @param {HTMLElement} - the HTML element
+             * @param {HTMLElement} el - the HTML element
              * @return {number} - the amount of pixels
              */
             Swoosh.prototype.getBorderHeight = function (el) {
@@ -497,13 +531,13 @@
                         }
                     }
                     this.disableMouseScroll(e);
-                    var x = this.scrollElement.scrollLeft;
-                    var y = this.scrollElement.scrollTop;
+                    var x = this.getScrollLeft();
+                    var y = this.getScrollTop();
                     if (this.options.wheelOptions.direction == 'horizontal') {
-                        x = this.scrollElement.scrollLeft + (direction == 'down' ? this.options.wheelOptions.step : this.options.wheelOptions.step * -1);
+                        x = this.getScrollLeft() + (direction == 'down' ? this.options.wheelOptions.step : this.options.wheelOptions.step * -1);
                     }
                     else if (this.options.wheelOptions.direction == 'vertical') {
-                        y = this.scrollElement.scrollTop + (direction == 'down' ? this.options.wheelOptions.step : this.options.wheelOptions.step * -1);
+                        y = this.getScrollTop() + (direction == 'down' ? this.options.wheelOptions.step : this.options.wheelOptions.step * -1);
                     }
                     this.scrollTo(x, y);
                 }
@@ -674,8 +708,8 @@
              * @return {void}
              */
             Swoosh.prototype.onScroll = function (e) {
-                var x = this.scrollElement.scrollLeft || this.container.scrollLeft;
-                var y = this.scrollElement.scrollTop || this.container.scrollTop;
+                var x = this.getScrollLeft();
+                var y = this.getScrollTop();
                 // the collideLeft event
                 if (x == 0) {
                     this.triggered.collideLeft ? null : this.triggerEvent(this.inner, 'collide.left');
@@ -751,6 +785,7 @@
              * @param {any} obj - The HTMLElement to attach the event to
              * @param {string} event - The event name without the leading "on"
              * @param {(e: Event) => void} callback - A callback function to attach to the event
+             * @param {boolean} bound - whether to bind the callback to the object instance or not
              * @return {void}
              */
             Swoosh.prototype.addEventListener = function (obj, event, callback, bound) {
@@ -943,21 +978,23 @@
                               break;
                             }
                           }
-                          if (found == false) {
+                          if (found === false) {
                             return;
                           }
                         }*/
-                        this.inner.className += " " + this.classGrabbing + " ";
+                        //this.inner.className += " " + this.classGrabbing + " ";
+                        document.body.className += " " + this.classGrabbing + " ";
                         /* note the origin positions */
                         this.dragOriginLeft = e.clientX;
                         this.dragOriginTop = e.clientY;
-                        this.dragOriginScrollLeft = this.scrollElement.scrollLeft;
-                        this.dragOriginScrollTop = this.scrollElement.scrollTop;
+                        this.dragOriginScrollLeft = this.getScrollLeft();
+                        this.dragOriginScrollTop = this.getScrollTop();
                         /* it looks strange if scroll-behavior is set to smooth */
                         this.parentOriginStyle = this.inner.parentElement.style.cssText;
                         if (typeof this.inner.parentElement.style.setProperty == 'function') {
                             this.inner.parentElement.style.setProperty('scroll-behavior', 'auto');
                         }
+                        e.preventDefault ? e.preventDefault() : (e.returnValue = false);
                         /* register the event handlers */
                         this.mouseMoveHandler = this.mouseMove.bind(this);
                         this.addEventListener(document.documentElement, 'mousemove', this.mouseMoveHandler);
@@ -981,10 +1018,9 @@
                 var x = this.getRealX(this.dragOriginLeft + this.dragOriginScrollLeft - e.clientX);
                 var y = this.getRealY(this.dragOriginTop + this.dragOriginScrollTop - e.clientY);
                 var re = new RegExp(" " + this.classGrabbing + " ");
-                this.inner.className = this.inner.className.replace(re, '');
+                document.body.className = document.body.className.replace(re, '');
                 this.inner.parentElement.style.cssText = this.parentOriginStyle;
-                if (y != this.scrollElement.scrollTop || x != this.scrollElement.scrollLeft) {
-                    this.scrollTo(x, y, true);
+                if (y != this.getScrollTop() || x != this.getScrollLeft()) {
                 }
                 this.removeEventListener(document.documentElement, 'mousemove', this.mouseMoveHandler);
                 this.removeEventListener(document.documentElement, 'mouseup', this.mouseUpHandler);
@@ -1001,23 +1037,43 @@
                     var vy = (vy <= vMax && vy >= -vMax) ? vy : (vy > 0 ? vMax : -vMax);
                     var ax = (vx > 0 ? -1 : 1) * this.options.dragOptions.brakeSpeed;
                     var ay = (vy > 0 ? -1 : 1) * this.options.dragOptions.brakeSpeed;
-                    x = ((0 - Math.pow(vx, 2)) / (2 * ax)) + this.scrollElement.scrollLeft;
-                    y = ((0 - Math.pow(vy, 2)) / (2 * ay)) + this.scrollElement.scrollTop;
+                    x = ((0 - Math.pow(vx, 2)) / (2 * ax)) + this.getScrollLeft();
+                    y = ((0 - Math.pow(vy, 2)) / (2 * ay)) + this.getScrollTop();
                     this.fadeOutByCoords(x, y);
                 }
             };
+            /**
+             * Calculates the rounded and scaled x-coordinate.
+             *
+             * @param {number} x - the x-coordinate
+             * @return {number} - the final x-coordinate
+             */
             Swoosh.prototype.getRealX = function (x) {
                 //stick the element to the grid, if grid equals 1 the value does not change
                 x = Math.round(x / (this.options.gridX * this.getScale())) * (this.options.gridX * this.getScale());
                 var scrollMaxLeft = (this.scrollElement.scrollWidth - this.scrollElement.clientWidth);
                 return (x > scrollMaxLeft) ? scrollMaxLeft : x;
             };
+            /**
+             * Calculates the rounded and scaled y-coordinate.
+             *
+             * @param {number} y - the y-coordinate
+             * @return {number} - the final y-coordinate
+             */
             Swoosh.prototype.getRealY = function (y) {
                 //stick the element to the grid, if grid equals 1 the value does not change
                 y = Math.round(y / (this.options.gridY * this.getScale())) * (this.options.gridY * this.getScale());
                 var scrollMaxTop = (this.scrollElement.scrollHeight - this.scrollElement.clientHeight);
                 return (y > scrollMaxTop) ? scrollMaxTop : y;
             };
+            /**
+             * Calculates each step of a scroll fadeout animation based on the initial velocity.
+             * Stops any currently running scroll animation.
+             *
+             * @param {number} vx - the initial velocity in horizontal direction
+             * @param {number} vy - the initial velocity in vertical direction
+             * @return {number} - the final y-coordinate
+             */
             Swoosh.prototype.fadeOutByVelocity = function (vx, vy) {
                 /* TODO: calc v here and with more info, more precisely */
                 var _this = this;
@@ -1032,12 +1088,12 @@
                 var me = this;
                 for (var i = 0; i < ((tmax * fps) + (0 / fps)); i++) {
                     var t = ((i + 1) / fps);
-                    var sy = this.scrollElement.scrollTop + (vy * t) + (0.5 * ay * t * t);
-                    var sx = this.scrollElement.scrollLeft + (vx * t) + (0.5 * ax * t * t);
+                    var sy = this.getScrollTop() + (vy * t) + (0.5 * ay * t * t);
+                    var sx = this.getScrollLeft() + (vx * t) + (0.5 * ax * t * t);
                     this.timeouts.push(setTimeout((function (x, y, me) {
                         return function () {
-                            me.scrollElement.scrollTop = y;
-                            me.scrollElement.scrollLeft = x;
+                            me.setScrollTop(y);
+                            me.setScrollLeft(x);
                             me.originScrollLeft = x;
                             me.originScrollTop = y;
                         };
@@ -1048,17 +1104,17 @@
                 sy = vy > 0 ? Math.ceil(sy) : Math.floor(sy);
                 this.timeouts.push(setTimeout((function (x, y, me) {
                     return function () {
-                        me.scrollElement.scrollTop = y;
-                        me.scrollElement.scrollLeft = x;
+                        me.setScrollTop(y);
+                        me.setScrollLeft(x);
                         me.originScrollLeft = x;
                         me.originScrollTop = y;
                     };
                 })(sx, sy, me), (i + 2) * (1000 / fps)));
                 /* stop the animation when colliding with the borders */
-                this.clearListenerLeft = function () { return _this.clearTimeouts; };
-                this.clearListenerRight = function () { return _this.clearTimeouts; };
-                this.clearListenerTop = function () { return _this.clearTimeouts; };
-                this.clearListenerBottom = function () { return _this.clearTimeouts; };
+                this.clearListenerLeft = function () { return _this.clearTimeouts(); };
+                this.clearListenerRight = function () { return _this.clearTimeouts(); };
+                this.clearListenerTop = function () { return _this.clearTimeouts(); };
+                this.clearListenerBottom = function () { return _this.clearTimeouts(); };
                 this.addEventListener(this.inner, 'collide.left', this.clearListenerLeft);
                 this.addEventListener(this.inner, 'collide.right', this.clearListenerRight);
                 this.addEventListener(this.inner, 'collide.top', this.clearListenerTop);
@@ -1068,12 +1124,12 @@
                 x = this.getRealX(x);
                 y = this.getRealY(y);
                 var a = this.options.dragOptions.brakeSpeed * -1;
-                var vy = 0 - (2 * a * (y - this.scrollElement.scrollTop));
-                var vx = 0 - (2 * a * (x - this.scrollElement.scrollLeft));
+                var vy = 0 - (2 * a * (y - this.getScrollTop()));
+                var vx = 0 - (2 * a * (x - this.getScrollLeft()));
                 vy = (vy > 0 ? 1 : -1) * Math.sqrt(Math.abs(vy));
                 vx = (vx > 0 ? 1 : -1) * Math.sqrt(Math.abs(vx));
-                var sx = x - this.scrollElement.scrollLeft;
-                var sy = y - this.scrollElement.scrollTop;
+                var sx = x - this.getScrollLeft();
+                var sy = y - this.getScrollTop();
                 if (Math.abs(sy) > Math.abs(sx)) {
                     vx = (vx > 0 ? 1 : -1) * Math.abs((sx / sy) * vy);
                 }
@@ -1100,21 +1156,21 @@
                 var x = this.dragOriginLeft + this.dragOriginScrollLeft - e.clientX;
                 var y = this.dragOriginTop + this.dragOriginScrollTop - e.clientY;
                 /* if elastic edges are set, show the element pseudo scrolled by relative position */
-                if (this.triggered.collideBottom && this.options.elasticEdges.bottom == true) {
+                if (this.triggered.collideBottom && this.options.elasticEdges.bottom === true) {
                     this.inner.style.position = 'relative';
-                    this.inner.style.top = ((this.scrollElement.scrollTop - y) / 2) + 'px';
+                    this.inner.style.top = ((this.getScrollTop() - y) / 2) + 'px';
                 }
-                else if (this.triggered.collideTop && this.options.elasticEdges.top == true) {
+                if (this.triggered.collideTop && this.options.elasticEdges.top === true) {
                     this.inner.style.position = 'relative';
                     this.inner.style.top = (y / -2) + 'px';
                 }
-                if (this.triggered.collideLeft && this.options.elasticEdges.left == true) {
+                if (this.triggered.collideLeft && this.options.elasticEdges.left === true) {
                     this.inner.style.position = 'relative';
                     this.inner.style.left = (x / -2) + 'px';
                 }
-                else if (this.triggered.collideRight && this.options.elasticEdges.right == true) {
+                if (this.triggered.collideRight && this.options.elasticEdges.right === true) {
                     this.inner.style.position = 'relative';
-                    this.inner.style.left = ((this.scrollElement.scrollLeft - x) / 2) + 'px';
+                    this.inner.style.left = ((this.getScrollLeft() - x) / 2) + 'px';
                 }
                 /*  calculate speed */
                 this.present = (this.getTimestamp() / 1000); //in seconds
@@ -1128,10 +1184,11 @@
                 this.pastY = y;
                 this.scrollTo(x, y);
             };
+            /* @TODO */
             Swoosh.prototype.scrollBy = function (x, y, smooth) {
                 if (smooth === void 0) { smooth = false; }
-                var absoluteX = this.scrollElement.scrollLeft + x;
-                var absoluteY = this.scrollElement.scrollTop + y;
+                var absoluteX = this.getScrollLeft() + x;
+                var absoluteY = this.getScrollTop() + y;
                 this.scrollTo(absoluteX, absoluteY, smooth);
             };
             /**
@@ -1153,12 +1210,12 @@
                 var x = (x > this.scrollMaxLeft) ? this.scrollMaxLeft : (x < 0) ? 0 : x;
                 var y = (y > this.scrollMaxTop) ? this.scrollMaxTop : (y < 0) ? 0 : y;
                 /* remember the old values */
-                this.originScrollLeft = this.scrollElement.scrollLeft;
-                this.originScrollTop = this.scrollElement.scrollTop;
-                if (x != this.scrollElement.scrollLeft || y != this.scrollElement.scrollTop) {
-                    if (this.options.wheelOptions.smooth != true || smooth == false) {
-                        this.scrollElement.scrollTop = y;
-                        this.scrollElement.scrollLeft = x;
+                this.originScrollLeft = this.getScrollLeft();
+                this.originScrollTop = this.getScrollTop();
+                if (x != this.getScrollLeft() || y != this.getScrollTop()) {
+                    if (this.options.wheelOptions.smooth !== true || smooth === false) {
+                        this.setScrollTop(y);
+                        this.setScrollLeft(x);
                     }
                     else {
                         this.fadeOutByCoords(x, y);
@@ -1198,13 +1255,13 @@
              * @TODO: removing wheelZoomHandler does not work
              */
             Swoosh.prototype.destroy = function () {
-                var x = this.scrollElement.scrollLeft;
-                var y = this.scrollElement.scrollTop;
+                var x = this.getScrollLeft();
+                var y = this.getScrollTop();
                 /* remove the outer and grab CSS classes */
                 var re = new RegExp(" " + this.classOuter + " ");
                 this.container.className = this.container.className.replace(re, '');
                 var re = new RegExp(" " + this.classGrab + " ");
-                this.container.className = this.container.className.replace(re, '');
+                this.inner.className = this.inner.className.replace(re, '');
                 /* move all childNodes back to the old outer element and remove the inner element */
                 while (this.inner.childNodes.length > 0) {
                     this.container.appendChild(this.inner.childNodes[0]);
@@ -1235,7 +1292,6 @@
         /* return an instance of the class */
         return new Swoosh(container, options);
     }
-    exports.__esModule = true;
-    exports["default"] = default_1;
+    return swoosh;
 });
 //# sourceMappingURL=swoosh.js.map
