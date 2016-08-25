@@ -136,6 +136,5 @@ window.onload = function () {
     });
     swoosh(document.getElementById("anchors"));
     swoosh(document.body);
-    //swoosh(document.getElementById("bodyTest"));
 };
 //# sourceMappingURL=example.js.map

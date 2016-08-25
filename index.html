@@ -8,7 +8,7 @@
 <title>swoosh</title>
 </head>
 
-<body id="body" style="overflow:auto;">
+<body>
 
 <div class="container">
 
@@ -31,7 +31,7 @@
     <div class="panel-heading">
       <h3 class="panel-title">Basics</h3>
     </div>
-    <div class="panel-body" id="basics" style="height:250px; overflow-y:auto; overflow-x:hidden;">
+    <div class="panel-body" id="basics">
 
       <span>Drag me with the mouse.</span><br>
       <span>You can also use the mouse wheel.</span><br>
@@ -182,7 +182,7 @@
     <div class="panel-heading">
       <h3 class="panel-title">Outer Element</h3>
     </div>
-    <div class="panel-body" id="nest_outer" style="height:300px; overflow-y:auto; overflow-x:hidden;">
+    <div class="panel-body" id="nest_outer">
       <span>There is nothing special in nesting swoosh elements into each other. I'm an outer element. But nonetheless, i'm also an inner element to the body swoosh element.</span>
       <hr>
 
@@ -190,7 +190,7 @@
         <div class="panel-heading">
           <h3 class="panel-title">Inner Element</h3>
         </div>
-        <div class="panel-body" id="nest_inner" style="height:150px; overflow-y:auto; overflow-x:hidden;">
+        <div class="panel-body" id="nest_inner">
           <span>I'm an inner element, my parent swoosh element is the outer element, whose parent swoosh element is the body.</span>
           <hr>
           <span>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</span>
@@ -217,8 +217,8 @@ swoosh(document.getElementById("nest_inner"));</code></pre>
     <div class="panel-heading">
       <h3 class="panel-title">Wheelzoom & Grid</h3>
     </div>
-    <div class="panel-body" id="wheelzoom" style="height:478px; overflow:auto; padding:0px;">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/b/bb/Kittyply_edit1.jpg" style="border-radius: 4px;">
+    <div class="panel-body" id="wheelzoom">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/b/bb/Kittyply_edit1.jpg">
     </div>
   </div>
 
@@ -238,7 +238,7 @@ swoosh(document.getElementById("nest_inner"));</code></pre>
     <div class="panel-heading">
       <h3 class="panel-title">Elastic edges</h3>
     </div>
-    <div class="panel-body" id="edges" style="height:300px; overflow-y:auto; overflow-x:hidden;">
+    <div class="panel-body" id="edges">
       <span>This element has elastic edges defined.<br>Drag the element with the mouse over the edges and see how it behaves.<br>Each side can be configured separately. You may only want the <code>bottom</code> to be elastic.</span>
       <hr>
       <span>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</span><br>
@@ -290,10 +290,10 @@ swoosh(document.getElementById("nest_inner"));</code></pre>
     </div>
     <div class="panel-body">
       <span>There are 4 events emitted by swoosh. You can attach and detach custom callbacks to those events. To realise an infinity scroll element, you can load and append additional content when <code>collide.bottom</code> triggers.</span><br><br>
-      <div class="col-md-6" id="events" style="height:239px; overflow:auto; padding:0px; border:1px solid #ddd">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/b/bb/Kittyply_edit1.jpg" style="height:478px;">
+      <div class="col-md-6" id="events">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/b/bb/Kittyply_edit1.jpg">
       </div>
-      <div class="col-md-6 sw-ignore" id="log" style="height:239px; overflow:auto; border:1px solid #ddd"></div>
+      <div class="col-md-6 sw-ignore" id="log"></div>
     </div>
   </div>
 
@@ -320,7 +320,7 @@ swoosh(document.getElementById("events"))
     <div class="panel-heading">
       <h3 class="panel-title">Anchor Links</h3>
     </div>
-    <div class="panel-body" id="anchors" style="height:300px; overflow-y:auto; overflow-x:hidden;">
+    <div class="panel-body" id="anchors">
       <span id="anchors_top">This is the anchor with <code>id="anchors_top"</code>.</span>
       <hr>
       <span>Anchor links inside a swoosh element are handled by the swoosh element itself. This behavior can be disabled with <code>handleAnchors=false</code>.
@@ -377,13 +377,13 @@ swoosh(document.getElementById("events"))
     <div class="panel-heading">
       <h3 class="panel-title">Custom object</h3>
     </div>
-    <div class="panel-body" id="custom" style="height:300px; overflow:auto;">
-      <div style="width:1600px;">
-      <span style="text-decoration:underline; color:red;" id="custom_top">Top anchor.</span><br>
-      <span>In this example you can change the options object interactively<br>and look how the behavior of the swoosh element differs.</span><br>
-      <span>This is just an element with oversized contents to play aroung with.</span>
-      <hr>
-      <span>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. </span><span style="text-decoration:underline; color:red;" id="custom_right">Right anchor</span><span>. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</span><br><span style="text-decoration:underline; color:red;" id="custom_bottom">Bottom anchor</span>.<span></span><br>
+    <div class="panel-body" id="custom">
+      <div>
+        <span id="custom_top">Top anchor.</span><br>
+        <span>In this example you can change the options object interactively<br>and look how the behavior of the swoosh element differs.</span><br>
+        <span>This is just an element with oversized contents to play aroung with.</span>
+        <hr>
+        <span>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. </span><span id="custom_right">Right anchor</span><span>. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</span><br><span id="custom_bottom">Bottom anchor</span>.<span></span><br>
       </div>
     </div>
   </div>
@@ -421,22 +421,22 @@ swoosh(document.getElementById("events"))
       <hr>
 
       <div class="row">
-        <div class="col-lg-3">
+        <div class="col-md-3">
           <div class="checkbox">
             <label>
-              <input type="checkbox" id="gridShow"> <code>gridShow</code>
+              <input type="checkbox" id="gridShow"> <code>gridShow *</code>
             </label>
           </div>
         </div>      
-        <div class="col-lg-3">
+        <div class="col-md-3">
           <div class="input-group">
-            <span class="input-group-addon"><code>gridX</code></span>
+            <span class="input-group-addon"><code>gridX **</code></span>
             <input type="text" class="form-control" id="gridX">
           </div>
         </div>
-        <div class="col-lg-3">
+        <div class="col-md-3">
           <div class="input-group">
-            <span class="input-group-addon"><code>gridY</code></span>
+            <span class="input-group-addon"><code>gridY **</code></span>
             <input type="text" class="form-control" id="gridY">
           </div>          
         </div>
@@ -445,19 +445,19 @@ swoosh(document.getElementById("events"))
       <hr>
 
       <div class="row">
-        <div class="col-lg-3">
+        <div class="col-md-3">
           <div class="checkbox">
             <label><code>elasticEdges</code></label>
           </div>
         </div>      
-        <div class="col-lg-3">
+        <div class="col-md-3">
           <div class="checkbox">
             <label>
               <input type="checkbox" id="elasticEdges.left"> <code>left</code>
             </label>
           </div>
         </div>
-        <div class="col-lg-3">
+        <div class="col-md-3">
           <div class="checkbox">
             <label>
               <input type="checkbox" id="elasticEdges.top"> <code>top</code>
@@ -468,14 +468,14 @@ swoosh(document.getElementById("events"))
       <br>
 
       <div class="row">
-        <div class="col-md-offset-3 col-lg-3">
+        <div class="col-md-offset-3 col-md-3">
           <div class="checkbox">
             <label>
               <input type="checkbox" id="elasticEdges.right"> <code>right</code>
             </label>
           </div>
         </div>
-        <div class="col-lg-3">
+        <div class="col-md-3">
           <div class="checkbox">
             <label>
               <input type="checkbox" id="elasticEdges.bottom"> <code>bottom</code>
@@ -488,21 +488,21 @@ swoosh(document.getElementById("events"))
       <hr>
 
       <div class="row">
-        <div class="col-lg-3">
+        <div class="col-md-3">
           <div class="checkbox">
             <label>
-              <input type="checkbox" id="dragScroll"> <code>dragScroll</code>
+              <input type="checkbox" id="dragScroll"> <code>dragScroll *</code>
             </label>
           </div>
         </div>
 
-        <div class="col-lg-3">
+        <div class="col-md-3">
           <div class="input-group">
             <span class="input-group-addon"><code>minSpeed</code></span>
             <input type="text" class="form-control" id="dragOptions.minSpeed">
           </div>
         </div>
-        <div class="col-lg-3">
+        <div class="col-md-3">
           <div class="input-group">
             <span class="input-group-addon"><code>maxSpeed</code></span>
             <input type="text" class="form-control" id="dragOptions.maxSpeed">
@@ -512,13 +512,13 @@ swoosh(document.getElementById("events"))
       <br>
 
       <div class="row">
-        <div class="col-md-offset-3 col-lg-4">
+        <div class="col-md-offset-3 col-md-4">
           <div class="input-group">
             <span class="input-group-addon"><code>brakeSpeed</code></span>
             <input type="text" class="form-control" id="dragOptions.brakeSpeed">
           </div>
         </div>
-        <div class="col-lg-3">
+        <div class="col-md-3">
           <div class="input-group">
             <span class="input-group-addon"><code>fps</code></span>
             <input type="text" class="form-control" id="dragOptions.fps">
@@ -528,7 +528,7 @@ swoosh(document.getElementById("events"))
       <br>
 
       <div class="row">
-        <div class="col-md-offset-3 col-lg-3">
+        <div class="col-md-offset-3 col-md-3">
           <div class="checkbox">
             <label>
               <input type="checkbox" id="dragOptions.fade"> <code>fade</code>
@@ -540,15 +540,15 @@ swoosh(document.getElementById("events"))
       <hr>
 
       <div class="row">
-        <div class="col-lg-3">
+        <div class="col-md-3">
           <div class="checkbox">
             <label>
-              <input type="checkbox" id="wheelScroll"> <code>wheelScroll</code>
+              <input type="checkbox" id="wheelScroll"> <code>wheelScroll *</code>
             </label>
           </div>
         </div>
 
-        <div class="col-lg-4">
+        <div class="col-md-4">
           <div class="input-group">
             <span class="input-group-addon"><code>direction</code></span>
              <select class="form-control" id="wheelOptions.direction">
@@ -557,7 +557,7 @@ swoosh(document.getElementById("events"))
             </select>
           </div>
         </div>
-        <div class="col-lg-3">
+        <div class="col-md-3">
           <div class="input-group">
             <span class="input-group-addon"><code>step</code></span>
             <input type="text" class="form-control" id="wheelOptions.step">
@@ -566,7 +566,7 @@ swoosh(document.getElementById("events"))
       </div>
       <br>
       <div class="row">
-        <div class="col-md-offset-3 col-lg-3">
+        <div class="col-md-offset-3 col-md-3">
           <div class="checkbox">
             <label>
               <input type="checkbox" id="wheelOptions.smooth"> <code>smooth</code>
@@ -578,21 +578,21 @@ swoosh(document.getElementById("events"))
       <hr>
 
       <div class="row">
-        <div class="col-lg-3">
+        <div class="col-md-3">
           <div class="checkbox">
             <label>
-              <input type="checkbox" id="wheelZoom"> <code>wheelZoom</code>
+              <input type="checkbox" id="wheelZoom"> <code>wheelZoom *</code>
             </label>
           </div>
         </div>
 
-        <div class="col-lg-3">
+        <div class="col-md-3">
           <div class="input-group">
             <span class="input-group-addon"><code>minScale</code></span>
             <input type="text" class="form-control" id="zoomOptions.minScale">
           </div>
         </div>
-        <div class="col-lg-3">
+        <div class="col-md-3">
           <div class="input-group">
             <span class="input-group-addon"><code>maxScale</code></span>
             <input type="text" class="form-control" id="zoomOptions.maxScale">
@@ -602,7 +602,7 @@ swoosh(document.getElementById("events"))
       <br>
 
       <div class="row">
-        <div class="col-md-offset-3 col-lg-4">
+        <div class="col-md-offset-3 col-md-4">
           <div class="input-group">
             <span class="input-group-addon"><code>direction</code></span>
              <select class="form-control" id="zoomOptions.direction">
@@ -611,7 +611,7 @@ swoosh(document.getElementById("events"))
             </select>
           </div>
         </div>
-        <div class="col-lg-3">
+        <div class="col-md-3">
           <div class="input-group">
             <span class="input-group-addon"><code>step</code></span>
             <input type="text" class="form-control" id="zoomOptions.step">
@@ -622,13 +622,22 @@ swoosh(document.getElementById("events"))
       <hr>
 
       <div class="row">
-        <div class="col-lg-3">
+        <div class="col-md-3">
           <div class="checkbox">
             <label>
-              <input type="checkbox" id="handleAnchors"> <code>handleAnchors</code>
+              <input type="checkbox" id="handleAnchors"> <code>handleAnchors *</code>
             </label>
           </div>
-        </div>      
+        </div>
+      </div>
+
+      <hr>
+
+      <div class="row">
+        <div class="col-md-12">
+          <span><code>*</code> Property needs a <code>reinit()</code> of the object</code></span><br>
+          <span><code>**</code> Property needs a <code>reinit()</code> of the object when <code>gridShow == true</code></span>
+        </div>
       </div>
 
     </div>

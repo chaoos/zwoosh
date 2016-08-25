@@ -154,7 +154,7 @@
                     /* activates/deactivates scrolling by drag */
                     dragScroll: true,
                     dragOptions: {
-                        exclude: ['input', 'textarea', 'a', 'button', '.sw-ignore'],
+                        exclude: ['input', 'textarea', 'a', 'button', '.sw-ignore', 'select'],
                         only: [],
                         /* activates a scroll fade when scrolling by drag */
                         fade: true,
@@ -384,11 +384,12 @@
                         }
                         if (e != null) {
                             if (e.type == 'hashchange') {
-                                /* scrolling instantly back to origin */
+                                /* scrolling instantly back to origin, before do the animated scroll */
                                 this.scrollTo(this.originScrollLeft, this.originScrollTop, false);
                             }
                         }
                         this.scrollToElement(nextContainer);
+                        return;
                     }
                 }
             };
@@ -710,6 +711,8 @@
             Swoosh.prototype.onScroll = function (e) {
                 var x = this.getScrollLeft();
                 var y = this.getScrollTop();
+                this.scrollMaxLeft = (this.scrollElement.scrollWidth - this.scrollElement.clientWidth);
+                this.scrollMaxTop = (this.scrollElement.scrollHeight - this.scrollElement.clientHeight);
                 // the collideLeft event
                 if (x == 0) {
                     this.triggered.collideLeft ? null : this.triggerEvent(this.inner, 'collide.left');
@@ -982,7 +985,6 @@
                             return;
                           }
                         }*/
-                        //this.inner.className += " " + this.classGrabbing + " ";
                         document.body.className += " " + this.classGrabbing + " ";
                         /* note the origin positions */
                         this.dragOriginLeft = e.clientX;
@@ -995,6 +997,7 @@
                             this.inner.parentElement.style.setProperty('scroll-behavior', 'auto');
                         }
                         e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+                        this.past = (this.getTimestamp() / 1000); //in seconds
                         /* register the event handlers */
                         this.mouseMoveHandler = this.mouseMove.bind(this);
                         this.addEventListener(document.documentElement, 'mousemove', this.mouseMoveHandler);
@@ -1020,17 +1023,27 @@
                 var re = new RegExp(" " + this.classGrabbing + " ");
                 document.body.className = document.body.className.replace(re, '');
                 this.inner.parentElement.style.cssText = this.parentOriginStyle;
-                if (y != this.getScrollTop() || x != this.getScrollLeft()) {
-                }
                 this.removeEventListener(document.documentElement, 'mousemove', this.mouseMoveHandler);
                 this.removeEventListener(document.documentElement, 'mouseup', this.mouseUpHandler);
+                if (y != this.getScrollTop() || x != this.getScrollLeft()) {
+                    this.present = (this.getTimestamp() / 1000); //in seconds
+                    var t = this.present - (this.past ? this.past : this.present);
+                    if (t > 0.05) {
+                        /* just align to the grid if the mouse left unmoved for more than 0.1 seconds */
+                        this.scrollTo(x, y, this.options.dragOptions.fade);
+                    }
+                }
                 if (this.options.dragOptions.fade && typeof this.vx != 'undefined' && typeof this.vy != 'undefined') {
                     /* v should not exceed vMax or -vMax -> would be too fast and should exceed vMin or -vMin */
                     var vMax = this.options.dragOptions.maxSpeed;
                     var vMin = this.options.dragOptions.minSpeed;
                     var vx = this.vx;
                     var vy = this.vy;
+                    /* if the speed is not without bound for fade, just do a regular scroll when there is a grid*/
                     if (vy < vMin && vy > -vMin && vx < vMin && vx > -vMin) {
+                        if (this.options.gridY > 1 || this.options.gridX > 1) {
+                            this.scrollTo(x, y, true);
+                        }
                         return;
                     }
                     var vx = (vx <= vMax && vx >= -vMax) ? vx : (vx > 0 ? vMax : -vMax);
@@ -1039,7 +1052,11 @@
                     var ay = (vy > 0 ? -1 : 1) * this.options.dragOptions.brakeSpeed;
                     x = ((0 - Math.pow(vx, 2)) / (2 * ax)) + this.getScrollLeft();
                     y = ((0 - Math.pow(vy, 2)) / (2 * ay)) + this.getScrollTop();
-                    this.fadeOutByCoords(x, y);
+                    this.scrollTo(x, y, true);
+                }
+                else {
+                    /* in all other cases, do a regular scroll */
+                    this.scrollTo(x, y, this.options.dragOptions.fade);
                 }
             };
             /**
@@ -1099,17 +1116,19 @@
                         };
                     })(sx, sy, me), (i + 1) * (1000 / fps)));
                 }
-                /* round the last step based on the direction of the fade */
-                sx = vx > 0 ? Math.ceil(sx) : Math.floor(sx);
-                sy = vy > 0 ? Math.ceil(sy) : Math.floor(sy);
-                this.timeouts.push(setTimeout((function (x, y, me) {
-                    return function () {
-                        me.setScrollTop(y);
-                        me.setScrollLeft(x);
-                        me.originScrollLeft = x;
-                        me.originScrollTop = y;
-                    };
-                })(sx, sy, me), (i + 2) * (1000 / fps)));
+                if (i > 0) {
+                    /* round the last step based on the direction of the fade */
+                    sx = vx > 0 ? Math.ceil(sx) : Math.floor(sx);
+                    sy = vy > 0 ? Math.ceil(sy) : Math.floor(sy);
+                    this.timeouts.push(setTimeout((function (x, y, me) {
+                        return function () {
+                            me.setScrollTop(y);
+                            me.setScrollLeft(x);
+                            me.originScrollLeft = x;
+                            me.originScrollTop = y;
+                        };
+                    })(sx, sy, me), (i + 2) * (1000 / fps)));
+                }
                 /* stop the animation when colliding with the borders */
                 this.clearListenerLeft = function () { return _this.clearTimeouts(); };
                 this.clearListenerRight = function () { return _this.clearTimeouts(); };
@@ -1136,7 +1155,7 @@
                 else {
                     vy = (vy > 0 ? 1 : -1) * Math.abs((sy / sx) * vx);
                 }
-                this.clearTimeouts;
+                this.clearTimeouts();
                 this.fadeOutByVelocity(vx, vy);
             };
             /**
@@ -1147,6 +1166,7 @@
              * @return {void}
              */
             Swoosh.prototype.mouseMove = function (e) {
+                this.present = (this.getTimestamp() / 1000); //in seconds
                 this.clearTextSelection();
                 /* if the mouse left the window and the button is not pressed anymore, abort moving */
                 if ((e.buttons == 0 && e.button == 0) || (typeof e.buttons == 'undefined' && e.button == 0)) {
@@ -1173,16 +1193,15 @@
                     this.inner.style.left = ((this.getScrollLeft() - x) / 2) + 'px';
                 }
                 /*  calculate speed */
-                this.present = (this.getTimestamp() / 1000); //in seconds
-                var t = this.present - (this.past ? this.past : this.present);
+                var t = this.present - ((typeof this.past != 'undefined') ? this.past : this.present);
                 var sx = x - (this.pastX ? this.pastX : x);
                 var sy = y - (this.pastY ? this.pastY : y);
                 this.vx = t == 0 ? 0 : sx / t;
                 this.vy = t == 0 ? 0 : sy / t;
+                this.scrollTo(x, y);
                 this.past = this.present;
                 this.pastX = x;
                 this.pastY = y;
-                this.scrollTo(x, y);
             };
             /* @TODO */
             Swoosh.prototype.scrollBy = function (x, y, smooth) {
@@ -1262,6 +1281,8 @@
                 this.container.className = this.container.className.replace(re, '');
                 var re = new RegExp(" " + this.classGrab + " ");
                 this.inner.className = this.inner.className.replace(re, '');
+                var re = new RegExp(" " + this.classNoGrab + " ");
+                this.container.className = this.container.className.replace(re, '');
                 /* move all childNodes back to the old outer element and remove the inner element */
                 while (this.inner.childNodes.length > 0) {
                     this.container.appendChild(this.inner.childNodes[0]);

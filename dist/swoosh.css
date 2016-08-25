@@ -36,6 +36,7 @@
   cursor: url("grab.cur"), grab;
 }
 .sw-grabbing,
+.sw-grabbing *,
 .sw-grabbing .sw-grab.sw-inner {
   -webkit-user-select: none;
   -moz-user-select: none;
