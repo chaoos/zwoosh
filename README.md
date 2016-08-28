@@ -114,7 +114,7 @@ This is a boolean value, defaulting to `false`. If set to `true` a visible overl
 
 The contents can be extened by elastic edges. That is, when scrolling further than the inner elements size. Each edge can be activated or deactivated separately.
 
-#### boolean `optiosn.dragScroll`
+#### boolean `options.dragScroll`
 
 Whether to activate or deactivate scrolling by drag. See `options.dragOptions` for customizations.
 
@@ -263,23 +263,6 @@ public scrollBy (x: number, y: number, smooth = true)
 
 ```ts
 /**
- * Scales the inner element by a relatice value based on the current scale value.
- * 
- * @param {number} percent - percentage of the current scale value
- * @param {boolean} honourLimits - whether to honour maxScale and the minimum width and height
- * of the container element.
- * @return {void}
- */
-public scaleBy(percent: number, honourLimits = true)
-  var scale = this.getScale() * (percent/100);
-  this.scaleTo(scale, honourLimits);
-}
-```
-
-#### `swoosh.scaleBy()`
-
-```ts
-/**
  * Scales the inner element to an absolute value.
  * 
  * @param {number} scale - the scale
@@ -287,7 +270,21 @@ public scaleBy(percent: number, honourLimits = true)
  * of the container element.
  * @return {void}
  */
-public scaleTo(scale: number, honourLimits = true)
+public scaleTo (scale: number, honourLimits = true)
+```
+
+#### `swoosh.scaleBy()`
+
+```ts
+/**
+ * Scales the inner element by a relatice value based on the current scale value.
+ * 
+ * @param {number} percent - percentage of the current scale value
+ * @param {boolean} honourLimits - whether to honour maxScale and the minimum width and height
+ * of the container element.
+ * @return {void}
+ */
+public scaleBy (percent: number, honourLimits = true)
 ```
 
 #### `swoosh.on()`
