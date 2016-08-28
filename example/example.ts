@@ -31,11 +31,11 @@ window.onload = function () {
 
   var custom = swoosh(document.getElementById("custom"));
   document.getElementById("scrollBy").onclick = () => {
-    custom.scrollBy(50, 50, true);
+    custom.scrollBy(50, 50);
   }
 
   document.getElementById("scrollTo").onclick = () => {
-    custom.scrollTo(100, 100, true);
+    custom.scrollTo(100, 100);
   }
 
   document.getElementById("scaleTo").onclick = () => {

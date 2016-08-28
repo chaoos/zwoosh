@@ -165,7 +165,7 @@
                         /* fade: this speed will never be exceeded */
                         maxSpeed: 3000,
                         /* fade: minimum speed which triggers the fade */
-                        minSpeed: 300
+                        minSpeed: 400
                     },
                     /* activates/deactivates scrolling by wheel. If the dreiction is vertical and there are
                      * scrollbars present, swoosh lets leaves scrolling to the browser. */
@@ -271,7 +271,7 @@
                 /* just call the function, to trigger possible events */
                 this.onScroll();
                 /* scroll to the initial position */
-                this.scrollTo(x, y, true);
+                this.scrollTo(x, y);
                 /* Event handler registration start here */
                 /* TODO: not 2 different event handlers registrations -> do it in this.addEventListener() */
                 if (this.options.wheelScroll === false) {
@@ -402,7 +402,7 @@
                 /* get relative coords from the anchor element */
                 var x = (element.offsetLeft - this.container.offsetLeft) * this.getScale();
                 var y = (element.offsetTop - this.container.offsetTop) * this.getScale();
-                this.scrollTo(x, y, true);
+                this.scrollTo(x, y);
             };
             /**
              * Workaround to manipulate ::before CSS styles with javascript
@@ -540,7 +540,7 @@
                     else if (this.options.wheelOptions.direction == 'vertical') {
                         y = this.getScrollTop() + (direction == 'down' ? this.options.wheelOptions.step : this.options.wheelOptions.step * -1);
                     }
-                    this.scrollTo(x, y);
+                    this.scrollTo(x, y, false);
                 }
             };
             /**
@@ -604,7 +604,7 @@
                 return 1;
             };
             /**
-             * Scales the inner element by a value based on the current scale value.
+             * Scales the inner element by a relatice value based on the current scale value.
              *
              * @param {number} percent - percentage of the current scale value
              * @param {boolean} honourLimits - whether to honour maxScale and the minimum width and height
@@ -617,7 +617,7 @@
                 this.scaleTo(scale, honourLimits);
             };
             /**
-             * Scales the inner element by an absolute value.
+             * Scales the inner element to an absolute value.
              *
              * @param {number} scale - the scale
              * @param {boolean} honourLimits - whether to honour maxScale and the minimum width and height
@@ -1042,7 +1042,7 @@
                     /* if the speed is not without bound for fade, just do a regular scroll when there is a grid*/
                     if (vy < vMin && vy > -vMin && vx < vMin && vx > -vMin) {
                         if (this.options.gridY > 1 || this.options.gridX > 1) {
-                            this.scrollTo(x, y, true);
+                            this.scrollTo(x, y);
                         }
                         return;
                     }
@@ -1052,7 +1052,7 @@
                     var ay = (vy > 0 ? -1 : 1) * this.options.dragOptions.brakeSpeed;
                     x = ((0 - Math.pow(vx, 2)) / (2 * ax)) + this.getScrollLeft();
                     y = ((0 - Math.pow(vy, 2)) / (2 * ay)) + this.getScrollTop();
-                    this.scrollTo(x, y, true);
+                    this.scrollTo(x, y);
                 }
                 else {
                     /* in all other cases, do a regular scroll */
@@ -1198,30 +1198,37 @@
                 var sy = y - (this.pastY ? this.pastY : y);
                 this.vx = t == 0 ? 0 : sx / t;
                 this.vy = t == 0 ? 0 : sy / t;
-                this.scrollTo(x, y);
+                this.scrollTo(x, y, false);
                 this.past = this.present;
                 this.pastX = x;
                 this.pastY = y;
             };
-            /* @TODO */
+            /**
+             * scrollBy helper method to scroll by an amount of pixels in x- and y-direction
+             *
+             * @param {number} x - amount of pixels to scroll in x-direction
+             * @param {number} y - amount of pixels to scroll in y-direction
+             * @param {boolean} smooth - whether to scroll smooth or instant
+             * @return {void}
+             */
             Swoosh.prototype.scrollBy = function (x, y, smooth) {
-                if (smooth === void 0) { smooth = false; }
+                if (smooth === void 0) { smooth = true; }
                 var absoluteX = this.getScrollLeft() + x;
                 var absoluteY = this.getScrollTop() + y;
                 this.scrollTo(absoluteX, absoluteY, smooth);
             };
             /**
-             * scrollTo helper method
+             * scrollBy helper method to scroll to a x- and y-coordinate
              *
              * @param {number} x - x-coordinate to scroll to
              * @param {number} y - y-coordinate to scroll to
+             * @param {boolean} smooth - whether to scroll smooth or instant
              * @return {void}
              *
              * @TODO: CSS3 transitions if available in browser
-             * @TODO: onhashchange and anchors with fade scroll
              */
             Swoosh.prototype.scrollTo = function (x, y, smooth) {
-                if (smooth === void 0) { smooth = false; }
+                if (smooth === void 0) { smooth = true; }
                 this.clearTimeouts();
                 this.scrollMaxLeft = (this.scrollElement.scrollWidth - this.scrollElement.clientWidth);
                 this.scrollMaxTop = (this.scrollElement.scrollHeight - this.scrollElement.clientHeight);
@@ -1289,7 +1296,7 @@
                 }
                 this.scaleElement.removeChild(this.inner);
                 this.container.removeChild(this.scaleElement);
-                this.scrollTo(x, y);
+                this.scrollTo(x, y, false);
                 this.mouseMoveHandler ? this.removeEventListener(document.documentElement, 'mousemove', this.mouseMoveHandler) : null;
                 this.mouseUpHandler ? this.removeEventListener(document.documentElement, 'mouseup', this.mouseUpHandler) : null;
                 this.mouseDownHandler ? this.removeEventListener(this.inner, 'mousedown', this.mouseDownHandler) : null;

@@ -267,7 +267,7 @@ function swoosh (container: HTMLElement, options = {}) {
           /* fade: this speed will never be exceeded */
           maxSpeed: 3000,
           /* fade: minimum speed which triggers the fade */
-          minSpeed: 300,
+          minSpeed: 400,
         },
         /* activates/deactivates scrolling by wheel. If the dreiction is vertical and there are 
          * scrollbars present, swoosh lets leaves scrolling to the browser. */
@@ -391,7 +391,7 @@ function swoosh (container: HTMLElement, options = {}) {
       this.onScroll();
 
       /* scroll to the initial position */
-      this.scrollTo(x, y, true);
+      this.scrollTo(x, y);
 
       /* Event handler registration start here */
 
@@ -541,7 +541,7 @@ function swoosh (container: HTMLElement, options = {}) {
       /* get relative coords from the anchor element */
       var x = (element.offsetLeft - this.container.offsetLeft) * this.getScale();
       var y = (element.offsetTop - this.container.offsetTop) * this.getScale();
-      this.scrollTo(x, y, true);
+      this.scrollTo(x, y);
     }
 
     /**
@@ -692,7 +692,7 @@ function swoosh (container: HTMLElement, options = {}) {
           y = this.getScrollTop() + (direction == 'down' ? this.options.wheelOptions.step : this.options.wheelOptions.step*-1);
         }
 
-        this.scrollTo(x, y);
+        this.scrollTo(x, y, false);
       }
     }
 
@@ -759,7 +759,7 @@ function swoosh (container: HTMLElement, options = {}) {
     }
 
     /**
-     * Scales the inner element by a value based on the current scale value.
+     * Scales the inner element by a relatice value based on the current scale value.
      * 
      * @param {number} percent - percentage of the current scale value
      * @param {boolean} honourLimits - whether to honour maxScale and the minimum width and height
@@ -772,7 +772,7 @@ function swoosh (container: HTMLElement, options = {}) {
     }
 
     /**
-     * Scales the inner element by an absolute value.
+     * Scales the inner element to an absolute value.
      * 
      * @param {number} scale - the scale
      * @param {boolean} honourLimits - whether to honour maxScale and the minimum width and height
@@ -1234,7 +1234,7 @@ function swoosh (container: HTMLElement, options = {}) {
         /* if the speed is not without bound for fade, just do a regular scroll when there is a grid*/
         if (vy < vMin && vy > -vMin && vx < vMin && vx > -vMin) {
           if (this.options.gridY > 1 || this.options.gridX > 1) {
-            this.scrollTo(x, y, true);
+            this.scrollTo(x, y);
           }
           return;
         }
@@ -1248,7 +1248,7 @@ function swoosh (container: HTMLElement, options = {}) {
         x = ((0-Math.pow(vx, 2))/(2*ax))+this.getScrollLeft();
         y = ((0-Math.pow(vy, 2))/(2*ay))+this.getScrollTop();
 
-        this.scrollTo(x, y, true);
+        this.scrollTo(x, y);
       } else {
         /* in all other cases, do a regular scroll */
         this.scrollTo(x, y, this.options.dragOptions.fade);          
@@ -1427,31 +1427,38 @@ function swoosh (container: HTMLElement, options = {}) {
       this.vx = t == 0 ? 0 : sx/t;
       this.vy = t == 0 ? 0 : sy/t;
 
-      this.scrollTo(x, y);
+      this.scrollTo(x, y, false);
 
       this.past = this.present;
       this.pastX = x
       this.pastY = y
     }
 
-    /* @TODO */
-    public scrollBy (x: number, y: number, smooth = false) {
+    /**
+     * scrollBy helper method to scroll by an amount of pixels in x- and y-direction
+     *
+     * @param {number} x - amount of pixels to scroll in x-direction
+     * @param {number} y - amount of pixels to scroll in y-direction
+     * @param {boolean} smooth - whether to scroll smooth or instant
+     * @return {void}
+     */
+    public scrollBy (x: number, y: number, smooth = true) {
       var absoluteX = this.getScrollLeft() + x;
       var absoluteY = this.getScrollTop() + y;
       this.scrollTo(absoluteX, absoluteY, smooth);
     }
 
     /**
-     * scrollTo helper method
+     * scrollBy helper method to scroll to a x- and y-coordinate
      *
      * @param {number} x - x-coordinate to scroll to
      * @param {number} y - y-coordinate to scroll to
+     * @param {boolean} smooth - whether to scroll smooth or instant
      * @return {void}
      * 
      * @TODO: CSS3 transitions if available in browser
-     * @TODO: onhashchange and anchors with fade scroll
      */
-    public scrollTo (x: number, y: number, smooth = false) {
+    public scrollTo (x: number, y: number, smooth = true) {
 
       this.clearTimeouts();
       this.scrollMaxLeft = (this.scrollElement.scrollWidth - this.scrollElement.clientWidth);
@@ -1531,7 +1538,7 @@ function swoosh (container: HTMLElement, options = {}) {
       this.scaleElement.removeChild(this.inner);
       this.container.removeChild(this.scaleElement);
 
-      this.scrollTo(x, y);
+      this.scrollTo(x, y, false);
 
       this.mouseMoveHandler ? this.removeEventListener(document.documentElement, 'mousemove', this.mouseMoveHandler) : null;
       this.mouseUpHandler ? this.removeEventListener(document.documentElement, 'mouseup', this.mouseUpHandler) : null;

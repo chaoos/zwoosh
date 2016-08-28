@@ -22,10 +22,10 @@ window.onload = function () {
     swoosh(document.getElementById("nest_inner"));
     var custom = swoosh(document.getElementById("custom"));
     document.getElementById("scrollBy").onclick = function () {
-        custom.scrollBy(50, 50, true);
+        custom.scrollBy(50, 50);
     };
     document.getElementById("scrollTo").onclick = function () {
-        custom.scrollTo(100, 100, true);
+        custom.scrollTo(100, 100);
     };
     document.getElementById("scaleTo").onclick = function () {
         custom.scaleTo(2);

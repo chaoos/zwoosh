@@ -227,6 +227,118 @@ Swoosh need some CSS classes. Their purpose is quikly explained below:
 - `sw-{random-string}` is a class randomly generated when the swoosh element initializes. It is to unique identify a swoosh element.
 
 
+## Public accessible methods
+
+Some methods are public accessible and can be invoked outside the object context.
+
+#### `swoosh.scrollTo()`
+
+```ts
+/**
+ * scrollTo helper method to scroll to a x- and y-coordinate
+ *
+ * @param {number} x - x-coordinate to scroll to
+ * @param {number} y - y-coordinate to scroll to
+ * @param {boolean} smooth - whether to scroll smooth or instant
+ * @return {void}
+ */
+public scrollTo (x: number, y: number, smooth = true)
+```
+
+#### `swoosh.scrollBy()`
+
+```ts
+/**
+ * scrollBy helper method to scroll by an amount of pixels in x- and y-direction
+ *
+ * @param {number} x - amount of pixels to scroll in x-direction
+ * @param {number} y - amount of pixels to scroll in y-direction
+ * @param {boolean} smooth - whether to scroll smooth or instant
+ * @return {void}
+ */
+public scrollBy (x: number, y: number, smooth = true)
+```
+
+#### `swoosh.scaleTo()`
+
+```ts
+/**
+ * Scales the inner element by a relatice value based on the current scale value.
+ * 
+ * @param {number} percent - percentage of the current scale value
+ * @param {boolean} honourLimits - whether to honour maxScale and the minimum width and height
+ * of the container element.
+ * @return {void}
+ */
+public scaleBy(percent: number, honourLimits = true)
+  var scale = this.getScale() * (percent/100);
+  this.scaleTo(scale, honourLimits);
+}
+```
+
+#### `swoosh.scaleBy()`
+
+```ts
+/**
+ * Scales the inner element to an absolute value.
+ * 
+ * @param {number} scale - the scale
+ * @param {boolean} honourLimits - whether to honour maxScale and the minimum width and height
+ * of the container element.
+ * @return {void}
+ */
+public scaleTo(scale: number, honourLimits = true)
+```
+
+#### `swoosh.on()`
+
+```ts
+/**
+ * Register a custom event callback
+ *
+ * @param {string} event - The event name
+ * @param {(e: Event) => any} callback - A callback function to execute when the event raises
+ * @return {Swoosh} - The Swoosh object instance
+ */
+public on (event: string, callback: (e: Event) => any): Swoosh
+```
+
+#### `swoosh.off()`
+
+```ts
+/**
+ * Deregister a custom event callback
+ *
+ * @param {string} event - The event name
+ * @param {(e: Event) => any} callback - A callback function to execute when the event raises
+ * @return {Swoosh} - The Swoosh object instance
+ */
+public off (event: string, callback: (e: Event) => any): Swoosh
+```
+
+#### `swoosh.reinit()`
+
+```ts
+/**
+ * Reinitialize the swoosh element
+ * 
+ * @return {Swoosh} - The Swoosh object instance
+ */
+public reinit ()
+```
+
+#### `swoosh.destroy()`
+
+```ts
+/**
+ * Revert all DOM manipulations and deregister all event handlers
+ * 
+ * @return {void}
+ */
+public destroy ()
+```
+
+
 # License
 
 MIT
