@@ -165,7 +165,7 @@
                         /* fade: this speed will never be exceeded */
                         maxSpeed: 3000,
                         /* fade: minimum speed which triggers the fade */
-                        minSpeed: 500
+                        minSpeed: 300
                     },
                     /* activates/deactivates scrolling by wheel. If the dreiction is vertical and there are
                      * scrollbars present, swoosh lets leaves scrolling to the browser. */
