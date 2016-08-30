@@ -226,10 +226,8 @@ function swoosh (container: HTMLElement, options = {}) {
 
     private present: number;
     private past: number;
-    private pastX: number;
-    private pastY: number;
-    private vx: number;
-    private vy: number;
+    private vx: Array<number> = [];
+    private vy: Array<number> = [];
 
     constructor (
       private container: HTMLElement,
@@ -267,7 +265,7 @@ function swoosh (container: HTMLElement, options = {}) {
           /* fade: this speed will never be exceeded */
           maxSpeed: 3000,
           /* fade: minimum speed which triggers the fade */
-          minSpeed: 400,
+          minSpeed: 300,
         },
         /* activates/deactivates scrolling by wheel. If the dreiction is vertical and there are 
          * scrollbars present, swoosh lets leaves scrolling to the browser. */
@@ -398,11 +396,11 @@ function swoosh (container: HTMLElement, options = {}) {
       /* TODO: not 2 different event handlers registrations -> do it in this.addEventListener() */
       if (this.options.wheelScroll === false) {
         this.mouseScrollHandler = (e) => this.disableMouseScroll(e);
-        //this.scrollElement.onmousewheel = this.mouseScrollHandler;
+        this.scrollElement.onmousewheel = this.mouseScrollHandler;
         this.addEventListener(this.scrollElement, 'wheel', this.mouseScrollHandler);
       } else if (this.options.wheelScroll === true) {
         this.mouseScrollHandler = (e) => this.activeMouseScroll(e);
-        //this.scrollElement.onmousewheel = this.mouseScrollHandler;
+        this.scrollElement.onmousewheel = this.mouseScrollHandler;
         this.addEventListener(this.scrollElement, 'wheel', this.mouseScrollHandler);
       }
 
@@ -717,7 +715,7 @@ function swoosh (container: HTMLElement, options = {}) {
         if (direction == this.options.zoomOptions.direction) {
           var scale = this.getScale() * (1 + this.options.zoomOptions.step);
         } else {
-          var scale = this.getScale() / (1 + this.options.zoomOptions.step);
+          var scale = this.getScale() * (1 - this.options.zoomOptions.step);
         }
 
         this.scaleTo(scale);
@@ -1114,7 +1112,6 @@ function swoosh (container: HTMLElement, options = {}) {
     private mouseDown (e: MouseEvent): void {
 
       this.clearTimeouts();
-      this.vx = this.vy = 0;
 
       /* drag only if the left mouse button was pressed */
       if (("which" in e && e.which == 1) || (typeof e.which == 'undefined' && "button" in e && e.button == 1)) {
@@ -1178,7 +1175,8 @@ function swoosh (container: HTMLElement, options = {}) {
           }
 
           e.preventDefault ? e.preventDefault() : (e.returnValue = false);
-          this.past = (this.getTimestamp() / 1000); //in seconds
+          this.vx = [];
+          this.vy = [];
 
           /* register the event handlers */
           this.mouseMoveHandler = this.mouseMove.bind(this)
@@ -1206,6 +1204,8 @@ function swoosh (container: HTMLElement, options = {}) {
       this.inner.style.top = null;
       this.inner.style.left = null;
 
+      this.present = (this.getTimestamp() / 1000); //in seconds
+
       var x = this.getRealX(this.dragOriginLeft + this.dragOriginScrollLeft - e.clientX);
       var y = this.getRealY(this.dragOriginTop + this.dragOriginScrollTop - e.clientY);
 
@@ -1217,21 +1217,38 @@ function swoosh (container: HTMLElement, options = {}) {
       this.removeEventListener(document.documentElement, 'mouseup', this.mouseUpHandler);
 
       if (y != this.getScrollTop() || x != this.getScrollLeft()) {
-        this.present = (this.getTimestamp() / 1000); //in seconds
         var t = this.present - (this.past ? this.past : this.present);
         if (t > 0.05) {
-          /* just align to the grid if the mouse left unmoved for more than 0.1 seconds */
+          /* just align to the grid if the mouse left unmoved for more than 0.05 seconds */
           this.scrollTo(x, y, this.options.dragOptions.fade);
         }
       }
 
       if (this.options.dragOptions.fade && typeof this.vx != 'undefined' && typeof this.vy != 'undefined') {
 
+        var deltaT, deltaSx, deltaSy, lastDeltaSx, lastDeltaSy;
+        deltaT = deltaSx = deltaSy = lastDeltaSx = lastDeltaSy = 0
+        for (var i in this.vy) {
+          if (parseFloat(i) > (this.present - 0.1)
+              && typeof lastT != 'undefined'
+              && typeof lastSx != 'undefined'
+              && typeof lastSy != 'undefined') {
+            deltaT += parseFloat(i) - lastT;
+            lastDeltaSx = this.vx[i] - lastSx;
+            lastDeltaSy = this.vy[i] - lastSy;
+            deltaSx += Math.abs(lastDeltaSx);
+            deltaSy += Math.abs(lastDeltaSy);
+          }
+          var lastT = parseFloat(i);
+          var lastSx = this.vx[i];
+          var lastSy = this.vy[i];
+        }
+        var vx = deltaT == 0 ? 0 : lastDeltaSx > 0 ? deltaSx/deltaT : deltaSx/-deltaT;
+        var vy = deltaT == 0 ? 0 : lastDeltaSy > 0 ? deltaSy/deltaT : deltaSy/-deltaT;
+
         /* v should not exceed vMax or -vMax -> would be too fast and should exceed vMin or -vMin */
         var vMax = this.options.dragOptions.maxSpeed;
         var vMin = this.options.dragOptions.minSpeed;
-        var vx = this.vx;        
-        var vy = this.vy;
 
         /* if the speed is not without bound for fade, just do a regular scroll when there is a grid*/
         if (vy < vMin && vy > -vMin && vx < vMin && vx > -vMin) {
@@ -1394,7 +1411,8 @@ function swoosh (container: HTMLElement, options = {}) {
       this.clearTextSelection();
 
       /* if the mouse left the window and the button is not pressed anymore, abort moving */
-      if ((e.buttons == 0 && e.button == 0) || (typeof e.buttons == 'undefined' && e.button == 0)) {
+      //if ((e.buttons == 0 && e.button == 0) || (typeof e.buttons == 'undefined' && e.button == 0)) {
+      if (("which" in e && e.which == 0) || (typeof e.which == 'undefined' && "button" in e && e.button == 0)) {
         this.mouseUp(e);
         return;
       }
@@ -1422,18 +1440,12 @@ function swoosh (container: HTMLElement, options = {}) {
         this.inner.style.left = ((this.getScrollLeft() - x)/2) + 'px';
       }
 
-      /*  calculate speed */
-      var t = this.present - ((typeof this.past != 'undefined') ? this.past : this.present);
-      var sx = x - (this.pastX ? this.pastX : x);
-      var sy = y - (this.pastY ? this.pastY : y);
-      this.vx = t == 0 ? 0 : sx/t;
-      this.vy = t == 0 ? 0 : sy/t;
+      this.vx[this.present] = x;
+      this.vy[this.present] = y;
 
       this.scrollTo(x, y, false);
 
       this.past = this.present;
-      this.pastX = x
-      this.pastY = y
     }
 
     /**
