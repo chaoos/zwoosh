@@ -99,7 +99,7 @@ swoosh(element, {
   });
 ```
 
-Most options can be change later on, when the object has already initialized. Some of them (those which need event handlers to attach/detach or those which do DOM manipulations) need a reinittialization of the object by [swoosh.reinit()](#swoosh.reinit()).
+Most options can be changed later on, when the object has already initialized. Some of them (those which need event handlers to attach/detach or those which do DOM manipulations) need a reinittialization of the object by [swoosh.reinit()](#swoosh.reinit()).
 
 #### integer `options.gridX` and `options.gridX`
 
@@ -229,7 +229,7 @@ They trigger when the swoosh element collides with one of the edges. They trigge
 
 ## CSS
 
-Swoosh need some CSS classes. Their purpose is quikly explained below:
+Swoosh needs some CSS classes. Their purpose is quickly explained below:
 
 - `sw-outer` is added to the given container element (the swoosh element). This class **should not be used** to style the container element. Use an own CSS class instead.
 - `sw-inner` is the class added to the inner element, which wraps all the content of the swoosh element. 
