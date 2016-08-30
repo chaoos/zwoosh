@@ -411,7 +411,6 @@ function swoosh (container: HTMLElement, options = {}) {
 
       /* wheelzoom */
       if (this.options.wheelZoom === true) {
-        //this.scaleTo(1); /* needed, when gridShow is true */
         this.mouseZoomHandler = (e) => this.activeMouseZoom(e);
         this.addEventListener(this.scrollElement, 'wheel', this.mouseZoomHandler);
       }
@@ -859,10 +858,13 @@ function swoosh (container: HTMLElement, options = {}) {
 
     private getTimestamp () {
       if (typeof window.performance == 'object') {
-        return window.performance.now ? window.performance.now() : (<any>window.performance).webkitNow();
-      } else {
-        return new Date().getTime();
+        if ("now" in window.performance) {
+          return window.performance.now();
+        } else if ("webkitNow" in window.performance) {
+          return (<any>window.performance).webkitNow();
+        }
       }
+      return new Date().getTime();
     }
 
     /**

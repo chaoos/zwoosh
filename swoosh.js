@@ -288,7 +288,6 @@
                 this.options.gridShow ? this.scaleTo(1) : null;
                 /* wheelzoom */
                 if (this.options.wheelZoom === true) {
-                    //this.scaleTo(1); /* needed, when gridShow is true */
                     this.mouseZoomHandler = function (e) { return _this.activeMouseZoom(e); };
                     this.addEventListener(this.scrollElement, 'wheel', this.mouseZoomHandler);
                 }
@@ -692,11 +691,14 @@
             };
             Swoosh.prototype.getTimestamp = function () {
                 if (typeof window.performance == 'object') {
-                    return window.performance.now ? window.performance.now() : window.performance.webkitNow();
+                    if ("now" in window.performance) {
+                        return window.performance.now();
+                    }
+                    else if ("webkitNow" in window.performance) {
+                        return window.performance.webkitNow();
+                    }
                 }
-                else {
-                    return new Date().getTime();
-                }
+                return new Date().getTime();
             };
             /**
              * Scroll handler to trigger the custom events
