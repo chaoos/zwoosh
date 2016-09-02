@@ -57,7 +57,9 @@ Or if you got it with npm:
 
 If you're using [requireJS][7]:
 
+```js
 var zwoosh = require("/path/to/zwoosh");
+```
 
 ## The Typescript way
 
