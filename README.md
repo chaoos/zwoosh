@@ -23,17 +23,23 @@ There are multiple ways to include zwoosh to your project.
 
 ----
 
-## The NPM way:
+## NPM
 
-You can get it wth NPM:
+You can get it with NPM:
 
 ```shell
 npm install zwoosh --save
 ```
 
-----
+## Bower
 
-## The classic way:
+You can get it with Bower:
+
+```shell
+bower install zwoosh --save
+```
+
+## The classic way
 
 If you prefer the good old way. Place it in the `<body>` as normal script tag.
 
@@ -47,17 +53,13 @@ Or if you got it with npm:
 <script src='node_modules/zwoosh/zwoosh.js'></script>
 ```
 
-----
-
-## The require way:
+## The require way
 
 If you're using [requireJS][7]:
 
 var zwoosh = require("/path/to/zwoosh");
 
-----
-
-## The Typescript way:
+## The Typescript way
 
 If you work in Typescript you can import the module just by invoking the `import` statement. When importing a module using `export =`, TypeScript-specific `import let = require("module")` must be used to import the module. Notice that the file ending `.ts` is not needed:
 
@@ -65,7 +67,7 @@ If you work in Typescript you can import the module just by invoking the `import
 import zwoosh = require("/path/to/zwoosh");
 ```
 
-----
+## CSS
 
 Zwoosh needs some CSS styles. You can add them by including [`dist/zwoosh.css`][5] (or [`dist/zwoosh.min.css`][4] for the minified version) in the `<head>` section of your document. 
 

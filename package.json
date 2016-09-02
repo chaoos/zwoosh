@@ -22,7 +22,7 @@
   "scripts": {
     "build": "npm run minify && npm run styles",
     "deploy": "npm run build && npm run deployment && npm run sync",
-    "deployment": "npm run git && npm run publish",
+    "deployment": "npm run git && npm run publish && bower register zwoosh https://github.com/chaoos/zwoosh.git",
     "minify": "uglifyjs -m -c -o dist/zwoosh.min.js dist/zwoosh.js",
     "styles": "stylus zwoosh.styl --import node_modules/nib -o dist && cleancss dist/zwoosh.css -o dist/zwoosh.min.css",
     "start": "tsc && cd example && tsc && cd .. && concurrently \"watchify -dvs zwoosh -o dist/zwoosh.js zwoosh.js\" \"stylus -w example/example.styl --import node_modules/nib -o example\" \"stylus -w zwoosh.styl --import node_modules/nib -o dist\" \"npm run lite\" \"npm run tsc-w\" \"npm run tsc-w-example\"",

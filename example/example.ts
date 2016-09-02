@@ -1,11 +1,10 @@
 /**
  * If you're using typescript you can import the module with:
- * import zwoosh from '../zwoosh'
+ * import zwoosh = require("../zwoosh");
  */
 
-/* needed to suppress tsc errors TS2304, saying "cannot find zwoosh" */
-import zwoosh = require("../zwoosh");
-//declare var zwoosh: any;
+/* needed to suppress Typescript compiler errors TS2304, saying "cannot find zwoosh" */
+declare var zwoosh: any;
 
 window.onload = function () {
 
