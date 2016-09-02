@@ -1,11 +1,11 @@
 /**
  * If you're using typescript you can import the module with:
- * import swoosh from '../swoosh'
+ * import zwoosh from '../zwoosh'
  */
 window.onload = function () {
-    var basics = swoosh(document.getElementById("basics"));
+    var basics = zwoosh(document.getElementById("basics"));
     var log = document.getElementById("log");
-    swoosh(document.getElementById("events"))
+    zwoosh(document.getElementById("events"))
         .on('collide.left', function (e) {
         log.innerHTML += "collide.left Event triggered<br>";
     })
@@ -18,9 +18,9 @@ window.onload = function () {
         .on('collide.bottom', function (e) {
         log.innerHTML += "collide.bottom Event triggered<br>";
     });
-    swoosh(document.getElementById("nest_outer"));
-    swoosh(document.getElementById("nest_inner"));
-    var custom = swoosh(document.getElementById("custom"));
+    zwoosh(document.getElementById("nest_outer"));
+    zwoosh(document.getElementById("nest_inner"));
+    var custom = zwoosh(document.getElementById("custom"));
     document.getElementById("scrollBy").onclick = function () {
         custom.scrollBy(50, 50);
     };
@@ -63,40 +63,40 @@ window.onload = function () {
     activeOption(custom, 'zoomOptions.direction');
     activeOption(custom, 'handleAnchors', true);
     document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(custom.options, basics.options), null, 2);
-    function activeOption(swooshElement, option, reinit) {
+    function activeOption(zwooshElement, option, reinit) {
         if (reinit === void 0) { reinit = false; }
         var el = document.getElementById(option);
-        var type = eval("typeof swooshElement.options." + option);
+        var type = eval("typeof zwooshElement.options." + option);
         //console.log(option, " is ", type)
         if (type == 'number') {
-            el.value = eval("swooshElement.options." + option);
+            el.value = eval("zwooshElement.options." + option);
             el.onkeyup = function () {
-                if ((option == 'gridX' || option == 'gridY') && swooshElement.options.gridShow) {
+                if ((option == 'gridX' || option == 'gridY') && zwooshElement.options.gridShow) {
                     reinit = true;
                 }
                 else {
                     reinit = false;
                 }
-                eval("swooshElement.options." + option + " = " + parseFloat(el.value) + ";");
-                document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(swooshElement.options, basics.options), null, 2);
-                reinit == true ? swooshElement.reinit() : null;
+                eval("zwooshElement.options." + option + " = " + parseFloat(el.value) + ";");
+                document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
+                reinit == true ? zwooshElement.reinit() : null;
             };
         }
         else if (type == 'string') {
-            el.value = eval("swooshElement.options." + option);
+            el.value = eval("zwooshElement.options." + option);
             el.onclick = function () {
                 var value = el.options[el.selectedIndex].value;
-                eval("swooshElement.options." + option + " = '" + value + "';");
-                document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(swooshElement.options, basics.options), null, 2);
-                reinit == true ? swooshElement.reinit() : null;
+                eval("zwooshElement.options." + option + " = '" + value + "';");
+                document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
+                reinit == true ? zwooshElement.reinit() : null;
             };
         }
         else if (type == 'boolean') {
-            el.checked = eval("swooshElement.options." + option);
+            el.checked = eval("zwooshElement.options." + option);
             el.onclick = function () {
-                eval("swooshElement.options." + option + " = " + el.checked + ";");
-                document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(swooshElement.options, basics.options), null, 2);
-                reinit == true ? swooshElement.reinit() : null;
+                eval("zwooshElement.options." + option + " = " + el.checked + ";");
+                document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
+                reinit == true ? zwooshElement.reinit() : null;
             };
         }
     }
@@ -119,7 +119,7 @@ window.onload = function () {
         }
         return diff;
     }
-    swoosh(document.getElementById("edges"), {
+    zwoosh(document.getElementById("edges"), {
         elasticEdges: {
             left: true,
             top: true,
@@ -127,14 +127,14 @@ window.onload = function () {
             bottom: true
         }
     });
-    swoosh(document.getElementById("wheelzoom"), {
+    zwoosh(document.getElementById("wheelzoom"), {
         gridX: 100,
         gridY: 50,
         gridShow: true,
         wheelScroll: false,
         wheelZoom: true
     });
-    swoosh(document.getElementById("anchors"));
-    swoosh(document.body);
+    zwoosh(document.getElementById("anchors"));
+    zwoosh(document.body);
 };
 //# sourceMappingURL=example.js.map

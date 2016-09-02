@@ -1,4 +1,4 @@
-# swoosh
+# Zwoosh
 
 > Dragscroll, Wheelzoom and Infinityscroll Javascript and Typescript library
 
@@ -22,14 +22,14 @@ Try out the [demo][3]!
 Will be available soon...
 
 
-There are multiple ways to include swoosh to your project.
+There are multiple ways to include zwoosh to your project.
 
 ## The classic way:
 
 Place it in the `<body>` tag as normal script tag.
 
 ```html
-<script src='/path/to/swoosh.js'></script>
+<script src='/path/to/zwoosh.js'></script>
 ```
 
 ## The Typescript way:
@@ -37,33 +37,33 @@ Place it in the `<body>` tag as normal script tag.
 If you work in Typescript you can import the module just by invoking the `import` statement. Notice that the file ending `.ts` is not needed:
 
 ```ts
-import swoosh from '/path/to/swoosh'
+import zwoosh from '/path/to/zwoosh'
 ```
 
-Swoosh needs some CSS styles. You can add them by including [`dist/swoosh.css`][5] (or [`dist/swoosh.min.css`][4] for the minified version) in the `<head>` section of your document. 
+Zwoosh needs some CSS styles. You can add them by including [`dist/zwoosh.css`][5] (or [`dist/zwoosh.min.css`][4] for the minified version) in the `<head>` section of your document. 
 
 ```html
-<link href='/path/to/swoosh.css' rel='stylesheet' type='text/css' />
+<link href='/path/to/zwoosh.css' rel='stylesheet' type='text/css' />
 ```
 
 # Usage
 
-Swoosh can be coustomized heavily. Whether you want dragscroll, whellzoom, wheelscroll or a combination of all of them.
+Zwoosh can be coustomized heavily. Whether you want dragscroll, whellzoom, wheelscroll or a combination of all of them.
 
-Swoosh has to be be invoked separately for every element. An invokation with the default options looks like this (notice that it does not depend whether you call swoosh in Javascript or Typescript):
+Zwoosh has to be be invoked separately for every element. An invokation with the default options looks like this (notice that it does not depend whether you call zwoosh in Javascript or Typescript):
 
 ```js
-swoosh(element);
+zwoosh(element);
 ```
 
-This allows the user to dragscroll the content within the provided container `element`. Swoosh does not care whether there is a scrollbar or not. If the contents oversize the size of the element, then the content will be scrollable by Swoosh.
+This allows the user to dragscroll the content within the provided container `element`. Zwoosh does not care whether there is a scrollbar or not. If the contents oversize the size of the element, then the content will be scrollable by Zwoosh.
 
 ## Options object
 
 You can also provide an `options` object. The following invokation is an example with the default options:
 
 ```js
-swoosh(element, {
+zwoosh(element, {
   gridX: 1,
   gridY: 1,
   elasticEdges: {
@@ -74,7 +74,7 @@ swoosh(element, {
   },
   dragScroll: true,
   dragOptions: {
-    exclude: ['input', 'textarea', 'a', 'button', '.sw-ignore', 'select'],
+    exclude: ['input', 'textarea', 'a', 'button', '.zw-ignore', 'select'],
     only: [],
     fade: true,
     brakeSpeed: 2500,
@@ -99,7 +99,7 @@ swoosh(element, {
   });
 ```
 
-Most options can be changed later on, when the object has already initialized. Some of them (those which need event handlers to attach/detach or those which do DOM manipulations) need a reinittialization of the object by [swoosh.reinit()](#swoosh.reinit()).
+Most options can be changed later on, when the object has already initialized. Some of them (those which need event handlers to attach/detach or those which do DOM manipulations) need a reinittialization of the object by [zwoosh.reinit()](#zwoosh.reinit()).
 
 #### integer `options.gridX` and `options.gridX`
 
@@ -107,7 +107,7 @@ When scrolling, you may want the contents to align to a grid. The grid is calcul
 
 #### boolean `options.gridShow`
 
-This is a boolean value, defaulting to `false`. If set to `true` a visible overlay grid is placed over the contents of the Swoosh element, indicating the size of the grid. This will only be visible is one of `options.gridX` or `options.gridX` is set greather than 1.
+This is a boolean value, defaulting to `false`. If set to `true` a visible overlay grid is placed over the contents of the Zwoosh element, indicating the size of the grid. This will only be visible is one of `options.gridX` or `options.gridX` is set greather than 1.
 
 > This works only if the browser supports CSS Generated content for [pseudo-elements][1]
 
@@ -123,7 +123,7 @@ Whether to enable or disabled scrolling by dragging with the mouse.
 
 #### array `options.dragOptions.exclude`
 
-Defines an array of CSS selectors. All elements inside the Swoosh element are ignored for dragscroll when matching against one of those CSS selectors. Besides the obvious tag elements, like `input`, `textarea` and such (see the default options), there is a CSS class called `sw-ignore`. All elements holding this class, will be ignored for dragscrolling. The array can be extended by more elements.
+Defines an array of CSS selectors. All elements inside the Zwoosh element are ignored for dragscroll when matching against one of those CSS selectors. Besides the obvious tag elements, like `input`, `textarea` and such (see the default options), there is a CSS class called `zw-ignore`. All elements holding this class, will be ignored for dragscrolling. The array can be extended by more elements.
 
 #### array `options.dragOptions.only`
 
@@ -171,7 +171,7 @@ This options defines the direction of scrolling when using the mouse wheel. It c
 - `vertical` which is the default and
 - `horizontal`
 
-If the options is set to `vertical` and if there are scrollbars present, swoosh will leave scrolling to the browser itself.
+If the options is set to `vertical` and if there are scrollbars present, zwoosh will leave scrolling to the browser itself.
 
 #### integer `options.wheelOptions.step`
 
@@ -194,7 +194,7 @@ Defines the maximum scale for an element. If set to `0`, there is no maximum. If
 
 #### integer `options.zoomOptions.minScale`
 
-Defines the minimum scale for an element. If set to `0`, there is no minimum. If the minimum is hit, the element will not zoom further out. **Notice that the contents will not shrink smaller than the size of the swoosh element**.
+Defines the minimum scale for an element. If set to `0`, there is no minimum. If the minimum is hit, the element will not zoom further out. **Notice that the contents will not shrink smaller than the size of the zwoosh element**.
 
 #### integer `options.zoomOptions.step`
 
@@ -210,7 +210,7 @@ Defines the mouse wheel direction of scrolling to zoom in. This can be set to on
 
 #### boolean `options.handleAnchors`
 
-When clicking an anchor link whose target resides within a swoosh element, all nesting swoosh elements have to scroll to the correct position to reveal the target to the user. If set to `true`, it lets swoosh handle anchor links targeting to an anchor inside of this swoosh element. Notice that, the element outside (maybe the body) handles anchors too. If you want to prevent this, add to body as swoosh element too.
+When clicking an anchor link whose target resides within a zwoosh element, all nesting zwoosh elements have to scroll to the correct position to reveal the target to the user. If set to `true`, it lets zwoosh handle anchor links targeting to an anchor inside of this zwoosh element. Notice that, the element outside (maybe the body) handles anchors too. If you want to prevent this, add to body as zwoosh element too.
 
 This behavior can be disabled and thus left to the browser by setting `handleAnchors` to `false`.
 
@@ -218,34 +218,35 @@ This behavior can be disabled and thus left to the browser by setting `handleAnc
 
 ## Events
 
-There are 4 events triggered from swoosh:
+There are 4 events triggered from zwoosh:
 
 - `collide.left`
 - `collide.right`
 - `collide.top`
 - `collide.bottom`
 
-They trigger when the swoosh element collides with one of the edges. They trigger **once**. That means when scrolling to bottom on the left hand border, the `collide.left` event is triggered only once, not on each step. The element has to leave the edge and collide again to trigger the event again.
+They trigger when the zwoosh element collides with one of the edges. They trigger **once**. That means when scrolling to bottom on the left hand border, the `collide.left` event is triggered only once, not on each step. The element has to leave the edge and collide again to trigger the event again.
 
 ## CSS
 
-Swoosh needs some CSS classes. Their purpose is quickly explained below:
+Zwoosh needs some CSS classes. Their purpose is quickly explained below:
 
-- `sw-outer` is added to the given container element (the swoosh element). This class **should not be used** to style the container element. Use an own CSS class instead.
-- `sw-inner` is the class added to the inner element, which wraps all the content of the swoosh element. 
-- `sw-grab` is added to containers whose contents are dragscollable.
-- `sw-nograb` is added to containers whose contents are **not** dragscollable.
-- `sw-grabbing` is added to the body element, when a dragscroll is in progress.
-- `sw-scale` is added to the scale element which is parent of the inner element and child of the container element.
-- `sw-fakebody` is added to the element wrapping all body contents. This element is appended afterwards to the body. This only is needed when the body is defined as swoosh element.
-- `sw-{random-string}` is a class randomly generated when the swoosh element initializes. It is to uniquely identify a swoosh element.
+- `zw-ignore` is the default CSS class on elements in a Zwoosh elment, where dragscroll is ignored. This is set in the array [array `options.dragOptions.exclude`](options.dragOptions.exclude).
+- `zw-outer` is added to the given container element (the zwoosh element). This class **should not be used** to style the container element. Use an own CSS class instead.
+- `zw-inner` is the class added to the inner element, which wraps all the content of the zwoosh element. 
+- `zw-grab` is added to containers whose contents are dragscollable.
+- `zw-nograb` is added to containers whose contents are **not** dragscollable.
+- `zw-grabbing` is added to the body element, when a dragscroll is in progress.
+- `zw-scale` is added to the scale element which is parent of the inner element and child of the container element.
+- `zw-fakebody` is added to the element wrapping all body contents. This element is appended afterwards to the body. This only is needed when the body is defined as zwoosh element.
+- `zw-{random-string}` is a class randomly generated when the zwoosh element initializes. It is to uniquely identify a zwoosh element.
 
 
 ## Public accessible methods
 
 Some methods are public accessible and can be invoked from outside the object context.
 
-#### `swoosh.scrollTo()`
+#### `zwoosh.scrollTo()`
 
 ```ts
 /**
@@ -259,7 +260,7 @@ Some methods are public accessible and can be invoked from outside the object co
 public scrollTo (x: number, y: number, smooth = true)
 ```
 
-#### `swoosh.scrollBy()`
+#### `zwoosh.scrollBy()`
 
 ```ts
 /**
@@ -273,7 +274,7 @@ public scrollTo (x: number, y: number, smooth = true)
 public scrollBy (x: number, y: number, smooth = true)
 ```
 
-#### `swoosh.scaleTo()`
+#### `zwoosh.scaleTo()`
 
 ```ts
 /**
@@ -287,7 +288,7 @@ public scrollBy (x: number, y: number, smooth = true)
 public scaleTo (scale: number, honourLimits = true)
 ```
 
-#### `swoosh.scaleBy()`
+#### `zwoosh.scaleBy()`
 
 ```ts
 /**
@@ -301,7 +302,7 @@ public scaleTo (scale: number, honourLimits = true)
 public scaleBy (percent: number, honourLimits = true)
 ```
 
-#### `swoosh.on()`
+#### `zwoosh.on()`
 
 ```ts
 /**
@@ -309,12 +310,12 @@ public scaleBy (percent: number, honourLimits = true)
  *
  * @param {string} event - The event name
  * @param {(e: Event) => any} callback - A callback function to execute when the event raises
- * @return {Swoosh} - The Swoosh object instance
+ * @return {Zwoosh} - The Zwoosh object instance
  */
-public on (event: string, callback: (e: Event) => any): Swoosh
+public on (event: string, callback: (e: Event) => any): Zwoosh
 ```
 
-#### `swoosh.off()`
+#### `zwoosh.off()`
 
 ```ts
 /**
@@ -322,23 +323,23 @@ public on (event: string, callback: (e: Event) => any): Swoosh
  *
  * @param {string} event - The event name
  * @param {(e: Event) => any} callback - A callback function to execute when the event raises
- * @return {Swoosh} - The Swoosh object instance
+ * @return {Zwoosh} - The Zwoosh object instance
  */
-public off (event: string, callback: (e: Event) => any): Swoosh
+public off (event: string, callback: (e: Event) => any): Zwoosh
 ```
 
-#### `swoosh.reinit()`
+#### `zwoosh.reinit()`
 
 ```ts
 /**
- * Reinitialize the swoosh element
+ * Reinitialize the zwoosh element
  * 
- * @return {Swoosh} - The Swoosh object instance
+ * @return {Zwoosh} - The Zwoosh object instance
  */
 public reinit ()
 ```
 
-#### `swoosh.destroy()`
+#### `zwoosh.destroy()`
 
 ```ts
 /**
@@ -356,7 +357,7 @@ MIT
 
 [1]: http://caniuse.com/#search=%3Abefore
 [2]: http://caniuse.com/#feat=transforms2d
-[3]: https://chaoos.github.io/swoosh/
-[4]: https://github.com/chaoos/swoosh/blob/master/dist/swoosh.min.css
-[5]: https://github.com/chaoos/swoosh/blob/master/dist/swoosh.css
+[3]: https://chaoos.github.io/zwoosh/
+[4]: https://github.com/chaoos/zwoosh/blob/master/dist/zwoosh.min.css
+[5]: https://github.com/chaoos/zwoosh/blob/master/dist/zwoosh.css
 [6]: https://developer.mozilla.org/en-US/docs/Web/API/History_API#The_pushState()_method

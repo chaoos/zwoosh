@@ -1,5 +1,5 @@
 {
-  "name": "swoosh",
+  "name": "zwoosh",
   "version": "1.0.0",
   "description": "Dragscroll, Wheelzoom and Infinityscroll Javascript and Typescript library",
   "keywords": [
@@ -10,38 +10,39 @@
     "scale",
     "infinityscroll",
     "scroll",
-    "typescript"
+    "typescript",
+    "swoosh"
   ],
   "files": [
-    "swoosh.ts",
-    "swoosh.js",
+    "zwoosh.ts",
+    "zwoosh.js",
     "dist"
   ],
-  "main": "swoosh.js",
+  "main": "zwoosh.js",
   "scripts": {
     "build": "npm run minify && npm run styles",
     "deploy": "npm run build && npm run deployment && npm run sync",
     "deployment": "echo TODO",
-    "minify": "uglifyjs -m -c -o dist/swoosh.min.js dist/swoosh.js",
-    "styles": "stylus swoosh.styl --import node_modules/nib -o dist && cleancss dist/swoosh.css -o dist/swoosh.min.css",
-    "start": "tsc && concurrently \"watchify -dvs swoosh -o dist/swoosh.js swoosh.js\" \"stylus -w example/example.styl --import node_modules/nib -o example\" \"stylus -w swoosh.styl --import node_modules/nib -o dist\" \"npm run lite\" \"npm run tsc:w\" ",
+    "minify": "uglifyjs -m -c -o dist/zwoosh.min.js dist/zwoosh.js",
+    "styles": "stylus zwoosh.styl --import node_modules/nib -o dist && cleancss dist/zwoosh.css -o dist/zwoosh.min.css",
+    "start": "tsc && concurrently \"watchify -dvs zwoosh -o dist/zwoosh.js zwoosh.js\" \"stylus -w example/example.styl --import node_modules/nib -o example\" \"stylus -w zwoosh.styl --import node_modules/nib -o dist\" \"npm run lite\" \"npm run tsc:w\" ",
     "sync": "git checkout gh-pages ; git merge master ; git push ; git checkout master",
     "lite": "lite-server",
     "tsc": "tsc -d",
     "tsc:w": "tsc -w",
     "git": "git commit -a && git push origin master",
-    "tsd": "tsc -d swoosh.ts --outDir dist/"
+    "tsd": "tsc -d zwoosh.ts --outDir dist/"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/chaoos/swoosh.git"
+    "url": "https://github.com/chaoos/zwoosh.git"
   },
   "author": "Roman Gruber <p1020389@yahoo.com>)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/chaoos/swoosh/issues"
+    "url": "https://github.com/chaoos/zwoosh/issues"
   },
-  "homepage": "https://github.com/chaoos/swoosh",  
+  "homepage": "https://github.com/chaoos/zwoosh",  
   "dependencies": {},
   "devDependencies": {
     "bower": "^1.7.9",
