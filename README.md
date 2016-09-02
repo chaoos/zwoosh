@@ -19,31 +19,64 @@ Try out the [demo][3]!
 
 # Install
 
-Will be available soon...
-
-
 There are multiple ways to include zwoosh to your project.
+
+----
+
+## The NPM way:
+
+You can get it wth NPM:
+
+```shell
+npm install zwoosh --save
+```
+
+----
 
 ## The classic way:
 
-Place it in the `<body>` tag as normal script tag.
+If you prefer the good old way. Place it in the `<body>` as normal script tag.
 
 ```html
 <script src='/path/to/zwoosh.js'></script>
 ```
 
+Or if you got it with npm:
+
+```html
+<script src='node_modules/zwoosh/zwoosh.js'></script>
+```
+
+----
+
+## The require way:
+
+If you're using [requireJS][7]:
+
+var zwoosh = require("/path/to/zwoosh");
+
+----
+
 ## The Typescript way:
 
-If you work in Typescript you can import the module just by invoking the `import` statement. Notice that the file ending `.ts` is not needed:
+If you work in Typescript you can import the module just by invoking the `import` statement. When importing a module using `export =`, TypeScript-specific `import let = require("module")` must be used to import the module. Notice that the file ending `.ts` is not needed:
 
 ```ts
-import zwoosh from '/path/to/zwoosh'
+import zwoosh = require("/path/to/zwoosh");
 ```
+
+----
 
 Zwoosh needs some CSS styles. You can add them by including [`dist/zwoosh.css`][5] (or [`dist/zwoosh.min.css`][4] for the minified version) in the `<head>` section of your document. 
 
 ```html
 <link href='/path/to/zwoosh.css' rel='stylesheet' type='text/css' />
+```
+
+Or if you're using Stylus, you can import them with the `@import` directive
+
+```styl
+@import 'node_modules/dragula/dragula'
 ```
 
 # Usage
@@ -361,3 +394,4 @@ MIT
 [4]: https://github.com/chaoos/zwoosh/blob/master/dist/zwoosh.min.css
 [5]: https://github.com/chaoos/zwoosh/blob/master/dist/zwoosh.css
 [6]: https://developer.mozilla.org/en-US/docs/Web/API/History_API#The_pushState()_method
+[7]: http://requirejs.org/

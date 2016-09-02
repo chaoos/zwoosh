@@ -22,14 +22,16 @@
   "scripts": {
     "build": "npm run minify && npm run styles",
     "deploy": "npm run build && npm run deployment && npm run sync",
-    "deployment": "echo TODO",
+    "deployment": "npm run git && npm run publish",
     "minify": "uglifyjs -m -c -o dist/zwoosh.min.js dist/zwoosh.js",
     "styles": "stylus zwoosh.styl --import node_modules/nib -o dist && cleancss dist/zwoosh.css -o dist/zwoosh.min.css",
-    "start": "tsc && concurrently \"watchify -dvs zwoosh -o dist/zwoosh.js zwoosh.js\" \"stylus -w example/example.styl --import node_modules/nib -o example\" \"stylus -w zwoosh.styl --import node_modules/nib -o dist\" \"npm run lite\" \"npm run tsc:w\" ",
-    "sync": "git checkout gh-pages ; git merge master ; git push ; git checkout master",
+    "start": "tsc && cd example && tsc && cd .. && concurrently \"watchify -dvs zwoosh -o dist/zwoosh.js zwoosh.js\" \"stylus -w example/example.styl --import node_modules/nib -o example\" \"stylus -w zwoosh.styl --import node_modules/nib -o dist\" \"npm run lite\" \"npm run tsc-w\" \"npm run tsc-w-example\"",
+    "sync": "git checkout gh-pages; git merge master; git push; git checkout master",
     "lite": "lite-server",
     "tsc": "tsc -d",
-    "tsc:w": "tsc -w",
+    "tsc-w": "tsc -w",
+    "tsc-w-example": "cd example && tsc -w",
+    "publish": "npm publish",
     "git": "git commit -a && git push origin master",
     "tsd": "tsc -d zwoosh.ts --outDir dist/"
   },
@@ -37,13 +39,14 @@
     "type": "git",
     "url": "https://github.com/chaoos/zwoosh.git"
   },
-  "author": "Roman Gruber <p1020389@yahoo.com>)",
+  "author": "Roman Gruber <p1020389@yahoo.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/chaoos/zwoosh/issues"
   },
   "homepage": "https://github.com/chaoos/zwoosh",  
-  "dependencies": {},
+  "dependencies": {
+  },
   "devDependencies": {
     "bower": "^1.7.9",
     "clean-css": "^3.4.18",

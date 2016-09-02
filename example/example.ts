@@ -4,9 +4,11 @@
  */
 
 /* needed to suppress tsc errors TS2304, saying "cannot find zwoosh" */
-declare var zwoosh: any;
+import zwoosh = require("../zwoosh");
+//declare var zwoosh: any;
 
 window.onload = function () {
+
 
   var basics = zwoosh(document.getElementById("basics"));
 
