@@ -155,7 +155,7 @@ function zwoosh (container: HTMLElement, options = {}) {
    * hash links inside the document and other special scroll related requirements. 
    * 
    * @author Roman Gruber <p1020389@yahoo.com>
-   * @version 1.0
+   * @version 1.0.1
    */
   class Zwoosh {
     public inner: HTMLElement;

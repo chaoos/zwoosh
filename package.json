@@ -1,6 +1,6 @@
 {
   "name": "zwoosh",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Dragscroll, Wheelzoom and Infinityscroll Javascript and Typescript library",
   "keywords": [
     "drag",
