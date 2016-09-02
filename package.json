@@ -1,21 +1,47 @@
 {
   "name": "swoosh",
   "version": "1.0.0",
-  "description": "TODO",
+  "description": "Dragscroll, Wheelzoom and Infinityscroll Javascript and Typescript library",
+  "keywords": [
+    "drag",
+    "dragscroll",
+    "wheelzoom",
+    "zoom",
+    "scale",
+    "infinityscroll",
+    "scroll",
+    "typescript"
+  ],
+  "files": [
+    "swoosh.ts",
+    "swoosh.js",
+    "dist"
+  ],
   "main": "swoosh.js",
   "scripts": {
     "build": "npm run minify && npm run styles",
+    "deploy": "npm run build && npm run deployment && npm run sync",
+    "deployment": "echo TODO",
     "minify": "uglifyjs -m -c -o dist/swoosh.min.js dist/swoosh.js",
     "styles": "stylus swoosh.styl --import node_modules/nib -o dist && cleancss dist/swoosh.css -o dist/swoosh.min.css",
     "start": "tsc && concurrently \"watchify -dvs swoosh -o dist/swoosh.js swoosh.js\" \"stylus -w example/example.styl --import node_modules/nib -o example\" \"stylus -w swoosh.styl --import node_modules/nib -o dist\" \"npm run lite\" \"npm run tsc:w\" ",
+    "sync": "git checkout gh-pages ; git merge master ; git push ; git checkout master",
     "lite": "lite-server",
     "tsc": "tsc -d",
     "tsc:w": "tsc -w",
     "git": "git commit -a && git push origin master",
     "tsd": "tsc -d swoosh.ts --outDir dist/"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chaoos/swoosh.git"
+  },
   "author": "Roman Gruber <p1020389@yahoo.com>)",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chaoos/swoosh/issues"
+  },
+  "homepage": "https://github.com/chaoos/swoosh",  
   "dependencies": {},
   "devDependencies": {
     "bower": "^1.7.9",
