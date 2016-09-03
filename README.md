@@ -80,7 +80,7 @@ Zwoosh needs some CSS styles. You can add them by including [`dist/zwoosh.css`][
 Or if you're using Stylus, you can import them with the `@import` directive
 
 ```styl
-@import 'node_modules/dragula/dragula'
+@import 'node_modules/zwoosh/zwoosh'
 ```
 
 # Usage
