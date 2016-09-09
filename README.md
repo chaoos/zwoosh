@@ -1,3 +1,5 @@
+[![Travis CI][8]][9]
+
 # Zwoosh
 
 > Dragscroll, Wheelzoom and Infinityscroll Javascript and Typescript library
@@ -399,3 +401,5 @@ MIT
 [5]: https://github.com/chaoos/zwoosh/blob/master/dist/zwoosh.css
 [6]: https://developer.mozilla.org/en-US/docs/Web/API/History_API#The_pushState()_method
 [7]: http://requirejs.org/
+[8]: https://travis-ci.org/chaoos/zwoosh.svg
+[9]: https://travis-ci.org/chaoos/zwoosh
