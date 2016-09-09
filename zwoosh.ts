@@ -1575,6 +1575,13 @@ function zwoosh (container: HTMLElement, options = {}) {
       this.scrollElement ? this.scrollElement.onscroll = null : null;
       window.onresize = null;
 
+      /* remove all custom eventlisteners attached via on() */
+      for (var event in this.customEvents) {
+        for (var c in this.customEvents[event]) {
+          this.removeEventListener(this.inner, event, this.customEvents[event][c][0]);
+        }
+      }
+
       return;
     }
 

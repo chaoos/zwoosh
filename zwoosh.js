@@ -110,7 +110,7 @@
          * hash links inside the document and other special scroll related requirements.
          *
          * @author Roman Gruber <p1020389@yahoo.com>
-         * @version 1.0
+         * @version 1.0.1
          */
         var Zwoosh = (function () {
             function Zwoosh(container, options) {
@@ -1331,6 +1331,12 @@
                 this.scrollElement ? this.scrollElement.onmousewheel = null : null;
                 this.scrollElement ? this.scrollElement.onscroll = null : null;
                 window.onresize = null;
+                /* remove all custom eventlisteners attached via on() */
+                for (var event in this.customEvents) {
+                    for (var c in this.customEvents[event]) {
+                        this.removeEventListener(this.inner, event, this.customEvents[event][c][0]);
+                    }
+                }
                 return;
             };
             return Zwoosh;
