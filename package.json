@@ -34,7 +34,8 @@
     "publish": "npm publish",
     "git": "git commit -a && git push origin master",
     "tsd": "tsc -d zwoosh.ts --outDir dist/",
-    "test": "tape test_bundle.js"
+    "test-old": "tape test_bundle.js",
+    "test": "globify test/*.js | tape-run"
   },
   "repository": {
     "type": "git",
@@ -47,7 +48,6 @@
   },
   "homepage": "https://github.com/chaoos/zwoosh",
   "dependencies": {
-    "tape": "^4.6.0"
   },
   "devDependencies": {
     "bower": "^1.7.9",
@@ -60,7 +60,8 @@
     "concurrently": "^2.0.0",
     "lite-server": "^2.2.0",
     "typescript": "^1.8.10",
-    "tape": "^4.6.0"
+    "tape": "^4.6.0",
+    "tape-run": "^2.1.3"
   },
   "testling": {
     "files": "test/*.js",
