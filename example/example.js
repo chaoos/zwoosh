@@ -66,12 +66,18 @@ window.onload = function () {
     function activeOption(zwooshElement, option, reinit) {
         if (reinit === void 0) { reinit = false; }
         var el = document.getElementById(option);
-        var type = eval("typeof zwooshElement.options." + option);
-        //console.log(option, " is ", type)
-        if (type == 'number') {
+        var opts = option.split('.');
+        if (opts.length === 1) {
+            var type = typeof zwooshElement.options[option];
+        }
+        else {
+            var type = typeof zwooshElement.options[opts[0]][opts[1]];
+        }
+        //console.log(option, " is ", type);
+        if (type === 'number') {
             el.value = eval("zwooshElement.options." + option);
             el.onkeyup = function () {
-                if ((option == 'gridX' || option == 'gridY') && zwooshElement.options.gridShow) {
+                if ((option === 'gridX' || option === 'gridY') && zwooshElement.options.gridShow) {
                     reinit = true;
                 }
                 else {
@@ -79,40 +85,40 @@ window.onload = function () {
                 }
                 eval("zwooshElement.options." + option + " = " + parseFloat(el.value) + ";");
                 document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
-                reinit == true ? zwooshElement.reinit() : null;
+                reinit === true ? zwooshElement.reinit() : null;
             };
         }
-        else if (type == 'string') {
+        else if (type === 'string') {
             el.value = eval("zwooshElement.options." + option);
             el.onclick = function () {
                 var value = el.options[el.selectedIndex].value;
                 eval("zwooshElement.options." + option + " = '" + value + "';");
                 document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
-                reinit == true ? zwooshElement.reinit() : null;
+                reinit === true ? zwooshElement.reinit() : null;
             };
         }
-        else if (type == 'boolean') {
+        else if (type === 'boolean') {
             el.checked = eval("zwooshElement.options." + option);
             el.onclick = function () {
                 eval("zwooshElement.options." + option + " = " + el.checked + ";");
                 document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
-                reinit == true ? zwooshElement.reinit() : null;
+                reinit === true ? zwooshElement.reinit() : null;
             };
         }
     }
     function diff(obj1, obj2) {
         var diff = {};
         for (var p in obj2) {
-            if (typeof (obj1[p]) == 'object' && typeof (obj2[p]) == 'object') {
+            if (typeof (obj1[p]) === 'object' && typeof (obj2[p]) === 'object') {
                 for (var i in obj2[p]) {
-                    if (JSON.stringify(obj1[p][i]) != JSON.stringify(obj2[p][i])) {
+                    if (JSON.stringify(obj1[p][i]) !== JSON.stringify(obj2[p][i])) {
                         diff[p] = diff[p] ? diff[p] : {};
                         diff[p][i] = obj1[p][i];
                     }
                 }
             }
             else {
-                if (JSON.stringify(obj1[p]) != JSON.stringify(obj2[p])) {
+                if (JSON.stringify(obj1[p]) !== JSON.stringify(obj2[p])) {
                     diff[p] = obj1[p];
                 }
             }

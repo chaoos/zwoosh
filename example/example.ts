@@ -88,30 +88,35 @@ window.onload = function () {
 
   function activeOption (zwooshElement: any, option: string, reinit = false) {
     var el = document.getElementById(option);
-    var type = eval("typeof zwooshElement.options." + option);
-    //console.log(option, " is ", type)
-    if (type == 'number') {
+    var opts = option.split('.');
+    if (opts.length === 1) {
+      var type = typeof zwooshElement.options[option];
+    } else {
+      var type = typeof zwooshElement.options[opts[0]][opts[1]];
+    }
+    //console.log(option, " is ", type);
+    if (type === 'number') {
       (<any>el).value = eval("zwooshElement.options." + option);
       el.onkeyup = () => {
-        if ((option == 'gridX' || option == 'gridY') && zwooshElement.options.gridShow) {reinit = true;} else {reinit = false;}
+        if ((option === 'gridX' || option === 'gridY') && zwooshElement.options.gridShow) {reinit = true;} else {reinit = false;}
         eval("zwooshElement.options." + option + " = " + parseFloat((<any>el).value) + ";");
         document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
-        reinit == true ? zwooshElement.reinit() : null;
+        reinit === true ? zwooshElement.reinit() : null;
       }
-    } else if (type == 'string') {
+    } else if (type === 'string') {
       (<any>el).value = eval("zwooshElement.options." + option);
       el.onclick = () => {
         var value = (<any>el).options[(<any>el).selectedIndex].value;
         eval("zwooshElement.options." + option + " = '" + value + "';");
         document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
-        reinit == true ? zwooshElement.reinit() : null;
+        reinit === true ? zwooshElement.reinit() : null;
       }
-    } else if (type == 'boolean') {
+    } else if (type === 'boolean') {
       (<any>el).checked = eval("zwooshElement.options." + option);
       el.onclick = () => {
         eval("zwooshElement.options." + option + " = " + (<any>el).checked + ";");
         document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
-        reinit == true ? zwooshElement.reinit() : null;
+        reinit === true ? zwooshElement.reinit() : null;
       }    
     }
   }
@@ -119,15 +124,15 @@ window.onload = function () {
   function diff (obj1, obj2) {
     var diff = {};
     for(var p in obj2){
-      if (typeof (obj1[p]) == 'object' && typeof (obj2[p]) == 'object'){
+      if (typeof (obj1[p]) === 'object' && typeof (obj2[p]) === 'object'){
         for(var i in obj2[p]){
-          if (JSON.stringify(obj1[p][i]) != JSON.stringify(obj2[p][i])) {
+          if (JSON.stringify(obj1[p][i]) !== JSON.stringify(obj2[p][i])) {
             diff[p] = diff[p] ? diff[p] : {};
             diff[p][i] = obj1[p][i];
           }
         }
       } else {
-        if (JSON.stringify(obj1[p]) != JSON.stringify(obj2[p])) {
+        if (JSON.stringify(obj1[p]) !== JSON.stringify(obj2[p])) {
           diff[p] = obj1[p];
         }
       }

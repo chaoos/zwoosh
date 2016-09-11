@@ -32,7 +32,7 @@
     "tsc-w": "tsc -w",
     "tsc-w-example": "cd example && tsc -w",
     "publish": "npm publish",
-    "git": "git commit -a && git push origin master",
+    "git": "git add . && git commit -a && git push origin master",
     "tsd": "tsc -d zwoosh.ts --outDir dist/",
     "test-old": "tape test_bundle.js",
     "test": "browserify test/*.js | tape-run"
