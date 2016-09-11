@@ -239,7 +239,8 @@ Defines the minimum scale for an element. If set to `0`, there is no minimum. If
 
 When caculating the new scale value, this options is taken. The calculation is as follows:
 
-> `newScale = oldScale * (1 ± step)`
+> `newScale = oldScale * (1 + step)`
+> `newScale = oldScale / (1 + step)`
 
 #### string `options.zoomOptions.direction`
 

@@ -243,7 +243,6 @@
                 var y = this.getScrollTop();
                 /* create inner div element and append it to the container with its contents in it */
                 this.inner = document.createElement("div");
-                //var uniqueClass = this.classInner + "-" + Math.random().toString(36).substring(7);
                 this.inner.className += " " + this.classInner + " " + this.classUnique + " ";
                 this.scaleElement = document.createElement("div");
                 this.scaleElement.className += " " + this.classScale + " ";
@@ -571,7 +570,7 @@
                         var scale = this.getScale() * (1 + this.options.zoomOptions.step);
                     }
                     else {
-                        var scale = this.getScale() * (1 - this.options.zoomOptions.step);
+                        var scale = this.getScale() / (1 + this.options.zoomOptions.step);
                     }
                     this.scaleTo(scale);
                 }
@@ -991,6 +990,7 @@
                           }
                         }*/
                         document.body.className += " " + this.classGrabbing + " ";
+                        this.dragging = true;
                         /* note the origin positions */
                         this.dragOriginLeft = e.clientX;
                         this.dragOriginTop = e.clientY;
@@ -1030,6 +1030,7 @@
                 var re = new RegExp(" " + this.classGrabbing + " ");
                 document.body.className = document.body.className.replace(re, '');
                 this.inner.parentElement.style.cssText = this.parentOriginStyle;
+                this.dragging = false;
                 this.removeEventListener(document.documentElement, 'mousemove', this.mouseMoveHandler);
                 this.removeEventListener(document.documentElement, 'mouseup', this.mouseUpHandler);
                 if (y != this.getScrollTop() || x != this.getScrollLeft()) {

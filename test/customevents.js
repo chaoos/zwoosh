@@ -3,6 +3,23 @@ var test = require('tape');
 var css = require("./lib/css.js");
 var event = require("./lib/events.js");
 var zwoosh = require('../zwoosh.js');
+var dom = require('./lib/dom.js');
+
+function zwooshWithHandlers(div, t) {
+  return zwoosh(div)
+  .on('collide.left', function(e) {
+    t.pass('collide.left event triggered');
+  })
+  .on('collide.top', function(e) {
+    t.pass('collide.top event triggered');
+  })
+  .on('collide.right', function(e) {
+    t.pass('collide.right event triggered');
+  })
+  .on('collide.bottom', function(e) {
+    t.pass('collide.bottom event triggered');
+  });
+}
 
 test('emit custom events when zwoosh initialzed and the inner element collides.', function (t) {
 
@@ -13,19 +30,7 @@ test('emit custom events when zwoosh initialzed and the inner element collides.'
   document.body.appendChild(div);
   t.plan(4);
 
-  var z = zwoosh(div)
-  .on('collide.left', function(e) {
-    t.pass('collide.left event triggered');
-  })
-  .on('collide.top', function(e) {
-    t.pass('collide.top event triggered');
-  })
-  .on('collide.right', function(e) {
-    t.pass('collide.right event triggered');
-  })
-  .on('collide.bottom', function(e) {
-    t.pass('collide.bottom event triggered');
-  });
+  var z = zwooshWithHandlers(div, t);
 
   z.destroy();
   z = null;
@@ -34,31 +39,10 @@ test('emit custom events when zwoosh initialzed and the inner element collides.'
 
 test('emit custom events when scrollTo() is called and the inner element collides.', function (t) {
 
-  var div = document.createElement('div');
-  var div2 = document.createElement('div');
-  div2.innerHTML = 'Just some random contents.';
-  div.appendChild(div2);
-  document.body.appendChild(div);
-  div2.style.width = '100px'
-  div2.style.height = '100px'
-  div.style.overflow = 'hidden';
-  div.style.width = '50px';
-  div.style.height = '50px';
+  var div = dom.createEnv();
 
   t.plan(6);
-  var z = zwoosh(div)
-  .on('collide.left', function(e) {
-    t.pass('collide.left event triggered');
-  })
-  .on('collide.top', function(e) {
-    t.pass('collide.top event triggered');
-  })
-  .on('collide.right', function(e) {
-    t.pass('collide.right event triggered');
-  })
-  .on('collide.bottom', function(e) {
-    t.pass('collide.bottom event triggered');
-  });
+  var z = zwooshWithHandlers(div, t);
 
   z.scrollTo(5, 5, false);
   setTimeout(function () { z.scrollTo(0, 5, false); }, 100); //left
@@ -71,32 +55,11 @@ test('emit custom events when scrollTo() is called and the inner element collide
 
 test('emit custom events when the event is triggered outside the zwoosh object context.', function (t) {
 
-  var div = document.createElement('div');
-  var div2 = document.createElement('div');
-  div2.innerHTML = 'Just some random contents.';
-  div.appendChild(div2);
-  document.body.appendChild(div);
-  div2.style.width = '100px'
-  div2.style.height = '100px'
-  div.style.overflow = 'hidden';
-  div.style.width = '50px';
-  div.style.height = '50px';
+  var div = dom.createEnv();
   div.scrollLeft = 10;
   div.scrollTop = 10
 
-  var z = zwoosh(div)
-  .on('collide.left', function(e) {
-    t.pass('collide.left event triggered');
-  })
-  .on('collide.top', function(e) {
-    t.pass('collide.top event triggered');
-  })
-  .on('collide.right', function(e) {
-    t.pass('collide.right event triggered');
-  })
-  .on('collide.bottom', function(e) {
-    t.pass('collide.bottom event triggered');
-  });
+  var z = zwooshWithHandlers(div, t);
 
   z.scrollTo(10, 10, false); //scroll somewhere not triggering anything
   var inner = div.childNodes[0].childNodes[0];
@@ -115,16 +78,7 @@ test('emit custom events when the event is triggered outside the zwoosh object c
 
 test('emit custom events when attaching an event handler when zwoosh has already initialzed and the element is collided', function (t) {
 
-  var div = document.createElement('div');
-  var div2 = document.createElement('div');
-  div2.innerHTML = 'Just some random contents.';
-  div.appendChild(div2);
-  document.body.appendChild(div);
-  div2.style.width = '100px'
-  div2.style.height = '100px'
-  div.style.overflow = 'hidden';
-  div.style.width = '50px';
-  div.style.height = '50px';
+  var div = dom.createEnv();
 
   var z = zwoosh(div);
   z.scrollTo(10, 10, false); //scroll somewhere not triggering anything

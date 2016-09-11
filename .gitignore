@@ -2,3 +2,4 @@ node_modules
 npm-debug.log
 zwoosh.sublime-project
 zwoosh.sublime-workspace
+test_bundle.js

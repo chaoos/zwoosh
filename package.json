@@ -35,7 +35,7 @@
     "git": "git commit -a && git push origin master",
     "tsd": "tsc -d zwoosh.ts --outDir dist/",
     "test-old": "tape test_bundle.js",
-    "test": "cat test_bundle.js | tape-run"
+    "test": "browserify test/*.js | tape-run"
   },
   "repository": {
     "type": "git",
