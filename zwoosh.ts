@@ -324,23 +324,9 @@ function zwoosh (container: HTMLElement, options = {}) {
      */
     private init () {
 
-      this.isBody = this.container.tagName === "BODY" ? true : false;
-
-      /* Chrome solution to scroll the body is not really viable, so we create a fake body 
-       * div element to scroll on */
-      if (this.isBody === true) {
-        var pseudoBody = document.createElement("div");
-        pseudoBody.className += " " + this.classFakeBody + " ";
-        pseudoBody.style.cssText = document.body.style.cssText;
-        while (this.container.childNodes.length > 0) {
-          pseudoBody.appendChild(this.container.childNodes[0]);
-        }
-        this.container.appendChild(pseudoBody);
-        this.container = pseudoBody;
-      }
+      this.initBody();
 
       this.container.className += " " + this.classOuter + " ";
-      //this.scrollElement = this.isBody ? document.documentElement : this.container;
       this.scrollElement = this.container;
 
       var x = this.getScrollLeft();
@@ -369,6 +355,65 @@ function zwoosh (container: HTMLElement, options = {}) {
       this.scaleElement.style.minHeight = this.inner.style.minHeight;
       this.scaleElement.style.overflow = 'hidden';
 
+      this.initGrid();
+
+      this.oldClientWidth = document.documentElement.clientWidth;
+      this.oldClientHeight = document.documentElement.clientHeight;
+
+      /* just call the function, to trigger possible events */
+      this.onScroll();
+
+      /* scroll to the initial position */
+      this.scrollTo(x, y, false);
+
+      /* Event handler registration start here */
+      this.initWheelScroll();
+      this.initWheelZoom();
+
+      /* scrollhandler */
+      this.scrollHandler = (e) => this.onScroll(e);
+      this.addEventListener(this.container, 'scroll', this.scrollHandler);
+
+      /* if the scroll element is body, adjust the inner div when resizing */
+      if (this.isBody) {
+        this.resizeHandler = (e) => this.onResize(e); //TODO: same as above in the wheel handler
+        window.onresize = this.resizeHandler;
+      }
+
+      this.initDragScroll();
+      this.initAnchors();
+    }
+
+    /**
+     * Reinitialize the zwoosh element
+     * 
+     * @return {Zwoosh} - The Zwoosh object instance
+     * @TODO: preserve scroll position in init()
+     */
+    public reinit () {
+      this.destroy();
+      this.classUnique = 'zw-' + Math.random().toString(36).substring(7);
+      this.init();
+      return this;
+    }
+
+    private initBody () {
+      this.isBody = this.container.tagName === "BODY" ? true : false;
+      /* Chrome solution to scroll the body is not really viable, so we create a fake body 
+       * div element to scroll on */
+      if (this.isBody === true) {
+        var pseudoBody = document.createElement("div");
+        pseudoBody.className += " " + this.classFakeBody + " ";
+        pseudoBody.style.cssText = document.body.style.cssText;
+        while (this.container.childNodes.length > 0) {
+          pseudoBody.appendChild(this.container.childNodes[0]);
+        }
+        this.container.appendChild(pseudoBody);
+        this.container = pseudoBody;
+      }
+    }
+
+    private initGrid () {
       /* show the grid only if at least one of the grid values is not 1 */
       if ((this.options.gridX !== 1 || this.options.gridY !== 1) && this.options.gridShow) {
         var bgi = [];
@@ -383,18 +428,9 @@ function zwoosh (container: HTMLElement, options = {}) {
         this.addBeforeCSS(this.classUnique, 'background-size', (this.options.gridX !== 1 ? this.options.gridX + 'px ' : 'auto ') + (this.options.gridY !== 1 ? this.options.gridY + 'px' : 'auto'));
         this.addBeforeCSS(this.classUnique, 'background-image', bgi.join(', '));
       }
+    }
 
-      this.oldClientWidth = document.documentElement.clientWidth;
-      this.oldClientHeight = document.documentElement.clientHeight;
-
-      /* just call the function, to trigger possible events */
-      this.onScroll();
-
-      /* scroll to the initial position */
-      this.scrollTo(x, y);
-
-      /* Event handler registration start here */
-
+    private initWheelScroll () {
       /* TODO: not 2 different event handlers registrations -> do it in this.addEventListener() */
       if (this.options.wheelScroll === false) {
         this.mouseScrollHandler = (e) => this.disableMouseScroll(e);
@@ -405,26 +441,18 @@ function zwoosh (container: HTMLElement, options = {}) {
         this.scrollElement.onmousewheel = this.mouseScrollHandler;
         this.addEventListener(this.scrollElement, 'wheel', this.mouseScrollHandler);
       }
+    }
 
-      /* TODO: needed, when gridShow is true */
+    /* wheelzoom */
+    private initWheelZoom () {
       this.options.gridShow ? this.scaleTo(1) : null;
-
-      /* wheelzoom */
       if (this.options.wheelZoom === true) {
         this.mouseZoomHandler = (e) => this.activeMouseZoom(e);
         this.addEventListener(this.scrollElement, 'wheel', this.mouseZoomHandler);
       }
+    }
 
-      /* scrollhandler */
-      this.scrollHandler = (e) => this.onScroll(e);
-      this.addEventListener(this.container, 'scroll', this.scrollHandler);
-
-      /* if the scroll element is body, adjust the inner div when resizing */
-      if(this.isBody){
-        this.resizeHandler = (e) => this.onResize(e); //TODO: same as above in the wheel handler
-        window.onresize = this.resizeHandler;
-      }
-
+    private initDragScroll () {
       /* if dragscroll is activated, register mousedown event */
       if (this.options.dragScroll === true) {
         this.inner.className += " " + this.classGrab + " ";
@@ -433,7 +461,9 @@ function zwoosh (container: HTMLElement, options = {}) {
       } else {
         this.container.className += " " + this.classNoGrab + " ";
       }
+    }
 
+    private initAnchors () {
       if (this.options.handleAnchors === true) {
         var links = this.container.querySelectorAll("a[href^='#']");
         this.hashChangeClickHandler = (e) => {
@@ -462,19 +492,6 @@ function zwoosh (container: HTMLElement, options = {}) {
         this.addEventListener(window, 'hashchange', this.hashChangeHandler);
         this.onHashChange();
       }
-    }
-
-    /**
-     * Reinitialize the zwoosh element
-     * 
-     * @return {Zwoosh} - The Zwoosh object instance
-     * @TODO: preserve scroll position in init()
-     */
-    public reinit () {
-      this.destroy();
-      this.classUnique = 'zw-' + Math.random().toString(36).substring(7);
-      this.init();
-      return this;
     }
 
     /* @TODO: ScrollWidth and ClientWidth ScrollHeight ClientHeight */

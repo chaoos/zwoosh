@@ -62,7 +62,8 @@ window.onload = function () {
     activeOption(custom, 'zoomOptions.step');
     activeOption(custom, 'zoomOptions.direction');
     activeOption(custom, 'handleAnchors', true);
-    document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(custom.options, basics.options), null, 2);
+    var json = document.getElementById("optionsJson");
+    json.innerHTML = JSON.stringify(diff(custom.options, basics.options), null, 2);
     function activeOption(zwooshElement, option, reinit) {
         if (reinit === void 0) { reinit = false; }
         var el = document.getElementById(option);
@@ -84,7 +85,7 @@ window.onload = function () {
                     reinit = false;
                 }
                 eval("zwooshElement.options." + option + " = " + parseFloat(el.value) + ";");
-                document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
+                json.innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
                 reinit === true ? zwooshElement.reinit() : null;
             };
         }
@@ -93,7 +94,7 @@ window.onload = function () {
             el.onclick = function () {
                 var value = el.options[el.selectedIndex].value;
                 eval("zwooshElement.options." + option + " = '" + value + "';");
-                document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
+                json.innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
                 reinit === true ? zwooshElement.reinit() : null;
             };
         }
@@ -101,7 +102,7 @@ window.onload = function () {
             el.checked = eval("zwooshElement.options." + option);
             el.onclick = function () {
                 eval("zwooshElement.options." + option + " = " + el.checked + ";");
-                document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
+                json.innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
                 reinit === true ? zwooshElement.reinit() : null;
             };
         }

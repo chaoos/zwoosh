@@ -84,7 +84,8 @@ window.onload = function () {
 
   activeOption(custom, 'handleAnchors', true);
 
-  document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(custom.options, basics.options), null, 2);
+  var json = document.getElementById("optionsJson");
+  json.innerHTML = JSON.stringify(diff(custom.options, basics.options), null, 2);
 
   function activeOption (zwooshElement: any, option: string, reinit = false) {
     var el = document.getElementById(option);
@@ -100,7 +101,7 @@ window.onload = function () {
       el.onkeyup = () => {
         if ((option === 'gridX' || option === 'gridY') && zwooshElement.options.gridShow) {reinit = true;} else {reinit = false;}
         eval("zwooshElement.options." + option + " = " + parseFloat((<any>el).value) + ";");
-        document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
+        json.innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
         reinit === true ? zwooshElement.reinit() : null;
       }
     } else if (type === 'string') {
@@ -108,14 +109,14 @@ window.onload = function () {
       el.onclick = () => {
         var value = (<any>el).options[(<any>el).selectedIndex].value;
         eval("zwooshElement.options." + option + " = '" + value + "';");
-        document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
+        json.innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
         reinit === true ? zwooshElement.reinit() : null;
       }
     } else if (type === 'boolean') {
       (<any>el).checked = eval("zwooshElement.options." + option);
       el.onclick = () => {
         eval("zwooshElement.options." + option + " = " + (<any>el).checked + ";");
-        document.getElementById("optionsJson").innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
+        json.innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
         reinit === true ? zwooshElement.reinit() : null;
       }    
     }
