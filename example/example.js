@@ -118,10 +118,8 @@ window.onload = function () {
                     }
                 }
             }
-            else {
-                if (JSON.stringify(obj1[p]) !== JSON.stringify(obj2[p])) {
-                    diff[p] = obj1[p];
-                }
+            else if (JSON.stringify(obj1[p]) !== JSON.stringify(obj2[p])) {
+                diff[p] = obj1[p];
             }
         }
         return diff;

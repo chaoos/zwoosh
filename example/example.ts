@@ -132,10 +132,8 @@ window.onload = function () {
             diff[p][i] = obj1[p][i];
           }
         }
-      } else {
-        if (JSON.stringify(obj1[p]) !== JSON.stringify(obj2[p])) {
-          diff[p] = obj1[p];
-        }
+      } else if (JSON.stringify(obj1[p]) !== JSON.stringify(obj2[p])) {
+        diff[p] = obj1[p];
       }
     }
     return diff;

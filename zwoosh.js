@@ -447,7 +447,7 @@
              * Get compute pixel number of the whole width and height from a border of an element
              *
              * @param {HTMLElement} el - the HTML element
-             * @return {array} - the amount of pixels [width, height]
+             * @return {array} [width, height] - the amount of pixels
              */
             Zwoosh.prototype.getBorder = function (el) {
                 var bl = this.getStyle(el, 'borderLeftWidth');
@@ -654,13 +654,13 @@
                         || (scale < this.options.zoomOptions.minScale && this.options.zoomOptions.minScale !== 0)
                         || (width < this.container.clientWidth && !this.isBody)
                         || height < this.container.clientHeight && !this.isBody) {
-                        if (scale > this.options.zoomOptions.maxScale && this.options.zoomOptions.maxScale !== 0) {
+                        if (scale > this.options.zoomOptions.maxScale) {
                             scale = this.options.zoomOptions.maxScale;
-                            width = Math.floor(parseInt(this.inner.style.minWidth) * scale);
-                            height = Math.floor(parseInt(this.inner.style.minHeight) * scale);
                         }
-                        if (scale < this.options.zoomOptions.minScale && this.options.zoomOptions.minScale !== 0) {
+                        else if (scale < this.options.zoomOptions.minScale) {
                             scale = this.options.zoomOptions.minScale;
+                        }
+                        if (this.options.zoomOptions.maxScale !== 0) {
                             width = Math.floor(parseInt(this.inner.style.minWidth) * scale);
                             height = Math.floor(parseInt(this.inner.style.minHeight) * scale);
                         }
@@ -1040,8 +1040,9 @@
                 this.inner.style.top = null;
                 this.inner.style.left = null;
                 this.present = (this.getTimestamp() / 1000); //in seconds
-                var x = this.getRealX(this.dragOriginLeft + this.dragOriginScrollLeft - e.clientX);
-                var y = this.getRealY(this.dragOriginTop + this.dragOriginScrollTop - e.clientY);
+                var x = this.dragOriginLeft + this.dragOriginScrollLeft - e.clientX;
+                var y = this.dragOriginTop + this.dragOriginScrollTop - e.clientY;
+                _a = this.getRealCoords(x, y), x = _a[0], y = _a[1];
                 var re = new RegExp(" " + this.classGrabbing + " ");
                 document.body.className = document.body.className.replace(re, '');
                 this.inner.parentElement.style.cssText = this.parentOriginStyle;
@@ -1097,30 +1098,36 @@
                     /* in all other cases, do a regular scroll */
                     this.scrollTo(x, y, this.options.dragOptions.fade);
                 }
+                var _a;
             };
             /**
-             * Calculates the rounded and scaled x-coordinate.
+             * Calculates the rounded and scaled coordinates.
              *
              * @param {number} x - the x-coordinate
-             * @return {number} - the final x-coordinate
+             * @param {number} y - the y-coordinate
+             * @return {array} [x, y] - the final coordinates
              */
-            Zwoosh.prototype.getRealX = function (x) {
+            Zwoosh.prototype.getRealCoords = function (x, y) {
                 //stick the element to the grid, if grid equals 1 the value does not change
                 x = Math.round(x / (this.options.gridX * this.getScale())) * (this.options.gridX * this.getScale());
-                var scrollMaxLeft = (this.scrollElement.scrollWidth - this.scrollElement.clientWidth);
-                return (x > scrollMaxLeft) ? scrollMaxLeft : x;
-            };
-            /**
-             * Calculates the rounded and scaled y-coordinate.
-             *
-             * @param {number} y - the y-coordinate
-             * @return {number} - the final y-coordinate
-             */
-            Zwoosh.prototype.getRealY = function (y) {
-                //stick the element to the grid, if grid equals 1 the value does not change
                 y = Math.round(y / (this.options.gridY * this.getScale())) * (this.options.gridY * this.getScale());
+                var scrollMaxLeft = (this.scrollElement.scrollWidth - this.scrollElement.clientWidth);
                 var scrollMaxTop = (this.scrollElement.scrollHeight - this.scrollElement.clientHeight);
-                return (y > scrollMaxTop) ? scrollMaxTop : y;
+                return [
+                    (x > scrollMaxLeft) ? scrollMaxLeft : x,
+                    (y > scrollMaxTop) ? scrollMaxTop : y
+                ];
+            };
+            Zwoosh.prototype.timedScroll = function (x, y, t) {
+                var me = this;
+                this.timeouts.push(setTimeout((function (x, y, me) {
+                    return function () {
+                        me.setScrollTop(y);
+                        me.setScrollLeft(x);
+                        me.originScrollLeft = x;
+                        me.originScrollTop = y;
+                    };
+                }(x, y, me)), t));
             };
             /**
              * Calculates each step of a scroll fadeout animation based on the initial velocity.
@@ -1141,32 +1148,17 @@
                 ax = (0 - vx) / tmax;
                 ay = (0 - vy) / tmax;
                 var fps = this.options.dragOptions.fps;
-                var me = this;
                 for (var i = 0; i < ((tmax * fps) + (0 / fps)); i++) {
                     var t = ((i + 1) / fps);
                     var sy = this.getScrollTop() + (vy * t) + (0.5 * ay * t * t);
                     var sx = this.getScrollLeft() + (vx * t) + (0.5 * ax * t * t);
-                    this.timeouts.push(setTimeout((function (x, y, me) {
-                        return function () {
-                            me.setScrollTop(y);
-                            me.setScrollLeft(x);
-                            me.originScrollLeft = x;
-                            me.originScrollTop = y;
-                        };
-                    }(sx, sy, me)), (i + 1) * (1000 / fps)));
+                    this.timedScroll(sx, sy, (i + 1) * (1000 / fps));
                 }
                 if (i > 0) {
                     /* round the last step based on the direction of the fade */
                     sx = vx > 0 ? Math.ceil(sx) : Math.floor(sx);
                     sy = vy > 0 ? Math.ceil(sy) : Math.floor(sy);
-                    this.timeouts.push(setTimeout((function (x, y, me) {
-                        return function () {
-                            me.setScrollTop(y);
-                            me.setScrollLeft(x);
-                            me.originScrollLeft = x;
-                            me.originScrollTop = y;
-                        };
-                    }(sx, sy, me)), (i + 2) * (1000 / fps)));
+                    this.timedScroll(sx, sy, (i + 2) * (1000 / fps));
                 }
                 /* stop the animation when colliding with the borders */
                 this.clearListenerLeft = function () { return _this.clearTimeouts(); };
@@ -1179,8 +1171,7 @@
                 this.addEventListener(this.inner, 'collide.bottom', this.clearListenerBottom);
             };
             Zwoosh.prototype.fadeOutByCoords = function (x, y) {
-                x = this.getRealX(x);
-                y = this.getRealY(y);
+                _a = this.getRealCoords(x, y), x = _a[0], y = _a[1];
                 var a = this.options.dragOptions.brakeSpeed * -1;
                 var vy = 0 - (2 * a * (y - this.getScrollTop()));
                 var vx = 0 - (2 * a * (x - this.getScrollLeft()));
@@ -1196,6 +1187,7 @@
                 }
                 this.clearTimeouts();
                 this.fadeOutByVelocity(vx, vy);
+                var _a;
             };
             /**
              * Mouse move handler
