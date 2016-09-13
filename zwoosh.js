@@ -140,7 +140,7 @@
                 this.vy = [];
                 this.container = container;
                 /* set default options */
-                this.options = {
+                var defaultOptions = {
                     /* 1 means do not align to a grid */
                     gridX: 1,
                     gridY: 1,
@@ -200,22 +200,33 @@
                      * add to body as zwoosh element too. */
                     handleAnchors: true
                 };
-                /* merge the default option objects with the provided one */
+                this.options = this.mergeOptions(options, defaultOptions);
+                this.init();
+            }
+            /**
+             * Merge the default option object with the provided one
+             *
+             * @param {Options} options - the given options
+             * @param {Options} defaultOptions - the default options
+             * @return {Options} - the merged options object
+             */
+            Zwoosh.prototype.mergeOptions = function (options, defaultOptions) {
+                /* merge the default option object with the provided one */
                 for (var key in options) {
                     if (options.hasOwnProperty(key)) {
                         if (typeof options[key] === 'object') {
                             for (var okey in options[key]) {
                                 if (options[key].hasOwnProperty(okey))
-                                    this.options[key][okey] = options[key][okey];
+                                    defaultOptions[key][okey] = options[key][okey];
                             }
                         }
                         else {
-                            this.options[key] = options[key];
+                            defaultOptions[key] = options[key];
                         }
                     }
                 }
-                this.init();
-            }
+                return defaultOptions;
+            };
             /**
              * Initialize DOM manipulations and event handlers
              *
@@ -224,15 +235,16 @@
             Zwoosh.prototype.init = function () {
                 var _this = this;
                 this.initBody();
-                this.container.className += " " + this.classOuter + " ";
+                this.addClass(this.container, this.classOuter);
                 this.scrollElement = this.container;
                 var x = this.getScrollLeft();
                 var y = this.getScrollTop();
                 /* create inner div element and append it to the container with its contents in it */
                 this.inner = document.createElement("div");
-                this.inner.className += " " + this.classInner + " " + this.classUnique + " ";
+                this.addClass(this.inner, this.classInner);
+                this.addClass(this.inner, this.classUnique);
                 this.scaleElement = document.createElement("div");
-                this.scaleElement.className += " " + this.classScale + " ";
+                this.addClass(this.scaleElement, this.classScale);
                 this.scaleElement.appendChild(this.inner);
                 /* move all childNodes to the new inner element */
                 while (this.container.childNodes.length > 0) {
@@ -284,7 +296,7 @@
                  * div element to scroll on */
                 if (this.isBody === true) {
                     var pseudoBody = document.createElement("div");
-                    pseudoBody.className += " " + this.classFakeBody + " ";
+                    this.addClass(pseudoBody, this.classFakeBody);
                     pseudoBody.style.cssText = document.body.style.cssText;
                     while (this.container.childNodes.length > 0) {
                         pseudoBody.appendChild(this.container.childNodes[0]);
@@ -334,12 +346,12 @@
                 var _this = this;
                 /* if dragscroll is activated, register mousedown event */
                 if (this.options.dragScroll === true) {
-                    this.inner.className += " " + this.classGrab + " ";
+                    this.addClass(this.inner, this.classGrab);
                     this.mouseDownHandler = function (e) { return _this.mouseDown(e); };
                     this.addEventListener(this.inner, 'mousedown', this.mouseDownHandler);
                 }
                 else {
-                    this.container.className += " " + this.classNoGrab + " ";
+                    this.addClass(this.container, this.classNoGrab);
                 }
             };
             Zwoosh.prototype.initAnchors = function () {
@@ -352,7 +364,12 @@
                             /* pushState changes the hash without triggering hashchange */
                             history.pushState({}, '', target.href);
                             /* we don't want to trigger hashchange, so prevent default behavior when clicking on anchor links */
-                            e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+                            if (e.preventDefault) {
+                                e.preventDefault();
+                            }
+                            else {
+                                e.returnValue = false;
+                            }
                         }
                         /* trigger a custom hashchange event, because pushState prevents the real hashchange event */
                         _this.triggerEvent(window, 'myhashchange');
@@ -397,10 +414,9 @@
                         var element = anchors[i];
                         var container = anchors[i];
                         // find the next parent which is a container element
-                        var outerRe = new RegExp(" " + this.classOuter + " ");
                         var nextContainer = element;
                         while (container && container.parentElement && this.container !== container) {
-                            if (container.className.match(outerRe)) {
+                            if (this.hasClass(container, this.classOuter)) {
                                 nextContainer = container;
                             }
                             container = container.parentElement;
@@ -450,30 +466,24 @@
              * @return {array} [width, height] - the amount of pixels
              */
             Zwoosh.prototype.getBorder = function (el) {
-                var bl = this.getStyle(el, 'borderLeftWidth');
-                bl = bl === 'thin' ? 1 : bl === 'medium' ? 3 : bl === 'thick' ? 5 : parseInt(bl, 10) !== NaN ? parseInt(bl, 10) : 0;
-                var br = this.getStyle(el, 'borderRightWidth');
-                br = br === 'thin' ? 1 : br === 'medium' ? 3 : br === 'thick' ? 5 : parseInt(br, 10) !== NaN ? parseInt(br, 10) : 0;
-                var pl = this.getStyle(el, 'paddingLeft');
-                pl = pl === 'auto' ? 0 : parseInt(pl, 10) !== NaN ? parseInt(pl, 10) : 0;
-                var pr = this.getStyle(el, 'paddingRight');
-                pr = pr === 'auto' ? 0 : parseInt(pr, 10) !== NaN ? parseInt(pr, 10) : 0;
-                var ml = this.getStyle(el, 'marginLeft');
-                ml = ml === 'auto' ? 0 : parseInt(ml, 10) !== NaN ? parseInt(ml, 10) : 0;
-                var mr = this.getStyle(el, 'marginRight');
-                mr = mr === 'auto' ? 0 : parseInt(mr, 10) !== NaN ? parseInt(mr, 10) : 0;
-                var bt = this.getStyle(el, 'borderTopWidth');
-                bt = bt === 'thin' ? 1 : bt === 'medium' ? 3 : bt === 'thick' ? 5 : parseInt(bt, 10) !== NaN ? parseInt(bt, 10) : 0;
-                var bb = this.getStyle(el, 'borderBottomWidth');
-                bb = bb === 'thin' ? 1 : bb === 'medium' ? 3 : bb === 'thick' ? 5 : parseInt(bb, 10) !== NaN ? parseInt(bb, 10) : 0;
-                var pt = this.getStyle(el, 'paddingTop');
-                pt = pt === 'auto' ? 0 : parseInt(pt, 10) !== NaN ? parseInt(pt, 10) : 0;
-                var pb = this.getStyle(el, 'paddingBottom');
-                pb = pb === 'auto' ? 0 : parseInt(pb, 10) !== NaN ? parseInt(pb, 10) : 0;
-                var mt = this.getStyle(el, 'marginTop');
-                mt = mt === 'auto' ? 0 : parseInt(mt, 10) !== NaN ? parseInt(mt, 10) : 0;
-                var mb = this.getStyle(el, 'marginBottom');
-                mb = mb === 'auto' ? 0 : parseInt(mb, 10) !== NaN ? parseInt(mb, 10) : 0;
+                var bl = convertBorder(this.getStyle(el, 'borderLeftWidth'));
+                var br = convertBorder(this.getStyle(el, 'borderRightWidth'));
+                var pl = convertSpan(this.getStyle(el, 'paddingLeft'));
+                var pr = convertSpan(this.getStyle(el, 'paddingRight'));
+                var ml = convertSpan(this.getStyle(el, 'marginLeft'));
+                var mr = convertSpan(this.getStyle(el, 'marginRight'));
+                var bt = convertBorder(this.getStyle(el, 'borderTopWidth'));
+                var bb = convertBorder(this.getStyle(el, 'borderBottomWidth'));
+                var pt = convertSpan(this.getStyle(el, 'paddingTop'));
+                var pb = convertSpan(this.getStyle(el, 'paddingBottom'));
+                var mt = convertSpan(this.getStyle(el, 'marginTop'));
+                var mb = convertSpan(this.getStyle(el, 'marginBottom'));
+                function convertBorder(b) {
+                    return b === 'thin' ? 1 : b === 'medium' ? 3 : b === 'thick' ? 5 : !isNaN(parseInt(b, 10)) ? parseInt(b, 10) : 0;
+                }
+                function convertSpan(v) {
+                    return v === 'auto' ? 0 : !isNaN(parseInt(v, 10)) ? parseInt(v, 10) : 0;
+                }
                 return [
                     (pl + pr + bl + br + ml + mr),
                     (pt + pb + bt + bb + mt + mb)
@@ -491,8 +501,12 @@
                     if (!e) {
                         e = window.event;
                     }
-                    e.preventDefault ? e.preventDefault() : (e.returnValue = false);
-                    e.returnValue = false;
+                    if (e.preventDefault) {
+                        e.preventDefault();
+                    }
+                    else {
+                        e.returnValue = false;
+                    }
                 }
             };
             /**
@@ -581,11 +595,12 @@
                     else {
                         return;
                     }
+                    var scale;
                     if (direction === this.options.zoomOptions.direction) {
-                        var scale = this.getScale() * (1 + this.options.zoomOptions.step);
+                        scale = this.getScale() * (1 + this.options.zoomOptions.step);
                     }
                     else {
-                        var scale = this.getScale() / (1 + this.options.zoomOptions.step);
+                        scale = this.getScale() / (1 + this.options.zoomOptions.step);
                     }
                     this.scaleTo(scale);
                 }
@@ -645,7 +660,7 @@
                 if (honourLimits === void 0) { honourLimits = true; }
                 var width = (parseFloat(this.inner.style.minWidth) * scale);
                 var height = (parseFloat(this.inner.style.minHeight) * scale);
-                /* Scrollbars have width and height too */
+                /* scrollbars have width and height too */
                 var minWidth = this.container.clientWidth + this.scrollbarWidth(this.container);
                 var minHeight = this.container.clientHeight + this.scrollbarHeight(this.container);
                 if (honourLimits) {
@@ -676,12 +691,10 @@
                         }
                     }
                 }
-                //console.log("scaleTo(): ", scale, " ----> ", width, " x ", height, " orig: ", this.container.clientWidth, " x ", this.container.clientHeight, " real: ", minWidth, " x ", minHeight);
                 this.inner.style.transform = 'translate(0px, 0px) scale(' + scale + ')';
                 this.scaleElement.style.minWidth = this.scaleElement.style.width = width + 'px';
                 this.scaleElement.style.minHeight = this.scaleElement.style.height = height + 'px';
                 /* TODO: here scrollTo based on where the mouse cursor is */
-                //this.scrollTo();
             };
             /**
              * Disables the scroll wheel of the mouse
@@ -696,13 +709,11 @@
                  * If the element directly behind the cursor is an outer element throw out, because when clicking on a scrollbar
                  * from a div, a drag of the parent Zwoosh element is initiated.
                  */
-                var outerRe = new RegExp(" " + this.classOuter + " ");
-                if (elementBehindCursor.className.match(outerRe)) {
+                if (this.hasClass(elementBehindCursor, this.classOuter)) {
                     return false;
                 }
                 /* find the next parent which is an inner element */
-                var innerRe = new RegExp(" " + this.classInner + " ");
-                while (elementBehindCursor && !elementBehindCursor.className.match(innerRe)) {
+                while (elementBehindCursor && !this.hasClass(elementBehindCursor, this.classInner)) {
                     elementBehindCursor = elementBehindCursor.parentElement;
                 }
                 return this.inner === elementBehindCursor;
@@ -922,6 +933,19 @@
                     obj['on' + eventName]();
                 }
             };
+            Zwoosh.prototype.addClass = function (el, cssClass) {
+                if (!this.hasClass(el, cssClass)) {
+                    el.className += " " + cssClass + " ";
+                }
+            };
+            Zwoosh.prototype.removeClass = function (el, cssClass) {
+                var re = new RegExp(" " + cssClass + " ", 'g');
+                el.className = el.className.replace(re, '');
+            };
+            Zwoosh.prototype.hasClass = function (el, cssClass) {
+                var re = new RegExp(" " + cssClass + " ");
+                return el.className.match(re) !== null;
+            };
             /**
              * Get a css style property value browser independent
              *
@@ -976,8 +1000,7 @@
                             var el = document.elementFromPoint(e.clientX, e.clientY);
                             var excludeElements = this.container.querySelectorAll(this.options.dragOptions.exclude.join(', '));
                             /* loop through all parent elements until we encounter an inner div or no more parents */
-                            var innerRe = new RegExp(" " + this.classInner + " ");
-                            while (el && !el.className.match(innerRe)) {
+                            while (el && !this.hasClass(el, this.classInner)) {
                                 /* compare each parent, if it is in the exclude list */
                                 for (var i = 0; i < excludeElements.length; i++) {
                                     /* bail out if an element matches */
@@ -1004,7 +1027,7 @@
                             return;
                           }
                         }*/
-                        document.body.className += " " + this.classGrabbing + " ";
+                        this.addClass(document.body, this.classGrabbing);
                         this.dragging = true;
                         /* note the origin positions */
                         this.dragOriginLeft = e.clientX;
@@ -1016,7 +1039,12 @@
                         if (typeof this.inner.parentElement.style.setProperty === 'function') {
                             this.inner.parentElement.style.setProperty('scroll-behavior', 'auto');
                         }
-                        e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+                        if (e.preventDefault) {
+                            e.preventDefault();
+                        }
+                        else {
+                            e.returnValue = false;
+                        }
                         this.vx = [];
                         this.vy = [];
                         /* register the event handlers */
@@ -1043,8 +1071,7 @@
                 var x = this.dragOriginLeft + this.dragOriginScrollLeft - e.clientX;
                 var y = this.dragOriginTop + this.dragOriginScrollTop - e.clientY;
                 _a = this.getRealCoords(x, y), x = _a[0], y = _a[1];
-                var re = new RegExp(" " + this.classGrabbing + " ");
-                document.body.className = document.body.className.replace(re, '');
+                this.removeClass(document.body, this.classGrabbing);
                 this.inner.parentElement.style.cssText = this.parentOriginStyle;
                 this.dragging = false;
                 this.removeEventListener(document.documentElement, 'mousemove', this.mouseMoveHandler);
@@ -1057,25 +1084,8 @@
                     }
                 }
                 if (this.options.dragOptions.fade && typeof this.vx !== 'undefined' && typeof this.vy !== 'undefined') {
-                    var deltaT, deltaSx, deltaSy, lastDeltaSx, lastDeltaSy;
-                    deltaT = deltaSx = deltaSy = lastDeltaSx = lastDeltaSy = 0;
-                    for (var i in this.vy) {
-                        if (parseFloat(i) > (this.present - 0.1)
-                            && typeof lastT !== 'undefined'
-                            && typeof lastSx !== 'undefined'
-                            && typeof lastSy !== 'undefined') {
-                            deltaT += parseFloat(i) - lastT;
-                            lastDeltaSx = this.vx[i] - lastSx;
-                            lastDeltaSy = this.vy[i] - lastSy;
-                            deltaSx += Math.abs(lastDeltaSx);
-                            deltaSy += Math.abs(lastDeltaSy);
-                        }
-                        var lastT = parseFloat(i);
-                        var lastSx = this.vx[i];
-                        var lastSy = this.vy[i];
-                    }
-                    var vx = deltaT === 0 ? 0 : lastDeltaSx > 0 ? deltaSx / deltaT : deltaSx / -deltaT;
-                    var vy = deltaT === 0 ? 0 : lastDeltaSy > 0 ? deltaSy / deltaT : deltaSy / -deltaT;
+                    var vx, vy;
+                    _b = this.calcAverageVelocity(0.1), vx = _b[0], vy = _b[1];
                     /* v should not exceed vMax or -vMax -> would be too fast and should exceed vMin or -vMin */
                     var vMax = this.options.dragOptions.maxSpeed;
                     var vMin = this.options.dragOptions.minSpeed;
@@ -1086,8 +1096,8 @@
                         }
                         return;
                     }
-                    var vx = (vx <= vMax && vx >= -vMax) ? vx : (vx > 0 ? vMax : -vMax);
-                    var vy = (vy <= vMax && vy >= -vMax) ? vy : (vy > 0 ? vMax : -vMax);
+                    vx = (vx <= vMax && vx >= -vMax) ? vx : (vx > 0 ? vMax : -vMax);
+                    vy = (vy <= vMax && vy >= -vMax) ? vy : (vy > 0 ? vMax : -vMax);
                     var ax = (vx > 0 ? -1 : 1) * this.options.dragOptions.brakeSpeed;
                     var ay = (vy > 0 ? -1 : 1) * this.options.dragOptions.brakeSpeed;
                     x = ((0 - Math.pow(vx, 2)) / (2 * ax)) + this.getScrollLeft();
@@ -1098,7 +1108,30 @@
                     /* in all other cases, do a regular scroll */
                     this.scrollTo(x, y, this.options.dragOptions.fade);
                 }
-                var _a;
+                var _a, _b;
+            };
+            Zwoosh.prototype.calcAverageVelocity = function (timeSpan) {
+                var present = (this.getTimestamp() / 1000);
+                var deltaT, deltaSx, deltaSy, lastDeltaSx, lastDeltaSy;
+                deltaT = deltaSx = deltaSy = lastDeltaSx = lastDeltaSy = 0;
+                for (var i in this.vy) {
+                    if (parseFloat(i) > (present - timeSpan)
+                        && typeof lastT !== 'undefined'
+                        && typeof lastSx !== 'undefined'
+                        && typeof lastSy !== 'undefined') {
+                        deltaT += parseFloat(i) - lastT;
+                        lastDeltaSx = this.vx[i] - lastSx;
+                        lastDeltaSy = this.vy[i] - lastSy;
+                        deltaSx += Math.abs(lastDeltaSx);
+                        deltaSy += Math.abs(lastDeltaSy);
+                    }
+                    var lastT = parseFloat(i);
+                    var lastSx = this.vx[i];
+                    var lastSy = this.vy[i];
+                }
+                var vx = deltaT === 0 ? 0 : lastDeltaSx > 0 ? deltaSx / deltaT : deltaSx / -deltaT;
+                var vy = deltaT === 0 ? 0 : lastDeltaSy > 0 ? deltaSy / deltaT : deltaSy / -deltaT;
+                return [vx, vy];
             };
             /**
              * Calculates the rounded and scaled coordinates.
@@ -1310,12 +1343,9 @@
                 var x = this.getScrollLeft();
                 var y = this.getScrollTop();
                 /* remove the outer and grab CSS classes */
-                var re = new RegExp(" " + this.classOuter + " ");
-                this.container.className = this.container.className.replace(re, '');
-                var re = new RegExp(" " + this.classGrab + " ");
-                this.inner.className = this.inner.className.replace(re, '');
-                var re = new RegExp(" " + this.classNoGrab + " ");
-                this.container.className = this.container.className.replace(re, '');
+                this.removeClass(this.container, this.classOuter);
+                this.removeClass(this.inner, this.classGrab);
+                this.removeClass(this.container, this.classNoGrab);
                 /* move all childNodes back to the old outer element and remove the inner element */
                 while (this.inner.childNodes.length > 0) {
                     this.container.appendChild(this.inner.childNodes[0]);
@@ -1323,23 +1353,10 @@
                 this.scaleElement.removeChild(this.inner);
                 this.container.removeChild(this.scaleElement);
                 this.scrollTo(x, y, false);
-                this.mouseMoveHandler ? this.removeEventListener(document.documentElement, 'mousemove', this.mouseMoveHandler) : null;
-                this.mouseUpHandler ? this.removeEventListener(document.documentElement, 'mouseup', this.mouseUpHandler) : null;
-                this.mouseDownHandler ? this.removeEventListener(this.inner, 'mousedown', this.mouseDownHandler) : null;
-                this.mouseScrollHandler ? this.removeEventListener(this.scrollElement, 'wheel', this.mouseScrollHandler) : null;
-                this.mouseZoomHandler ? this.removeEventListener(this.scrollElement, 'wheel', this.mouseZoomHandler) : null;
-                this.hashChangeHandler ? this.removeEventListener(window, 'myhashchange', this.hashChangeHandler) : null;
-                this.hashChangeHandler ? this.removeEventListener(window, 'hashchange', this.hashChangeHandler) : null;
-                if (this.hashChangeClickHandler) {
-                    var links = this.container.querySelectorAll("a[href^='#']");
-                    for (var i = 0; i < links.length; i++) {
-                        this.removeEventListener(links[i], 'click', this.hashChangeClickHandler);
-                    }
-                }
-                this.scrollElement ? this.scrollElement.onmousewheel = null : null;
-                this.scrollElement ? this.scrollElement.onscroll = null : null;
+                this.scrollElement.onmousewheel = null;
+                this.scrollElement.onscroll = null;
                 window.onresize = null;
-                /* remove all custom eventlisteners attached via on() */
+                /* remove all custom eventlisteners attached via this.addEventListener() */
                 for (var event in this.customEvents) {
                     for (var c in this.customEvents[event]) {
                         this.removeEventListener(this.inner, event, this.customEvents[event][c][0]);
