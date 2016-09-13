@@ -162,7 +162,7 @@
                         only: [],
                         /* activates a scroll fade when scrolling by drag */
                         fade: true,
-                        /* fade: brake acceleration in pixels per second per second (p/s²) */
+                        /* fade: brake acceleration in pixels per second per second (p/s^2) */
                         brakeSpeed: 2500,
                         /* fade: frames per second of the zwoosh fadeout animation (>=25 looks like motion) */
                         fps: 30,
@@ -200,7 +200,7 @@
                      * add to body as zwoosh element too. */
                     handleAnchors: true
                 };
-                this.options = this.mergeOptions(options, defaultOptions);
+                this.options = this.merge(options, defaultOptions);
                 this.init();
             }
             /**
@@ -210,7 +210,7 @@
              * @param {Options} defaultOptions - the default options
              * @return {Options} - the merged options object
              */
-            Zwoosh.prototype.mergeOptions = function (options, defaultOptions) {
+            Zwoosh.prototype.merge = function (options, defaultOptions) {
                 /* merge the default option object with the provided one */
                 for (var key in options) {
                     if (options.hasOwnProperty(key)) {
@@ -466,28 +466,28 @@
              * @return {array} [width, height] - the amount of pixels
              */
             Zwoosh.prototype.getBorder = function (el) {
-                var bl = convertBorder(this.getStyle(el, 'borderLeftWidth'));
-                var br = convertBorder(this.getStyle(el, 'borderRightWidth'));
-                var pl = convertSpan(this.getStyle(el, 'paddingLeft'));
-                var pr = convertSpan(this.getStyle(el, 'paddingRight'));
-                var ml = convertSpan(this.getStyle(el, 'marginLeft'));
-                var mr = convertSpan(this.getStyle(el, 'marginRight'));
-                var bt = convertBorder(this.getStyle(el, 'borderTopWidth'));
-                var bb = convertBorder(this.getStyle(el, 'borderBottomWidth'));
-                var pt = convertSpan(this.getStyle(el, 'paddingTop'));
-                var pb = convertSpan(this.getStyle(el, 'paddingBottom'));
-                var mt = convertSpan(this.getStyle(el, 'marginTop'));
-                var mb = convertSpan(this.getStyle(el, 'marginBottom'));
-                function convertBorder(b) {
-                    return b === 'thin' ? 1 : b === 'medium' ? 3 : b === 'thick' ? 5 : !isNaN(parseInt(b, 10)) ? parseInt(b, 10) : 0;
-                }
-                function convertSpan(v) {
-                    return v === 'auto' ? 0 : !isNaN(parseInt(v, 10)) ? parseInt(v, 10) : 0;
-                }
+                var bl = this.convertBorder(this.getStyle(el, 'borderLeftWidth'));
+                var br = this.convertBorder(this.getStyle(el, 'borderRightWidth'));
+                var pl = this.convertSpan(this.getStyle(el, 'paddingLeft'));
+                var pr = this.convertSpan(this.getStyle(el, 'paddingRight'));
+                var ml = this.convertSpan(this.getStyle(el, 'marginLeft'));
+                var mr = this.convertSpan(this.getStyle(el, 'marginRight'));
+                var bt = this.convertBorder(this.getStyle(el, 'borderTopWidth'));
+                var bb = this.convertBorder(this.getStyle(el, 'borderBottomWidth'));
+                var pt = this.convertSpan(this.getStyle(el, 'paddingTop'));
+                var pb = this.convertSpan(this.getStyle(el, 'paddingBottom'));
+                var mt = this.convertSpan(this.getStyle(el, 'marginTop'));
+                var mb = this.convertSpan(this.getStyle(el, 'marginBottom'));
                 return [
                     (pl + pr + bl + br + ml + mr),
                     (pt + pb + bt + bb + mt + mb)
                 ];
+            };
+            Zwoosh.prototype.convertBorder = function (b) {
+                return b === 'thin' ? 1 : b === 'medium' ? 3 : b === 'thick' ? 5 : !isNaN(parseInt(b, 10)) ? parseInt(b, 10) : 0;
+            };
+            Zwoosh.prototype.convertSpan = function (v) {
+                return v === 'auto' ? 0 : !isNaN(parseInt(v, 10)) ? parseInt(v, 10) : 0;
             };
             /**
              * Disables the scroll wheel of the mouse
@@ -528,10 +528,10 @@
                     has = element.scrollWidth > element.clientWidth;
                 }
                 // Check the overflow and overflowDirection properties for "auto" and "visible" values
-                has = this.getStyle(this.container, 'overflow') === "visible"
-                    || this.getStyle(this.container, 'overflowY') === "visible"
-                    || (has && this.getStyle(this.container, 'overflow') === "auto")
-                    || (has && this.getStyle(this.container, 'overflowY') === "auto");
+                has = this.getStyle(this.container, 'overflow') === "visible" ||
+                    this.getStyle(this.container, 'overflowY') === "visible" ||
+                    (has && this.getStyle(this.container, 'overflow') === "auto") ||
+                    (has && this.getStyle(this.container, 'overflowY') === "auto");
                 return has;
             };
             /**
@@ -665,10 +665,10 @@
                 var minHeight = this.container.clientHeight + this.scrollbarHeight(this.container);
                 if (honourLimits) {
                     /* loop as long as all limits are honoured */
-                    while ((scale > this.options.zoomOptions.maxScale && this.options.zoomOptions.maxScale !== 0)
-                        || (scale < this.options.zoomOptions.minScale && this.options.zoomOptions.minScale !== 0)
-                        || (width < this.container.clientWidth && !this.isBody)
-                        || height < this.container.clientHeight && !this.isBody) {
+                    while ((scale > this.options.zoomOptions.maxScale && this.options.zoomOptions.maxScale !== 0) ||
+                        (scale < this.options.zoomOptions.minScale && this.options.zoomOptions.minScale !== 0) ||
+                        (width < this.container.clientWidth && !this.isBody) ||
+                        (height < this.container.clientHeight && !this.isBody)) {
                         if (scale > this.options.zoomOptions.maxScale) {
                             scale = this.options.zoomOptions.maxScale;
                         }
@@ -745,37 +745,25 @@
                 this.scrollMaxLeft = (this.scrollElement.scrollWidth - this.scrollElement.clientWidth);
                 this.scrollMaxTop = (this.scrollElement.scrollHeight - this.scrollElement.clientHeight);
                 // the collideLeft event
-                if (x === 0) {
-                    this.triggered.collideLeft ? null : this.triggerEvent(this.inner, 'collide.left');
-                    this.triggered.collideLeft = true;
+                if (x === 0 && !this.triggered.collideLeft) {
+                    this.triggerEvent(this.inner, 'collide.left');
                 }
-                else {
-                    this.triggered.collideLeft = false;
-                }
+                this.triggered.collideLeft = x === 0;
                 // the collideTop event
-                if (y === 0) {
-                    this.triggered.collideTop ? null : this.triggerEvent(this.inner, 'collide.top');
-                    this.triggered.collideTop = true;
+                if (y === 0 && !this.triggered.collideTop) {
+                    this.triggerEvent(this.inner, 'collide.top');
                 }
-                else {
-                    this.triggered.collideTop = false;
-                }
+                this.triggered.collideTop = y === 0;
                 // the collideRight event
-                if (x === this.scrollMaxLeft) {
-                    this.triggered.collideRight ? null : this.triggerEvent(this.inner, 'collide.right');
-                    this.triggered.collideRight = true;
+                if (x === this.scrollMaxLeft && !this.triggered.collideRight) {
+                    this.triggerEvent(this.inner, 'collide.right');
                 }
-                else {
-                    this.triggered.collideRight = false;
-                }
+                this.triggered.collideRight = x === this.scrollMaxLeft;
                 // the collideBottom event
-                if (y === this.scrollMaxTop) {
-                    this.triggered.collideBottom ? null : this.triggerEvent(this.inner, 'collide.bottom');
-                    this.triggered.collideBottom = true;
+                if (y === this.scrollMaxTop && !this.triggered.collideBottom) {
+                    this.triggerEvent(this.inner, 'collide.bottom');
                 }
-                else {
-                    this.triggered.collideBottom = false;
-                }
+                this.triggered.collideBottom = y === this.scrollMaxTop;
             };
             /**
              * window resize handler to recalculate the inner div minWidth and minHeight
@@ -808,10 +796,12 @@
                 this.oldClientHeight = document.documentElement.clientHeight;
             };
             Zwoosh.prototype.clearTextSelection = function () {
-                if (window.getSelection)
+                if (window.getSelection) {
                     window.getSelection().removeAllRanges();
-                if (document.selection)
+                }
+                if (document.selection) {
                     document.selection.empty();
+                }
             };
             /**
              * Browser independent event registration
@@ -858,7 +848,9 @@
                 else {
                     obj['on' + event] = boundCallback;
                 }
-                this.customEvents[event] ? null : (this.customEvents[event] = []);
+                if (!this.customEvents[event]) {
+                    this.customEvents[event] = [];
+                }
                 this.customEvents[event].push([callback, boundCallback]);
             };
             /**
@@ -964,8 +956,10 @@
             };
             Zwoosh.prototype.clearTimeouts = function () {
                 if (this.timeouts) {
-                    for (var idx in this.timeouts) {
-                        clearTimeout(this.timeouts[idx]);
+                    for (var i in this.timeouts) {
+                        if (this.timeouts.hasOwnProperty(i)) {
+                            clearTimeout(this.timeouts[i]);
+                        }
                     }
                     if (this.timeouts.length > 0) {
                         this.timeouts = [];
@@ -1002,9 +996,9 @@
                             /* loop through all parent elements until we encounter an inner div or no more parents */
                             while (el && !this.hasClass(el, this.classInner)) {
                                 /* compare each parent, if it is in the exclude list */
-                                for (var i = 0; i < excludeElements.length; i++) {
+                                for (var a = 0; a < excludeElements.length; a++) {
                                     /* bail out if an element matches */
-                                    if (excludeElements[i] === el) {
+                                    if (excludeElements[a] === el) {
                                         return;
                                     }
                                     ;
@@ -1115,19 +1109,21 @@
                 var deltaT, deltaSx, deltaSy, lastDeltaSx, lastDeltaSy;
                 deltaT = deltaSx = deltaSy = lastDeltaSx = lastDeltaSy = 0;
                 for (var i in this.vy) {
-                    if (parseFloat(i) > (present - timeSpan)
-                        && typeof lastT !== 'undefined'
-                        && typeof lastSx !== 'undefined'
-                        && typeof lastSy !== 'undefined') {
-                        deltaT += parseFloat(i) - lastT;
-                        lastDeltaSx = this.vx[i] - lastSx;
-                        lastDeltaSy = this.vy[i] - lastSy;
-                        deltaSx += Math.abs(lastDeltaSx);
-                        deltaSy += Math.abs(lastDeltaSy);
+                    if (this.vy.hasOwnProperty(i)) {
+                        if (parseFloat(i) > (present - timeSpan) &&
+                            typeof lastT !== 'undefined' &&
+                            typeof lastSx !== 'undefined' &&
+                            typeof lastSy !== 'undefined') {
+                            deltaT += parseFloat(i) - lastT;
+                            lastDeltaSx = this.vx[i] - lastSx;
+                            lastDeltaSy = this.vy[i] - lastSy;
+                            deltaSx += Math.abs(lastDeltaSx);
+                            deltaSy += Math.abs(lastDeltaSy);
+                        }
+                        var lastT = parseFloat(i);
+                        var lastSx = this.vx[i];
+                        var lastSy = this.vy[i];
                     }
-                    var lastT = parseFloat(i);
-                    var lastSx = this.vx[i];
-                    var lastSy = this.vy[i];
                 }
                 var vx = deltaT === 0 ? 0 : lastDeltaSx > 0 ? deltaSx / deltaT : deltaSx / -deltaT;
                 var vy = deltaT === 0 ? 0 : lastDeltaSy > 0 ? deltaSy / deltaT : deltaSy / -deltaT;
@@ -1171,7 +1167,6 @@
              * @return {number} - the final y-coordinate
              */
             Zwoosh.prototype.fadeOutByVelocity = function (vx, vy) {
-                /* TODO: calc v here and with more info, more precisely */
                 var _this = this;
                 /* calculate the brake acceleration in both directions separately */
                 var ay = (vy > 0 ? -1 : 1) * this.options.dragOptions.brakeSpeed;
@@ -1180,11 +1175,12 @@
                 var tmax = Math.max((0 - vy) / ay, (0 - vx) / ax);
                 ax = (0 - vx) / tmax;
                 ay = (0 - vy) / tmax;
+                var sx, sy, t;
                 var fps = this.options.dragOptions.fps;
                 for (var i = 0; i < ((tmax * fps) + (0 / fps)); i++) {
-                    var t = ((i + 1) / fps);
-                    var sy = this.getScrollTop() + (vy * t) + (0.5 * ay * t * t);
-                    var sx = this.getScrollLeft() + (vx * t) + (0.5 * ax * t * t);
+                    t = ((i + 1) / fps);
+                    sy = this.getScrollTop() + (vy * t) + (0.5 * ay * t * t);
+                    sx = this.getScrollLeft() + (vx * t) + (0.5 * ax * t * t);
                     this.timedScroll(sx, sy, (i + 1) * (1000 / fps));
                 }
                 if (i > 0) {
@@ -1292,8 +1288,8 @@
                 this.scrollMaxLeft = (this.scrollElement.scrollWidth - this.scrollElement.clientWidth);
                 this.scrollMaxTop = (this.scrollElement.scrollHeight - this.scrollElement.clientHeight);
                 /* no negative values or values greater than the maximum */
-                var x = (x > this.scrollMaxLeft) ? this.scrollMaxLeft : (x < 0) ? 0 : x;
-                var y = (y > this.scrollMaxTop) ? this.scrollMaxTop : (y < 0) ? 0 : y;
+                x = (x > this.scrollMaxLeft) ? this.scrollMaxLeft : (x < 0) ? 0 : x;
+                y = (y > this.scrollMaxTop) ? this.scrollMaxTop : (y < 0) ? 0 : y;
                 /* remember the old values */
                 this.originScrollLeft = this.getScrollLeft();
                 this.originScrollTop = this.getScrollTop();
@@ -1358,8 +1354,10 @@
                 window.onresize = null;
                 /* remove all custom eventlisteners attached via this.addEventListener() */
                 for (var event in this.customEvents) {
-                    for (var c in this.customEvents[event]) {
-                        this.removeEventListener(this.inner, event, this.customEvents[event][c][0]);
+                    for (var p in this.customEvents[event]) {
+                        if (this.customEvents[event].hasOwnProperty(p)) {
+                            this.removeEventListener(this.inner, event, this.customEvents[event][p][0]);
+                        }
                     }
                 }
                 return;

@@ -261,7 +261,7 @@ function zwoosh (container: HTMLElement, options = {}) {
           only: [], //TODO commented out
           /* activates a scroll fade when scrolling by drag */
           fade: true,
-          /* fade: brake acceleration in pixels per second per second (p/s²) */
+          /* fade: brake acceleration in pixels per second per second (p/s^2) */
           brakeSpeed: 2500,
           /* fade: frames per second of the zwoosh fadeout animation (>=25 looks like motion) */
           fps: 30,
@@ -300,7 +300,7 @@ function zwoosh (container: HTMLElement, options = {}) {
         handleAnchors: true,
       };
 
-      this.options = this.mergeOptions(options, defaultOptions);
+      this.options = this.merge(options, defaultOptions);
       this.init();
 
     }
@@ -312,7 +312,7 @@ function zwoosh (container: HTMLElement, options = {}) {
      * @param {Options} defaultOptions - the default options
      * @return {Options} - the merged options object
      */
-    private mergeOptions (options: Options, defaultOptions: Options) {
+    private merge (options: Options, defaultOptions: Options) {
       /* merge the default option object with the provided one */
       for (var key in options) {
         if (options.hasOwnProperty(key)) {
@@ -594,32 +594,32 @@ function zwoosh (container: HTMLElement, options = {}) {
      * @return {array} [width, height] - the amount of pixels
      */
     private getBorder (el: HTMLElement) {
-      var bl = convertBorder(this.getStyle(el, 'borderLeftWidth'));
-      var br = convertBorder(this.getStyle(el, 'borderRightWidth'));
-      var pl = convertSpan(this.getStyle(el, 'paddingLeft'));
-      var pr = convertSpan(this.getStyle(el, 'paddingRight'));
-      var ml = convertSpan(this.getStyle(el, 'marginLeft'));
-      var mr = convertSpan(this.getStyle(el, 'marginRight'));
+      var bl = this.convertBorder(this.getStyle(el, 'borderLeftWidth'));
+      var br = this.convertBorder(this.getStyle(el, 'borderRightWidth'));
+      var pl = this.convertSpan(this.getStyle(el, 'paddingLeft'));
+      var pr = this.convertSpan(this.getStyle(el, 'paddingRight'));
+      var ml = this.convertSpan(this.getStyle(el, 'marginLeft'));
+      var mr = this.convertSpan(this.getStyle(el, 'marginRight'));
 
-      var bt = convertBorder(this.getStyle(el, 'borderTopWidth'));
-      var bb = convertBorder(this.getStyle(el, 'borderBottomWidth'));
-      var pt = convertSpan(this.getStyle(el, 'paddingTop'));
-      var pb = convertSpan(this.getStyle(el, 'paddingBottom'));
-      var mt = convertSpan(this.getStyle(el, 'marginTop'));
-      var mb = convertSpan(this.getStyle(el, 'marginBottom'));
-
-      function convertBorder (b: string) {
-        return b === 'thin' ? 1 : b === 'medium' ? 3 : b === 'thick' ? 5 : !isNaN(parseInt(b, 10)) ? parseInt(b, 10) : 0;
-      }
-
-      function convertSpan (v: string) {
-        return v === 'auto' ? 0 : !isNaN(parseInt(v, 10)) ? parseInt(v, 10) : 0;
-      }
+      var bt = this.convertBorder(this.getStyle(el, 'borderTopWidth'));
+      var bb = this.convertBorder(this.getStyle(el, 'borderBottomWidth'));
+      var pt = this.convertSpan(this.getStyle(el, 'paddingTop'));
+      var pb = this.convertSpan(this.getStyle(el, 'paddingBottom'));
+      var mt = this.convertSpan(this.getStyle(el, 'marginTop'));
+      var mb = this.convertSpan(this.getStyle(el, 'marginBottom'));
 
       return [
         (pl + pr + bl + br + ml + mr),
         (pt + pb + bt + bb + mt + mb)
       ];
+    }
+
+    private convertBorder (b: string) {
+      return b === 'thin' ? 1 : b === 'medium' ? 3 : b === 'thick' ? 5 : !isNaN(parseInt(b, 10)) ? parseInt(b, 10) : 0;
+    }
+
+    private convertSpan (v: string) {
+      return v === 'auto' ? 0 : !isNaN(parseInt(v, 10)) ? parseInt(v, 10) : 0;
     }
 
     /**
@@ -657,10 +657,10 @@ function zwoosh (container: HTMLElement, options = {}) {
       }
       
       // Check the overflow and overflowDirection properties for "auto" and "visible" values
-      has = this.getStyle(this.container, 'overflow') === "visible" 
-         || this.getStyle(this.container, 'overflowY') === "visible"
-         || (has && this.getStyle(this.container, 'overflow') === "auto")
-         || (has && this.getStyle(this.container, 'overflowY') === "auto");
+      has = this.getStyle(this.container, 'overflow') === "visible" ||
+         this.getStyle(this.container, 'overflowY') === "visible" ||
+         (has && this.getStyle(this.container, 'overflow') === "auto") ||
+         (has && this.getStyle(this.container, 'overflowY') === "auto");
 
       return has;
     }
@@ -804,10 +804,10 @@ function zwoosh (container: HTMLElement, options = {}) {
 
       if (honourLimits) {
         /* loop as long as all limits are honoured */
-        while ((scale > this.options.zoomOptions.maxScale && this.options.zoomOptions.maxScale !== 0)
-            || (scale < this.options.zoomOptions.minScale && this.options.zoomOptions.minScale !== 0)
-            || (width < this.container.clientWidth && !this.isBody)
-            || height < this.container.clientHeight && !this.isBody) {
+        while ( (scale > this.options.zoomOptions.maxScale && this.options.zoomOptions.maxScale !== 0) ||
+                (scale < this.options.zoomOptions.minScale && this.options.zoomOptions.minScale !== 0) ||
+                (width < this.container.clientWidth && !this.isBody) ||
+                (height < this.container.clientHeight && !this.isBody) ) {
 
           if (scale > this.options.zoomOptions.maxScale) {
             scale = this.options.zoomOptions.maxScale;
@@ -895,37 +895,20 @@ function zwoosh (container: HTMLElement, options = {}) {
       this.scrollMaxTop = (this.scrollElement.scrollHeight - this.scrollElement.clientHeight);
 
       // the collideLeft event
-      if (x === 0) {
-        this.triggered.collideLeft ? null : this.triggerEvent(this.inner, 'collide.left');
-        this.triggered.collideLeft = true;
-      } else {
-        this.triggered.collideLeft = false;
-      }
+      if (x === 0 && !this.triggered.collideLeft) { this.triggerEvent(this.inner, 'collide.left'); }
+      this.triggered.collideLeft = x === 0;      
 
       // the collideTop event
-      if (y === 0) {
-        this.triggered.collideTop ? null : this.triggerEvent(this.inner, 'collide.top');
-        this.triggered.collideTop = true;
-      } else {
-        this.triggered.collideTop = false;
-      }
+      if (y === 0 && !this.triggered.collideTop) { this.triggerEvent(this.inner, 'collide.top'); }
+      this.triggered.collideTop = y === 0;
 
       // the collideRight event
-      if (x === this.scrollMaxLeft) {
-        this.triggered.collideRight ? null : this.triggerEvent(this.inner, 'collide.right');
-        this.triggered.collideRight = true;
-      } else {
-        this.triggered.collideRight = false;
-      }
+      if (x === this.scrollMaxLeft && !this.triggered.collideRight) { this.triggerEvent(this.inner, 'collide.right'); }
+      this.triggered.collideRight = x === this.scrollMaxLeft;
 
       // the collideBottom event
-      if (y === this.scrollMaxTop) {
-        this.triggered.collideBottom ? null : this.triggerEvent(this.inner, 'collide.bottom');
-        this.triggered.collideBottom = true;
-      } else {
-        this.triggered.collideBottom = false;
-      }
-
+      if (y === this.scrollMaxTop && !this.triggered.collideBottom) { this.triggerEvent(this.inner, 'collide.bottom'); }
+      this.triggered.collideBottom = y === this.scrollMaxTop;
     }
 
     /**
@@ -964,8 +947,8 @@ function zwoosh (container: HTMLElement, options = {}) {
     }
 
     private clearTextSelection() {
-      if ((<any>window).getSelection) (<any>window).getSelection().removeAllRanges();
-      if ((<any>document).selection) (<any>document).selection.empty();
+      if ((<any>window).getSelection) { (<any>window).getSelection().removeAllRanges(); }
+      if ((<any>document).selection) { (<any>document).selection.empty(); }
     }
 
     /**
@@ -1007,7 +990,7 @@ function zwoosh (container: HTMLElement, options = {}) {
         obj['on' + event] = boundCallback;
       }
 
-      this.customEvents[event] ? null : (this.customEvents[event] = []);
+      if (!this.customEvents[event]) { this.customEvents[event] = []; }
       this.customEvents[event].push([callback, boundCallback]);
 
     }
@@ -1116,8 +1099,10 @@ function zwoosh (container: HTMLElement, options = {}) {
 
     private clearTimeouts () {
       if (this.timeouts) {
-        for (var idx in this.timeouts) {
-          clearTimeout(this.timeouts[idx]);
+        for (var i in this.timeouts) {
+          if (this.timeouts.hasOwnProperty(i)) {
+            clearTimeout(this.timeouts[i]);
+          }
         }
 
         if (this.timeouts.length > 0) {
@@ -1155,7 +1140,7 @@ function zwoosh (container: HTMLElement, options = {}) {
           }
 
           /* search the DOM for exclude elements */          
-          if (this.options.dragOptions.exclude.length !== 0){
+          if (this.options.dragOptions.exclude.length !== 0) {
             /* drag only if the mouse clicked on an allowed element */
             var el = <HTMLElement>document.elementFromPoint(e.clientX, e.clientY);
             var excludeElements = this.container.querySelectorAll(this.options.dragOptions.exclude.join(', '));
@@ -1163,9 +1148,9 @@ function zwoosh (container: HTMLElement, options = {}) {
             /* loop through all parent elements until we encounter an inner div or no more parents */
             while (el && !this.hasClass(el, this.classInner)) {
               /* compare each parent, if it is in the exclude list */
-              for (var i = 0; i < excludeElements.length; i++) {
+              for (var a = 0; a < excludeElements.length; a++) {
                 /* bail out if an element matches */
-                if (excludeElements[i] === el) { return };
+                if (excludeElements[a] === el) { return };
               }
               el = el.parentElement;
             }
@@ -1292,19 +1277,21 @@ function zwoosh (container: HTMLElement, options = {}) {
       var deltaT, deltaSx, deltaSy, lastDeltaSx, lastDeltaSy;
       deltaT = deltaSx = deltaSy = lastDeltaSx = lastDeltaSy = 0
       for (var i in this.vy) {
-        if (parseFloat(i) > (present - timeSpan)
-            && typeof lastT !== 'undefined'
-            && typeof lastSx !== 'undefined'
-            && typeof lastSy !== 'undefined') {
-          deltaT += parseFloat(i) - lastT;
-          lastDeltaSx = this.vx[i] - lastSx;
-          lastDeltaSy = this.vy[i] - lastSy;
-          deltaSx += Math.abs(lastDeltaSx);
-          deltaSy += Math.abs(lastDeltaSy);
+        if (this.vy.hasOwnProperty(i)) {
+          if (parseFloat(i) > (present - timeSpan) &&
+              typeof lastT !== 'undefined' &&
+              typeof lastSx !== 'undefined' &&
+              typeof lastSy !== 'undefined') {
+            deltaT += parseFloat(i) - lastT;
+            lastDeltaSx = this.vx[i] - lastSx;
+            lastDeltaSy = this.vy[i] - lastSy;
+            deltaSx += Math.abs(lastDeltaSx);
+            deltaSy += Math.abs(lastDeltaSy);
+          }
+          var lastT = parseFloat(i);
+          var lastSx = this.vx[i];
+          var lastSy = this.vy[i];
         }
-        var lastT = parseFloat(i);
-        var lastSx = this.vx[i];
-        var lastSy = this.vy[i];
       }
       var vx = deltaT === 0 ? 0 : lastDeltaSx > 0 ? deltaSx/deltaT : deltaSx/-deltaT;
       var vy = deltaT === 0 ? 0 : lastDeltaSy > 0 ? deltaSy/deltaT : deltaSy/-deltaT;
@@ -1356,8 +1343,6 @@ function zwoosh (container: HTMLElement, options = {}) {
      */
     private fadeOutByVelocity (vx: number, vy: number) {
 
-      /* TODO: calc v here and with more info, more precisely */
-
       /* calculate the brake acceleration in both directions separately */
       var ay = (vy > 0 ? -1 : 1) * this.options.dragOptions.brakeSpeed;
       var ax = (vx > 0 ? -1 : 1) * this.options.dragOptions.brakeSpeed;
@@ -1367,12 +1352,12 @@ function zwoosh (container: HTMLElement, options = {}) {
       ax = (0-vx)/tmax;
       ay = (0-vy)/tmax;
 
+      var sx, sy, t;
       var fps = this.options.dragOptions.fps;
       for (var i = 0; i < ((tmax*fps)+(0/fps)); i++) {
-        var t = ((i+1)/fps);
-        var sy = this.getScrollTop() + (vy*t) + (0.5*ay*t*t);
-        var sx = this.getScrollLeft() + (vx*t) + (0.5*ax*t*t);
-
+        t = ((i+1)/fps);
+        sy = this.getScrollTop() + (vy*t) + (0.5*ay*t*t);
+        sx = this.getScrollLeft() + (vx*t) + (0.5*ax*t*t);
         this.timedScroll(sx, sy, (i+1)*(1000/fps));
       }
 
@@ -1500,8 +1485,8 @@ function zwoosh (container: HTMLElement, options = {}) {
       this.scrollMaxTop = (this.scrollElement.scrollHeight - this.scrollElement.clientHeight);
 
       /* no negative values or values greater than the maximum */
-      var x = (x > this.scrollMaxLeft) ? this.scrollMaxLeft : (x < 0) ? 0 : x;
-      var y = (y > this.scrollMaxTop) ? this.scrollMaxTop : (y < 0) ? 0 : y;
+      x = (x > this.scrollMaxLeft) ? this.scrollMaxLeft : (x < 0) ? 0 : x;
+      y = (y > this.scrollMaxTop) ? this.scrollMaxTop : (y < 0) ? 0 : y;
 
       /* remember the old values */
       this.originScrollLeft = this.getScrollLeft();
@@ -1578,8 +1563,10 @@ function zwoosh (container: HTMLElement, options = {}) {
 
       /* remove all custom eventlisteners attached via this.addEventListener() */
       for (var event in this.customEvents) {
-        for (var c in this.customEvents[event]) {
-          this.removeEventListener(this.inner, event, this.customEvents[event][c][0]);
+        for (var p in this.customEvents[event]) {
+          if (this.customEvents[event].hasOwnProperty(p)) {
+            this.removeEventListener(this.inner, event, this.customEvents[event][p][0]);
+          }
         }
       }
 

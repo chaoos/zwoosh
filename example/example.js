@@ -66,15 +66,15 @@ window.onload = function () {
     json.innerHTML = JSON.stringify(diff(custom.options, basics.options), null, 2);
     function activeOption(zwooshElement, option, reinit) {
         if (reinit === void 0) { reinit = false; }
+        var type;
         var el = document.getElementById(option);
         var opts = option.split('.');
         if (opts.length === 1) {
-            var type = typeof zwooshElement.options[option];
+            type = typeof zwooshElement.options[option];
         }
         else {
-            var type = typeof zwooshElement.options[opts[0]][opts[1]];
+            type = typeof zwooshElement.options[opts[0]][opts[1]];
         }
-        //console.log(option, " is ", type);
         if (type === 'number') {
             el.value = eval("zwooshElement.options." + option);
             el.onkeyup = function () {
@@ -86,7 +86,9 @@ window.onload = function () {
                 }
                 eval("zwooshElement.options." + option + " = " + parseFloat(el.value) + ";");
                 json.innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
-                reinit === true ? zwooshElement.reinit() : null;
+                if (reinit === true) {
+                    zwooshElement.reinit();
+                }
             };
         }
         else if (type === 'string') {
@@ -95,7 +97,9 @@ window.onload = function () {
                 var value = el.options[el.selectedIndex].value;
                 eval("zwooshElement.options." + option + " = '" + value + "';");
                 json.innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
-                reinit === true ? zwooshElement.reinit() : null;
+                if (reinit === true) {
+                    zwooshElement.reinit();
+                }
             };
         }
         else if (type === 'boolean') {
@@ -103,26 +107,28 @@ window.onload = function () {
             el.onclick = function () {
                 eval("zwooshElement.options." + option + " = " + el.checked + ";");
                 json.innerHTML = JSON.stringify(diff(zwooshElement.options, basics.options), null, 2);
-                reinit === true ? zwooshElement.reinit() : null;
+                if (reinit === true) {
+                    zwooshElement.reinit();
+                }
             };
         }
     }
     function diff(obj1, obj2) {
-        var diff = {};
+        var d = {};
         for (var p in obj2) {
             if (typeof (obj1[p]) === 'object' && typeof (obj2[p]) === 'object') {
                 for (var i in obj2[p]) {
                     if (JSON.stringify(obj1[p][i]) !== JSON.stringify(obj2[p][i])) {
-                        diff[p] = diff[p] ? diff[p] : {};
-                        diff[p][i] = obj1[p][i];
+                        d[p] = d[p] ? d[p] : {};
+                        d[p][i] = obj1[p][i];
                     }
                 }
             }
             else if (JSON.stringify(obj1[p]) !== JSON.stringify(obj2[p])) {
-                diff[p] = obj1[p];
+                d[p] = obj1[p];
             }
         }
-        return diff;
+        return d;
     }
     zwoosh(document.getElementById("edges"), {
         elasticEdges: {
