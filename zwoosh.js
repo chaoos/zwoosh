@@ -28,16 +28,14 @@
                     // internal IsCallable function
                     throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
                 }
-                var aArgs = Array.prototype.slice.call(arguments, 1), fToBind = this, fNOP = function () { }, fBound = function () {
-                    return fToBind.apply(this instanceof fNOP
-                        ? this
-                        : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
+                var aArgs = Array.prototype.slice.call(arguments, 1), fToBind = this, FNOP = function () { }, fBound = function () {
+                    return fToBind.apply(this instanceof FNOP ? this : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
                 };
                 if (this.prototype) {
                     // Function.prototype doesn't have a prototype property
-                    fNOP.prototype = this.prototype;
+                    FNOP.prototype = this.prototype;
                 }
-                fBound.prototype = new fNOP();
+                fBound.prototype = new FNOP();
                 return fBound;
             };
         }
@@ -50,7 +48,7 @@
         if (!Array.prototype.indexOf) {
             Array.prototype.indexOf = function (searchElement, fromIndex) {
                 var k;
-                if (this == null) {
+                if (this === null) {
                     throw new TypeError('"this" is null or not defined');
                 }
                 var o = Object(this);
@@ -309,8 +307,12 @@
                 /* show the grid only if at least one of the grid values is not 1 */
                 if ((this.options.gridX !== 1 || this.options.gridY !== 1) && this.options.gridShow) {
                     var bgi = [];
-                    this.options.gridX !== 1 ? bgi.push('linear-gradient(to right, grey 1px, transparent 1px)') : null;
-                    this.options.gridY !== 1 ? bgi.push('linear-gradient(to bottom, grey 1px, transparent 1px)') : null;
+                    if (this.options.gridX !== 1) {
+                        bgi.push('linear-gradient(to right, grey 1px, transparent 1px)');
+                    }
+                    if (this.options.gridY !== 1) {
+                        bgi.push('linear-gradient(to bottom, grey 1px, transparent 1px)');
+                    }
                     this.addBeforeCSS(this.classUnique, 'width', this.inner.style.minWidth);
                     this.addBeforeCSS(this.classUnique, 'height', this.inner.style.minHeight);
                     this.addBeforeCSS(this.classUnique, 'left', '-' + this.getStyle(this.container, 'paddingLeft'));
@@ -336,7 +338,9 @@
             /* wheelzoom */
             Zwoosh.prototype.initWheelZoom = function () {
                 var _this = this;
-                this.options.gridShow ? this.scaleTo(1) : null;
+                if (this.options.gridShow) {
+                    this.scaleTo(1);
+                }
                 if (this.options.wheelZoom === true) {
                     this.mouseZoomHandler = function (e) { return _this.activeMouseZoom(e); };
                     this.addEventListener(this.scrollElement, 'wheel', this.mouseZoomHandler);
@@ -787,7 +791,8 @@
                  * Trigger the function only when the clientWidth or clientHeight really have changed.
                  * IE8 resides in an infinity loop always triggering the resite event when altering css.
                  */
-                if (this.oldClientWidth !== document.documentElement.clientWidth || this.oldClientHeight !== document.documentElement.clientHeight) {
+                if (this.oldClientWidth !== document.documentElement.clientWidth ||
+                    this.oldClientHeight !== document.documentElement.clientHeight) {
                     window.clearTimeout(this.resizeTimeout);
                     this.resizeTimeout = window.setTimeout(onResize, 10);
                 }
@@ -1001,7 +1006,6 @@
                                     if (excludeElements[a] === el) {
                                         return;
                                     }
-                                    ;
                                 }
                                 el = el.parentElement;
                             }
@@ -1354,9 +1358,11 @@
                 window.onresize = null;
                 /* remove all custom eventlisteners attached via this.addEventListener() */
                 for (var event in this.customEvents) {
-                    for (var p in this.customEvents[event]) {
-                        if (this.customEvents[event].hasOwnProperty(p)) {
-                            this.removeEventListener(this.inner, event, this.customEvents[event][p][0]);
+                    if (this.customEvents.hasOwnProperty(event)) {
+                        for (var p in this.customEvents[event]) {
+                            if (this.customEvents[event].hasOwnProperty(p)) {
+                                this.removeEventListener(this.inner, event, this.customEvents[event][p][0]);
+                            }
                         }
                     }
                 }
