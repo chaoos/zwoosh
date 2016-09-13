@@ -81,33 +81,33 @@ function zwoosh (container: HTMLElement, options = {}) {
   /* list of real events */
   var htmlEvents = {
     /* <body> and <frameset> Events */
-    onload:1,
-    onunload:1,
+    onload: 1,
+    onunload: 1,
     /* Form Events */
-    onblur:1,
-    onchange:1,
-    onfocus:1,
-    onreset:1,
-    onselect:1,
-    onsubmit:1,
+    onblur: 1,
+    onchange: 1,
+    onfocus: 1,
+    onreset: 1,
+    onselect: 1,
+    onsubmit: 1,
     /* Image Events */
-    onabort:1,
+    onabort: 1,
     /* Keyboard Events */
-    onkeydown:1,
-    onkeypress:1,
-    onkeyup:1,
+    onkeydown: 1,
+    onkeypress: 1,
+    onkeyup: 1,
     /* Mouse Events */
-    onclick:1,
-    ondblclick:1,
-    onmousedown:1,
-    onmousemove:1,
-    onmouseout:1,
-    onmouseover:1,
-    onmouseup:1
+    onclick: 1,
+    ondblclick: 1,
+    onmousedown: 1,
+    onmousemove: 1,
+    onmouseout: 1,
+    onmouseover: 1,
+    onmouseup: 1
   }
 
   var mapEvents = {
-    onscroll:window,
+    onscroll: window,
   }
 
   /* options object definition */
@@ -200,13 +200,11 @@ function zwoosh (container: HTMLElement, options = {}) {
     private mouseScrollHandler: (e: MouseWheelEvent) => void;
     private mouseZoomHandler: (e: MouseWheelEvent) => void;
     private scrollHandler: (e: Event) => void;
-
     private resizeHandler: (e: Event) => void;
-
     private hashChangeHandler: (e: Event) => void;
     private hashChangeClickHandler: (e: Event) => void;
 
-    /* own event listener */
+    /* own event handler */
     private clearListenerLeft: (e: Event) => void;
     private clearListenerRight: (e: Event) => void;
     private clearListenerTop: (e: Event) => void;
