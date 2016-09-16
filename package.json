@@ -1,6 +1,6 @@
 {
   "name": "zwoosh",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Dragscroll, Wheelzoom and Infinityscroll Javascript and Typescript library",
   "keywords": [
     "drag",
@@ -47,15 +47,14 @@
     "url": "https://github.com/chaoos/zwoosh/issues"
   },
   "homepage": "https://github.com/chaoos/zwoosh",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "bower": "^1.7.9",
     "clean-css": "^3.4.18",
     "nib": "^1.1.0",
     "stylus": "^0.54.5",
     "uglify-js": "^2.7.0",
-    "browserify": "11.0.0",    
+    "browserify": "11.0.0",
     "watchify": "^3.7.0",
     "globify": "^1.2.2",
     "concurrently": "^2.0.0",
