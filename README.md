@@ -107,6 +107,7 @@ You can also provide an `options` object. The following invokation is an example
 zwoosh(element, {
   gridX: 1,
   gridY: 1,
+  gridShow: false,
   elasticEdges: {
     left: false,
     right: false,
