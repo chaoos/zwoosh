@@ -1,4 +1,6 @@
 [![Travis CI][8]][9]
+[![npm](https://img.shields.io/npm/v/zwoosh.svg?maxAge=2592000)](https://www.npmjs.com/package/zwoosh)
+[![npm](https://img.shields.io/npm/l/zwoosh.svg?maxAge=2592000)](https://opensource.org/licenses/MIT)
 
 # Zwoosh
 
