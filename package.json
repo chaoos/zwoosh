@@ -50,7 +50,7 @@
   "dependencies": {},
   "devDependencies": {
     "bower": "^1.7.9",
-    "clean-css": "^3.4.18",
+    "clean-css": ">=4.1.11",
     "nib": "^1.1.0",
     "stylus": "^0.54.5",
     "uglify-js": "^2.7.0",
